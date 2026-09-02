@@ -1,0 +1,32 @@
+<!doctype html><html lang=en><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>LLM benchmark analysis</title><style>
+*{box-sizing:border-box}
+body{background:#FBFAF6;color:#1A1A1A;margin:0;padding:64px 24px 96px;
+     font:16px/1.6 Georgia,'DejaVu Serif',serif}
+main{max-width:56rem;margin:0 auto}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:28px}
+.tabs span{font:11px/1 'DejaVu Sans Mono',monospace;letter-spacing:.08em;padding:7px 10px;
+           background:#E9EEE7;color:#1A1A1A;font-weight:700}
+.tabs span.off{background:transparent;color:#8A8A8A;font-weight:400}
+h1{font-size:2rem;margin:0 0 6px;letter-spacing:-.01em}
+.lede{color:#6A6A6A;margin:0 0 8px;max-width:44rem}
+.stamp{font:11px 'DejaVu Sans Mono',monospace;color:#6A6A6A;letter-spacing:.08em;margin-bottom:40px}
+.card{border-top:1px solid #E3E1D8;padding:26px 0}
+.card h2{font-size:1.25rem;margin:0 0 4px}
+.card h2 a{color:#1A1A1A;text-decoration:none}
+.card h2 a:hover{text-decoration:underline}
+.stack{font:12px 'DejaVu Sans Mono',monospace;color:#6A6A6A;margin:0 0 14px}
+.facts{display:flex;flex-wrap:wrap;gap:0 26px;font:12px 'DejaVu Sans Mono',monospace;
+        color:#6A6A6A;margin:0 0 16px}
+.facts b{color:#1A1A1A;font-weight:700}
+table{border-collapse:collapse;width:100%;font:13px/1.45 'DejaVu Sans Mono',monospace}
+th,td{text-align:left;padding:6px 10px;border-bottom:1px solid #E3E1D8;vertical-align:top}
+th{font-size:11px;letter-spacing:.06em;color:#6A6A6A;font-weight:400;text-transform:uppercase}
+td.role{color:#6A6A6A}
+td b{font-weight:700}
+.tag{font-size:11px;color:#6A6A6A}
+.links{margin-top:14px;font:12px 'DejaVu Sans Mono',monospace}
+.links a{color:#1A1A1A;margin-right:18px}
+footer{border-top:1px solid #E3E1D8;margin-top:40px;padding-top:22px;
+        font:12px/1.7 'DejaVu Sans Mono',monospace;color:#6A6A6A}
+footer b{color:#1A1A1A}
+</style><main><div class="tabs"><span class="">REPORTS</span><span class="off">ARTIFICIAL-ANALYSIS</span><span class="off">VALS-AI</span><span class="off">DEEPSWE</span></div><h1>LLM benchmark analysis</h1><p class="lede">Model shortlists for a technology stack, built from ten public leaderboards rather than vendor claims. Each report derives its own weighted role indexes from the work that stack involves, and every number in it comes out of the scoring engine.</p><p class="stamp">2 REPORTS &middot; NEWEST DATA 20260906</p><section class="card"><h2><a href="reports/20260906-erp-oracle-apex/erp-oracle-apex-model-shortlist.html">ERP / Oracle APEX model shortlist</a></h2><p class="stack">Oracle APEX, Oracle DB, JS, HTML/CSS, ERP</p><div class="facts"><span>data <b>20260906</b></span><span>sources <b>3</b></span><span>roles <b>3</b></span><span>models <b>14</b></span><span>metrics <b>14</b></span></div><table><tr><th>role</th><th>best model</th><th>cheap alternative</th></tr><tr><td class="role">Overall</td><td><b>Claude Fable 5.1 (Max)</b> <span class="tag">66.02</span></td><td><b>Grok 4.6 (xhigh)</b> <span class="tag">66, 6.7x cheaper</span></td></tr><tr><td class="role">Batch migration</td><td><b>GPT-6 Astra (high)</b> <span class="tag">68.04</span></td><td><b>Grok 4.6 (xhigh)</b> <span class="tag">63.46, 6.7x cheaper</span></td></tr><tr><td class="role">Interactive edit loop</td><td><b>GLM-5.3-Flash</b> <span class="tag">69.15</span></td><td><span class="tag">none qualifies</span></td></tr><tr><td class="role">Quality only</td><td><b>Grok 4.6 (xhigh)</b> <span class="tag">69.04</span></td><td><b>GLM-5.3-Flash</b> <span class="tag">65.76, 12.6x cheaper</span></td></tr></table><div class="links"><a href="reports/20260906-erp-oracle-apex/erp-oracle-apex-model-shortlist.html">report</a><a href="reports/20260906-erp-oracle-apex/erp-oracle-apex-model-shortlist.md">markdown</a><a href="reports/20260906-erp-oracle-apex/results.json">results.json</a><a href="reports/20260906-erp-oracle-apex/profile.json">profile.json</a></div></section><section class="card"><h2><a href="reports/20260902/erp-oracle-apex-model-shortlist.html">ERP / Oracle APEX model shortlist</a></h2><p class="stack">Oracle APEX, Oracle DB, JS, HTML/CSS, ERP</p><div class="facts"><span>data <b>20260904</b></span><span>sources <b>3</b></span><span>roles <b>3</b></span><span>models <b>14</b></span><span>metrics <b>12</b></span></div><table><tr><th>role</th><th>best model</th><th>cheap alternative</th></tr><tr><td class="role">Overall</td><td><b>Grok 4.6 (xhigh)</b> <span class="tag">66.1</span></td><td><b>GLM-5.3-Flash</b> <span class="tag">62.68, 12.6x cheaper</span></td></tr><tr><td class="role">Batch migration</td><td><b>GPT-6 Astra (high)</b> <span class="tag">66.37</span></td><td><b>Grok 4.6 (xhigh)</b> <span class="tag">62.6, 6.7x cheaper</span></td></tr><tr><td class="role">Interactive edit loop</td><td><b>GLM-5.3-Flash</b> <span class="tag">70.28</span></td><td><span class="tag">none qualifies</span></td></tr><tr><td class="role">Quality only</td><td><b>Grok 4.6 (xhigh)</b> <span class="tag">70.12</span></td><td><b>GLM-5.3-Flash</b> <span class="tag">67.77, 12.6x cheaper</span></td></tr></table><div class="links"><a href="reports/20260902/erp-oracle-apex-model-shortlist.html">report</a><a href="reports/20260902/erp-oracle-apex-model-shortlist.md">markdown</a><a href="reports/20260902/results.json">results.json</a><a href="reports/20260902/profile.json">profile.json</a></div></section><footer><b>Sources.</b> artificial-analysis, vals-ai, deepswe, livebench, lmarena, terminal-bench, arc-prize, epoch-ai, design-arena, benchlm.<br><b>Method.</b> A model missing a benchmark is excluded from that index, never imputed, so an empty cell means the leaderboard has no row for it. Price and latency are scored relative to the candidate set, not on an absolute scale.<br><b>Rebuild.</b> python pipeline/build_index.py</footer></main></html>

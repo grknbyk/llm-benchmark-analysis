@@ -1,0 +1,51 @@
+{
+  "source_url": "https://www.tbench.ai/",
+  "scraped_at": "2026-09-02T19:14:31.969Z",
+  "benchmarks_captured": [
+    {
+      "version": "4.0",
+      "title": "Terminal-Bench 4.0",
+      "package": "terminal-bench/terminal-bench",
+      "leaderboard_name": "4-0-0",
+      "rows": 10,
+      "source_url": "https://www.tbench.ai/"
+    },
+    {
+      "version": "3.0",
+      "title": "Terminal-Bench 3.0",
+      "package": "terminal-bench/terminal-bench",
+      "leaderboard_name": "3-0-0",
+      "rows": 12,
+      "source_url": "https://www.tbench.ai/?version=3.0"
+    },
+    {
+      "version": "2.1",
+      "title": "Terminal-Bench 2.1",
+      "package": "terminal-bench/terminal-bench-2-1",
+      "leaderboard_name": "main",
+      "rows": 17,
+      "source_url": "https://www.tbench.ai/?version=2.1"
+    },
+    {
+      "version": "2.0",
+      "title": "Terminal-Bench 2.0",
+      "package": "terminal-bench/terminal-bench-2",
+      "leaderboard_name": "2-0",
+      "rows": 142,
+      "source_url": "https://www.tbench.ai/?version=2.0"
+    }
+  ],
+  "row_count": 181,
+  "extraction_method": "chrome-devtools MCP: observed the POST XHR to the Supabase edge function https://ofhuhcpkvzjlejydnvyd.supabase.co/functions/v1/leaderboard-read on https://www.tbench.ai/, enumerated the four version options in the page's Benchmark combobox by clicking each one while recording the outgoing request bodies, then re-issued each POST from the page context (same origin, no auth required) and saved the JSON responses verbatim as raw.json. normalized.json is derived from raw.json by a local Node script (_normalize.js).",
+  "notes": [
+    "No CSV/JSON static asset exists; all leaderboard data comes from the leaderboard-read edge function. Payloads were saved verbatim, not DOM-scraped.",
+    "The site's Benchmark selector offers exactly four versions: 4.0, 3.0, 2.1, 2.0. Terminal-Bench 1.0 is listed on /benchmarks as a released dataset but has no leaderboard: /leaderboard/terminal-bench/1.0 redirects to the unversioned home page and the edge function returns not_found for every 1.0 name/package combination tried.",
+    "Terminal-Bench Challenges and Terminal-Bench Science are separate datasets listed on /benchmarks; neither appears in the leaderboard selector on tbench.ai (Science has its own site) and neither was captured.",
+    "Agent/harness is a first-class field (metadata.agent_display) and is kept separate from the model name. reasoning_effort is also kept separate.",
+    "Metric is the leaderboard 'accuracy' field, displayed on the site as RESOLUTION RATE, in percent (0-100). score_ci95_half_width is the +/- 95% CI half width in percentage points.",
+    "context_window is not published by this site, so the field is omitted from every record.",
+    "cost_usd / total_tokens are the total across all trials for that run, as published. Terminal-Bench 2.0 rows publish accuracy only, so cost, tokens and trial counts are omitted for them; n_trials is reported as 0 there and was treated as not-provided rather than a real zero.",
+    "Verified via the browser only; no curl fallback was needed. The 4.0 payload re-fetched from the page (15123 bytes) matches the byte length of the response the browser itself made on page load (reqid 39).",
+    "Rank values come from the source payload and contain ties (e.g. two rank-9 rows in 4.0)."
+  ]
+}

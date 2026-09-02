@@ -1,0 +1,54 @@
+{
+  "source_url": "https://livebench.ai/#/",
+  "scraped_at": "2026-09-06T15:44:42.014Z",
+  "release": "LiveBench-2026-06-25",
+  "benchmarks_captured": [
+    "Overall",
+    "Reasoning",
+    "Coding",
+    "Agentic Coding",
+    "Mathematics",
+    "Data Analysis",
+    "Language",
+    "Instruction Following"
+  ],
+  "row_count": 424,
+  "model_count": 53,
+  "extraction_method": "network-csv/json + DOM leaderboard",
+  "files": {
+    "raw.json": "Verbatim bodies of the three data files the site fetches (table CSV, categories JSON, cost CSV), keyed by filename-with-cachebuster, plus the full DOM leaderboard extraction: headers, toggle log, every row's cells and model cell text.",
+    "table_2026_06_25.csv": "Verbatim source: per-model, per-subtask scores (23 subtask columns). Model ids are API ids, not display names. Folded into raw.json, not persisted separately, and NOT expanded into normalized.json.",
+    "categories_2026_06_25.json": "Verbatim source: mapping of the 7 categories to their subtasks. Keys are Reasoning, Coding, Agentic Coding, Mathematics, Data Analysis, Language and 'IF' (the matching DOM column header is 'INSTRUCTION FOLLOWING'). Folded into raw.json.",
+    "cost_2026_06_25.csv": "Verbatim source: per-model, per-subtask cost columns plus nq_* (question counts), out_* (output tokens) and the model-level pricing fields. Folded into raw.json; only the model-level fields are lifted into normalized.json.",
+    "normalized.json": "One record per model per metric: 53 models x 8 metrics = 424 records."
+  },
+  "fields_added_vs_20260904": [
+    "model_id - the site's API model id (e.g. 'grok-4.6'), joined from the CSVs so records can be matched across scrapes without relying on display names.",
+    "cost_per_question_usd - cost_per_question from the cost CSV: cost per question attempted, as opposed to cost_usd which is per SUCCESSFUL task.",
+    "avg_input_tokens - avg_input_tokens from the cost CSV.",
+    "avg_output_tokens - avg_output_tokens from the cost CSV.",
+    "input_price_per_million_usd - input_price_per_million from the cost CSV, the published list price the site's cost model uses.",
+    "output_price_per_million_usd - output_price_per_million from the cost CSV.",
+    "is_finetune - now present on EVERY record; in 20260904 it was set only on the finetune rows.",
+    "rank_in_metric - rank within each metric, 1 = best, derived by this scrape by sorting each metric descending. The site publishes no per-category rank, so this is computed, not scraped. The original 'rank' field is retained unchanged on Overall records for schema compatibility and equals rank_in_metric there."
+  ],
+  "notes": [
+    "Data endpoints discovered via performance resource entries: livebench.ai/table_2026_06_25.csv, categories_2026_06_25.json and cost_2026_06_25.csv, all at ?v=1788705252. That cache-busting version is newer than the ?v=1788445256 seen on 20260904, but the release date is unchanged.",
+    "The release selector still offers only two options, '2024-06-24 - v1' and '2026-06-25 - latest', and the page states 'Showing LiveBench-2026-06-25 - the latest release'. No newer release string than LiveBench-2026-06-25 exists as of this scrape.",
+    "The rendered leaderboard aggregates the subtask CSV into the 7 categories plus Overall; those aggregates were read from the DOM, so normalized.json is DOM-derived while raw.json is the untouched network source.",
+    "51 models are shown by default; the 'Include finetunes' toggle adds 2 more, for 53 total. All 53 are included.",
+    "FINETUNE FLAG: this scrape derived it structurally rather than by matching the previous scrape. The model list was captured with the toggle off, the 'Include finetunes' button was clicked, and the list was captured again; the set difference is exactly {Smaug-Agentic, Smaug-Mini}. That is a real derivation from the site's own filter, not the name-matching fallback used before. The DOM still exposes no per-row finetune CSS class or data attribute: every row's attributes and the model cell's child spans were dumped into raw.json and carry no such marker.",
+    "CSV vs DOM MODEL COUNT MISMATCH: both the table CSV and the cost CSV contain 55 model ids, while the leaderboard renders 53 rows even with finetunes enabled. The two CSV-only ids are 'deepseek-v4-flash' and 'deepseek-v4-pro'. They have no rendered row and therefore no site-aggregated category scores, so they were NOT invented into normalized.json. Their raw subtask rows are preserved verbatim in raw.json.",
+    "Model id to display name mapping: 49 pairs were read directly off the site's own radar-chart '+ Add model...' select element, whose option values are API ids and whose option text is the display name. The 4 remaining DOM names (Claude Fable 5.1 Max Effort, Claude Fable 5 Max Effort, Smaug-Agentic, Smaug-Mini) map unambiguously to the 4 leftover CSV ids. The mapping was then verified by comparing each model's DOM 'COST PER SUCCESSFUL TASK' against cost_per_successful_task in the cost CSV: all 53 agree, median relative difference 0.17%, worst case 2.69% (Claude Fable 5 Max Effort, DOM $1.439 vs CSV $1.4777). The residual differences are the site's own rounding and aggregation, not a bad join.",
+    "cost_usd is the site's model-level 'COST PER SUCCESSFUL TASK' in USD, taken from the DOM as in previous scrapes. It is not per-category; it is repeated on every record of a model. The CSV-sourced cost_per_question_usd is a different, lower number (cost per question attempted) and is not a substitute for it.",
+    "'Show org' was enabled to obtain the provider column.",
+    "open_weights is read from the 'open' badge rendered inside the model name cell. 17 models are open-weights this scrape, up from 16; the new one is the Smaug-Mini finetune.",
+    "date is the LiveBench release date the scores belong to (2026-06-25), not a model release date.",
+    "context_window is not published by LiveBench and is omitted.",
+    "Per-subtask scores and per-subtask costs are preserved verbatim in the raw CSVs inside raw.json and are deliberately not expanded into normalized.json.",
+    "'GPT-6 Astra Max Effort' is new on the site since 20260904 (org OpenAI, open_weights false, model id gpt-6-astra-max): Overall 82.2, Reasoning 92.7, Coding 80.4, Agentic Coding 57.3, Mathematics 96.8, Data Analysis 83.0, Language 89.4, Instruction Following 75.6, cost_usd 0.736. It enters at rank 3 overall.",
+    "'Smaug-Mini' is new since 20260904 (org Abacus.AI, open_weights true, finetune, model id smaug-mini): Overall 76.9, Reasoning 82.8, Coding 75.4, Agentic Coding 60.8, Mathematics 89.7, Data Analysis 78.8, Language 77.0, Instruction Following 73.9, cost_usd 0.099.",
+    "Spot-check rows for this scrape, Coding / Agentic Coding: Grok 4.6 76.8 / 57.0; GPT-6 Astra Max Effort 80.4 / 57.3; Gemini 3.8 Flash High 72.5 / 54.2; GLM-5.3 Flash 79.0 / 56.8; Claude 5 Opus Thinking Max Effort 81.4 / 65.2; Claude Fable 5.1 Max Effort 86.4 / 66.1. The site lists no variant of these names without an effort or tier suffix: there is no bare 'GPT-6 Astra', 'Gemini 3.8 Flash' or 'Claude Opus 5' row, and the rows named here are the only ones matching those models."
+  ],
+  "changes_vs_20260904": "Model count grew from 51 to 53 and record count from 408 to 424. Two models were added and none were removed. The added models are 'GPT-6 Astra Max Effort' (OpenAI, not open-weights, Overall 82.2, entering at rank 3 behind only the two Claude Fable 5.x entries) and 'Smaug-Mini' (Abacus.AI, open-weights, the second finetune alongside Smaug-Agentic, Overall 76.9). The finetune roster therefore grew from 1 to 2 and open-weights models from 16 to 17. Every one of the 408 model+metric pairs shared with 20260904 is identical in both score and cost_usd: zero score changes and zero cost changes, so the underlying numbers of this release did not move, only the roster grew. The release string is unchanged at LiveBench-2026-06-25 and the release selector still offers no newer option; only the endpoint cache-buster advanced, from ?v=1788445256 to ?v=1788705252. This scrape also goes deeper than 20260904: it adds model_id, cost_per_question_usd, avg_input_tokens, avg_output_tokens, input_price_per_million_usd, output_price_per_million_usd and rank_in_metric to every record, sets is_finetune on every record rather than only on finetunes, derives the finetune flag structurally from the site's own toggle instead of by name-matching the previous scrape, and records the previously unreported fact that the CSVs carry 55 model ids while the leaderboard renders only 53."
+}

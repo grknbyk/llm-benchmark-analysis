@@ -1,0 +1,259 @@
+{
+  "stack": "Oracle APEX, Oracle DB, JS, HTML/CSS, ERP",
+  "slug": "erp-oracle-apex",
+  "data": "benchmark-data/20260906",
+  "title": "ERP / Oracle APEX model shortlist",
+  "stamp": "ERP / APEX INDEX  •  SEP 06, 2026",
+  "out": "reports/20260906-erp-oracle-apex",
+  "report": "erp-oracle-apex-model-shortlist.md",
+  "scoring_sources": [
+    "artificial-analysis",
+    "vals-ai",
+    "deepswe"
+  ],
+  "metrics": {
+    "coding": {
+      "site": "artificial-analysis",
+      "benchmark": "Artificial Analysis Coding Index",
+      "metric": "score",
+      "plain": "How good it is at writing code."
+    },
+    "agentic": {
+      "site": "artificial-analysis",
+      "benchmark": "Artificial Analysis Agentic Index",
+      "metric": "score",
+      "plain": "How well it works through a multi-step job using tools."
+    },
+    "lcr": {
+      "site": "artificial-analysis",
+      "benchmark": "AA-LCR",
+      "metric": "score",
+      "scale": 100,
+      "plain": "How well it keeps track of a very long document."
+    },
+    "nh": {
+      "site": "artificial-analysis",
+      "benchmark": "AA-Omniscience Non-Hallucination Rate",
+      "metric": "score",
+      "scale": 100,
+      "plain": "How often it admits it does not know instead of inventing an answer."
+    },
+    "acc": {
+      "site": "artificial-analysis",
+      "benchmark": "AA-Omniscience Accuracy",
+      "metric": "score",
+      "scale": 100,
+      "plain": "How often its answer is simply right."
+    },
+    "code_mig": {
+      "site": "vals-ai",
+      "benchmark": "Code Migration",
+      "metric": "accuracy",
+      "stderr": true,
+      "plain": "How well it rewrites an old program in another language."
+    },
+    "corpfin": {
+      "site": "vals-ai",
+      "benchmark": "CorpFin v2",
+      "metric": "accuracy",
+      "stderr": true,
+      "plain": "How well it answers questions about long contracts."
+    },
+    "pass1": {
+      "site": "deepswe",
+      "benchmark": "DeepSWE v1.1",
+      "metric": "pass@1",
+      "unit": "%",
+      "plain": "How often it fixes a real bug on the first try."
+    },
+    "task_cost": {
+      "site": "deepswe",
+      "field": "cost_usd",
+      "unit": "$/task",
+      "better": "low",
+      "plain": "What one finished task costs, in dollars.",
+      "label": "DeepSWE cost per task",
+      "benchmark": "DeepSWE v1.1",
+      "metric": "pass@1"
+    },
+    "price": {
+      "site": "artificial-analysis",
+      "metric": "blended_price_per_1m_usd_3to1",
+      "unit": "$/1M",
+      "plain": "What a million tokens costs.",
+      "label": "Blended price per 1M tokens, 3:1 input to output"
+    },
+    "e2e": {
+      "site": "artificial-analysis",
+      "metric": "end_to_end_response_time_median_seconds",
+      "unit": "s",
+      "plain": "Seconds until the whole answer is there.",
+      "label": "End-to-end response time, median"
+    },
+    "ttft": {
+      "site": "artificial-analysis",
+      "metric": "time_to_first_token_median_seconds",
+      "unit": "s",
+      "better": "low",
+      "plain": "Seconds until the first word appears.",
+      "label": "Time to first token, median"
+    },
+    "steps": {
+      "site": "deepswe",
+      "field": "median_agent_steps",
+      "unit": "steps",
+      "better": "low",
+      "plain": "How many turns it needs to finish one task.",
+      "label": "DeepSWE agent turns per task",
+      "benchmark": "DeepSWE v1.1",
+      "metric": "pass@1"
+    },
+    "dur": {
+      "site": "deepswe",
+      "field": "mean_duration_seconds",
+      "unit": "s",
+      "better": "low",
+      "plain": "How long one task runs, in seconds.",
+      "label": "DeepSWE task duration",
+      "benchmark": "DeepSWE v1.1",
+      "metric": "pass@1"
+    }
+  },
+  "roles": [
+    {
+      "name": "Batch migration",
+      "slug": "batch",
+      "note": "Long unattended runs converting Forms and PL/SQL. Code Migration is the closest public proxy.",
+      "weights": {
+        "code_mig": 0.25,
+        "pass1": 0.2,
+        "coding": 0.2,
+        "agentic": 0.15,
+        "lcr": 0.1,
+        "nh": 0.1
+      }
+    },
+    {
+      "name": "Interactive edit loop",
+      "slug": "interactive",
+      "note": "Page-edit turnaround, where waiting costs a developer more than tokens do.",
+      "weights": {
+        "coding": 0.3,
+        "agentic": 0.2,
+        "nh": 0.2,
+        "e2e": 0.15,
+        "price": 0.15
+      },
+      "transforms": {
+        "e2e": "inverse_log_minmax",
+        "price": "inverse_log_minmax"
+      }
+    },
+    {
+      "name": "Quality only",
+      "slug": "quality",
+      "note": "Model quality with cost and speed removed, for work where correctness dominates.",
+      "weights": {
+        "coding": 0.4,
+        "agentic": 0.3,
+        "nh": 0.3
+      }
+    }
+  ],
+  "overall": {
+    "coding": 0.3,
+    "agentic": 0.25,
+    "lcr": 0.15,
+    "nh": 0.15,
+    "acc": 0.15
+  },
+  "cheap_alternative": {
+    "max_points_behind": 5.0,
+    "min_price_ratio": 3.0
+  },
+  "gaps": [
+    "Claude Fable 5.1 has no DeepSWE row. The site lists only claude-fable-5, a different model, so pass@1 and cost per task are empty rather than borrowed.",
+    "Muse Spark 1.3 and Qwen3.8 2.4T A95B carry no Code Migration row, so neither gets a batch score.",
+    "CorpFin v2 covers 134 models and excludes GPT-6 Astra, Muse Spark 1.3, Gemini 3.8 Flash, GLM-5.3-Flash and Claude Fable 5.1. It feeds no role index and is reported as context only.",
+    "Artificial Analysis Agentic Index coverage fell from 197 models to 119 between the 20260904 and 20260906 scrapes, which moved agentic scores across the whole candidate set."
+  ],
+  "scatters": [
+    {
+      "title": "Cost per task against DeepSWE pass@1",
+      "x": "task_cost",
+      "y": "pass1",
+      "size": "dur",
+      "log_x": true,
+      "task_cost_label": "cost per task",
+      "pass1_label": "DeepSWE pass@1",
+      "dur_label": "task duration"
+    },
+    {
+      "title": "Price against the coding index",
+      "x": "price",
+      "y": "coding",
+      "size": "e2e",
+      "log_x": true,
+      "price_label": "blended price",
+      "coding_label": "coding index",
+      "e2e_label": "response time"
+    },
+    {
+      "title": "Agent turns against DeepSWE pass@1",
+      "x": "steps",
+      "y": "pass1",
+      "size": "task_cost",
+      "steps_label": "agent turns",
+      "pass1_label": "DeepSWE pass@1",
+      "task_cost_label": "cost per task"
+    }
+  ],
+  "full_width": [
+    "Indexes and picks"
+  ],
+  "language": "en",
+  "glossary": {
+    "TTFT": "Time to first token: seconds from sending the request until the first output token arrives. For Anthropic and OpenAI models this includes hidden reasoning time.",
+    "E2E": "End-to-end response time: median seconds from request to complete answer (Artificial Analysis).",
+    "AA-LCR": "Artificial Analysis Long Context Reasoning, 0-1. Proxy for handling large schemas and long packages.",
+    "Code Migration": "Vals AI benchmark: reimplement real programs in another language (CLI, COBOL, code quality subtasks). Private set, 0-100, published with stderr.",
+    "Code Mig.": "Vals AI Code Migration benchmark, 0-100.",
+    "CorpFin v2": "Vals AI benchmark: reasoning over long corporate credit agreements. 0-100, with stderr.",
+    "Non-halluc": "AA-Omniscience non-hallucination rate, 0-1: share of unknown questions where the model declines instead of inventing an answer.",
+    "non-hallucination": "AA-Omniscience non-hallucination rate, 0-1: share of unknown questions where the model declines instead of inventing an answer.",
+    "acc": "AA-Omniscience accuracy, 0-1: share of questions answered correctly. Read together with non-hallucination: high refusal plus low accuracy means the model abstains rather than knows.",
+    "Coding": "Artificial Analysis Coding Index, 0-100.",
+    "Agentic": "Artificial Analysis Agentic Index, 0-100: multi-step, tool-using tasks.",
+    "$/1M": "Artificial Analysis blended price per 1M tokens at a 3:1 input:output ratio.",
+    "$/task": "DeepSWE v1.1 mean USD per completed task, thinking tokens included.",
+    "DeepSWE": "Datacurve's long-horizon software engineering benchmark: 113 tasks across 91 repositories, every model run under the mini-swe-agent scaffold.",
+    "mini-swe-agent": "The single agent scaffold DeepSWE uses for every model.",
+    "IFBench": "Instruction-following benchmark reported by Artificial Analysis, 0-1.",
+    "Intelligence Index": "Artificial Analysis composite of knowledge, reasoning, coding and agentic evals, 0-100.",
+    "Vals": "Vals AI, independent benchmark publisher (vals.ai).",
+    "Artificial Analysis": "Independent model benchmark and pricing tracker (artificialanalysis.ai).",
+    "max effort": "Reasoning effort setting on Artificial Analysis. Higher effort spends more thinking tokens; per-token price stays flat, cost per task does not.",
+    "xhigh": "Reasoning effort one step below max, as Artificial Analysis names it."
+  },
+  "candidates": {
+    "top_n": 14
+  },
+  "name_strip": [
+    [
+      "(Adaptive Reasoning, ",
+      "("
+    ],
+    [
+      ", Default Fallback",
+      ""
+    ],
+    [
+      " Effort",
+      ""
+    ],
+    [
+      "Artificial Analysis ",
+      ""
+    ]
+  ]
+}

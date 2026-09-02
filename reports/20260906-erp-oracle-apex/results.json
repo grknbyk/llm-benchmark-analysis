@@ -1,0 +1,872 @@
+{
+  "stack": "Oracle APEX, Oracle DB, JS, HTML/CSS, ERP",
+  "data": "benchmark-data/20260906",
+  "generated_from": "reports/20260906-erp-oracle-apex/profile.json",
+  "join": {
+    "Claude Fable 5.1 (Max)": {
+      "vals-ai": null,
+      "deepswe": null
+    },
+    "Grok 4.6 (xhigh)": {
+      "vals-ai": "grok46",
+      "deepswe": "grok46"
+    },
+    "Muse Spark 1.3 (max)": {
+      "vals-ai": "musespark13",
+      "deepswe": null
+    },
+    "GPT-6 Astra (high)": {
+      "vals-ai": "gpt6astra",
+      "deepswe": "gpt6astra"
+    },
+    "Claude Opus 5 (Max)": {
+      "vals-ai": null,
+      "deepswe": null
+    },
+    "GLM-5.3 (max)": {
+      "vals-ai": "glm53",
+      "deepswe": "glm53"
+    },
+    "Claude Fable 5 (Max, Opus 4.8 Fallback)": {
+      "vals-ai": null,
+      "deepswe": null
+    },
+    "Kimi K3 (max)": {
+      "vals-ai": "kimik3",
+      "deepswe": "kimik3"
+    },
+    "Muse Spark 1.2 (xhigh)": {
+      "vals-ai": "musespark12",
+      "deepswe": "musespark12"
+    },
+    "GLM-5.3-Flash": {
+      "vals-ai": "glm53flash",
+      "deepswe": "glm53flash"
+    },
+    "Claude Opus 4.8 (Max)": {
+      "vals-ai": null,
+      "deepswe": null
+    },
+    "Gemini 3.8 Flash (high)": {
+      "vals-ai": "gemini38flash",
+      "deepswe": "gemini38flash"
+    },
+    "Qwen3.8 2.4T A95B": {
+      "vals-ai": null,
+      "deepswe": null
+    },
+    "Claude Sonnet 5 (Max)": {
+      "vals-ai": null,
+      "deepswe": null
+    }
+  },
+  "columns": [
+    {
+      "name": "coding",
+      "site": "artificial-analysis",
+      "unit": "",
+      "better": "high",
+      "plain": "How good it is at writing code.",
+      "label": "Artificial Analysis Coding Index"
+    },
+    {
+      "name": "agentic",
+      "site": "artificial-analysis",
+      "unit": "",
+      "better": "high",
+      "plain": "How well it works through a multi-step job using tools.",
+      "label": "Artificial Analysis Agentic Index"
+    },
+    {
+      "name": "lcr",
+      "site": "artificial-analysis",
+      "unit": "",
+      "better": "high",
+      "plain": "How well it keeps track of a very long document.",
+      "label": "AA-LCR"
+    },
+    {
+      "name": "nh",
+      "site": "artificial-analysis",
+      "unit": "",
+      "better": "high",
+      "plain": "How often it admits it does not know instead of inventing an answer.",
+      "label": "AA-Omniscience Non-Hallucination Rate"
+    },
+    {
+      "name": "acc",
+      "site": "artificial-analysis",
+      "unit": "",
+      "better": "high",
+      "plain": "How often its answer is simply right.",
+      "label": "AA-Omniscience Accuracy"
+    },
+    {
+      "name": "price",
+      "site": "artificial-analysis",
+      "unit": "$/1M",
+      "better": "low",
+      "plain": "What a million tokens costs.",
+      "label": "Blended price per 1M tokens, 3:1 input to output"
+    },
+    {
+      "name": "e2e",
+      "site": "artificial-analysis",
+      "unit": "s",
+      "better": "low",
+      "plain": "Seconds until the whole answer is there.",
+      "label": "End-to-end response time, median"
+    },
+    {
+      "name": "ttft",
+      "site": "artificial-analysis",
+      "unit": "s",
+      "better": "low",
+      "plain": "Seconds until the first word appears.",
+      "label": "Time to first token, median"
+    },
+    {
+      "name": "code_mig",
+      "site": "vals-ai",
+      "unit": "",
+      "better": "high",
+      "plain": "How well it rewrites an old program in another language.",
+      "label": "Code Migration"
+    },
+    {
+      "name": "corpfin",
+      "site": "vals-ai",
+      "unit": "",
+      "better": "high",
+      "plain": "How well it answers questions about long contracts.",
+      "label": "CorpFin v2"
+    },
+    {
+      "name": "pass1",
+      "site": "deepswe",
+      "unit": "%",
+      "better": "high",
+      "plain": "How often it fixes a real bug on the first try.",
+      "label": "DeepSWE v1.1"
+    },
+    {
+      "name": "task_cost",
+      "site": "deepswe",
+      "unit": "$/task",
+      "better": "low",
+      "plain": "What one finished task costs, in dollars.",
+      "label": "DeepSWE cost per task"
+    },
+    {
+      "name": "steps",
+      "site": "deepswe",
+      "unit": "steps",
+      "better": "low",
+      "plain": "How many turns it needs to finish one task.",
+      "label": "DeepSWE agent turns per task"
+    },
+    {
+      "name": "dur",
+      "site": "deepswe",
+      "unit": "s",
+      "better": "low",
+      "plain": "How long one task runs, in seconds.",
+      "label": "DeepSWE task duration"
+    },
+    {
+      "name": "batch",
+      "site": "index",
+      "unit": "",
+      "better": "high",
+      "plain": "Weighted score in the metrics' own units, higher is better: 0.25*code_mig + 0.2*pass1 + 0.2*coding + 0.15*agentic + 0.1*lcr + 0.1*nh",
+      "label": "Batch migration"
+    },
+    {
+      "name": "interactive",
+      "site": "index",
+      "unit": "",
+      "better": "high",
+      "plain": "Weighted score in the metrics' own units, higher is better: 0.3*coding + 0.2*agentic + 0.2*nh + 0.15*e2e [inverse_log_minmax] + 0.15*price [inverse_log_minmax]",
+      "label": "Interactive edit loop"
+    },
+    {
+      "name": "quality",
+      "site": "index",
+      "unit": "",
+      "better": "high",
+      "plain": "Weighted score in the metrics' own units, higher is better: 0.4*coding + 0.3*agentic + 0.3*nh",
+      "label": "Quality only"
+    },
+    {
+      "name": "overall",
+      "site": "index",
+      "unit": "",
+      "better": "high",
+      "plain": "Weighted score in the metrics' own units, higher is better: 0.3*coding + 0.25*agentic + 0.15*lcr + 0.15*nh + 0.15*acc",
+      "label": "Overall weighted index"
+    }
+  ],
+  "benchmarks": {
+    "coding": {
+      "source": "artificial-analysis / Artificial Analysis Coding Index / score",
+      "unit": "",
+      "scale": 1,
+      "values": {
+        "Claude Fable 5.1 (Max)": 81.6029,
+        "Grok 4.6 (xhigh)": 75.8834,
+        "Muse Spark 1.3 (max)": 76.2757,
+        "GPT-6 Astra (high)": 77.1319,
+        "Claude Opus 5 (Max)": 77.9828,
+        "GLM-5.3 (max)": 74.7572,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 76.4912,
+        "Kimi K3 (max)": 76.2393,
+        "Muse Spark 1.2 (xhigh)": 72.2218,
+        "GLM-5.3-Flash": 71.5347,
+        "Claude Opus 4.8 (Max)": 74.2535,
+        "Gemini 3.8 Flash (high)": 76.2896,
+        "Qwen3.8 2.4T A95B": 71.8884,
+        "Claude Sonnet 5 (Max)": 71.5456
+      }
+    },
+    "agentic": {
+      "source": "artificial-analysis / Artificial Analysis Agentic Index / score",
+      "unit": "",
+      "scale": 1,
+      "values": {
+        "Claude Fable 5.1 (Max)": 58.1551,
+        "Grok 4.6 (xhigh)": 52.9525,
+        "Muse Spark 1.3 (max)": 55.5749,
+        "GPT-6 Astra (high)": 48.8657,
+        "Claude Opus 5 (Max)": 56.4341,
+        "GLM-5.3 (max)": 53.6023,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 51.1786,
+        "Kimi K3 (max)": 50.8616,
+        "Muse Spark 1.2 (xhigh)": 44.2017,
+        "GLM-5.3-Flash": 51.461,
+        "Claude Opus 4.8 (Max)": 42.7999,
+        "Gemini 3.8 Flash (high)": 41.2297,
+        "Qwen3.8 2.4T A95B": 50.6846,
+        "Claude Sonnet 5 (Max)": 44.5258
+      }
+    },
+    "lcr": {
+      "source": "artificial-analysis / AA-LCR / score",
+      "unit": "",
+      "scale": 100,
+      "values": {
+        "Claude Fable 5.1 (Max)": 85.3333,
+        "Grok 4.6 (xhigh)": 81.0,
+        "Muse Spark 1.3 (max)": 84.3333,
+        "GPT-6 Astra (high)": 80.0,
+        "Claude Opus 5 (Max)": 79.3333,
+        "GLM-5.3 (max)": 79.6667,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 82.3333,
+        "Kimi K3 (max)": 88.6667,
+        "Muse Spark 1.2 (xhigh)": 79.0,
+        "GLM-5.3-Flash": 80.0,
+        "Claude Opus 4.8 (Max)": 77.6667,
+        "Gemini 3.8 Flash (high)": 81.3333,
+        "Qwen3.8 2.4T A95B": 80.3333,
+        "Claude Sonnet 5 (Max)": 82.0
+      }
+    },
+    "nh": {
+      "source": "artificial-analysis / AA-Omniscience Non-Hallucination Rate / score",
+      "unit": "",
+      "scale": 100,
+      "values": {
+        "Claude Fable 5.1 (Max)": 27.4161,
+        "Grok 4.6 (xhigh)": 75.9942,
+        "Muse Spark 1.3 (max)": 66.3501,
+        "GPT-6 Astra (high)": 55.2316,
+        "Claude Opus 5 (Max)": 39.1823,
+        "GLM-5.3 (max)": 70.446,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 36.3636,
+        "Kimi K3 (max)": 46.8045,
+        "Muse Spark 1.2 (xhigh)": 66.7074,
+        "GLM-5.3-Flash": 72.3678,
+        "Claude Opus 4.8 (Max)": 60.7492,
+        "Gemini 3.8 Flash (high)": 44.8238,
+        "Qwen3.8 2.4T A95B": 60.8242,
+        "Claude Sonnet 5 (Max)": 60.6339
+      }
+    },
+    "acc": {
+      "source": "artificial-analysis / AA-Omniscience Accuracy / score",
+      "unit": "",
+      "scale": 100,
+      "values": {
+        "Claude Fable 5.1 (Max)": 67.2333,
+        "Grok 4.6 (xhigh)": 43.0,
+        "Muse Spark 1.3 (max)": 43.8333,
+        "GPT-6 Astra (high)": 61.1333,
+        "Claude Opus 5 (Max)": 60.8667,
+        "GLM-5.3 (max)": 33.85,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 65.35,
+        "Kimi K3 (max)": 47.5833,
+        "Muse Spark 1.2 (xhigh)": 45.3833,
+        "GLM-5.3-Flash": 27.5,
+        "Claude Opus 4.8 (Max)": 48.8333,
+        "Gemini 3.8 Flash (high)": 54.6,
+        "Qwen3.8 2.4T A95B": 31.25,
+        "Claude Sonnet 5 (Max)": 40.05
+      }
+    },
+    "code_mig": {
+      "source": "vals-ai / Code Migration / accuracy",
+      "unit": "",
+      "scale": 1,
+      "values": {
+        "Claude Fable 5.1 (Max)": 54.607,
+        "Grok 4.6 (xhigh)": 44.572,
+        "Muse Spark 1.3 (max)": null,
+        "GPT-6 Astra (high)": 67.74,
+        "Claude Opus 5 (Max)": 57.473,
+        "GLM-5.3 (max)": 44.222,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 55.065,
+        "Kimi K3 (max)": 16.099,
+        "Muse Spark 1.2 (xhigh)": 29.954,
+        "GLM-5.3-Flash": 20.515,
+        "Claude Opus 4.8 (Max)": 47.25,
+        "Gemini 3.8 Flash (high)": 36.546,
+        "Qwen3.8 2.4T A95B": null,
+        "Claude Sonnet 5 (Max)": 44.392
+      }
+    },
+    "corpfin": {
+      "source": "vals-ai / CorpFin v2 / accuracy",
+      "unit": "",
+      "scale": 1,
+      "values": {
+        "Claude Fable 5.1 (Max)": null,
+        "Grok 4.6 (xhigh)": 66.161,
+        "Muse Spark 1.3 (max)": null,
+        "GPT-6 Astra (high)": null,
+        "Claude Opus 5 (Max)": 73.194,
+        "GLM-5.3 (max)": null,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 71.834,
+        "Kimi K3 (max)": 71.562,
+        "Muse Spark 1.2 (xhigh)": 70.94,
+        "GLM-5.3-Flash": null,
+        "Claude Opus 4.8 (Max)": 66.706,
+        "Gemini 3.8 Flash (high)": null,
+        "Qwen3.8 2.4T A95B": null,
+        "Claude Sonnet 5 (Max)": 66.977
+      }
+    },
+    "pass1": {
+      "source": "deepswe / DeepSWE v1.1 / pass@1",
+      "unit": "%",
+      "scale": 1,
+      "values": {
+        "Claude Fable 5.1 (Max)": null,
+        "Grok 4.6 (xhigh)": 67.4779,
+        "Muse Spark 1.3 (max)": null,
+        "GPT-6 Astra (high)": 74.115,
+        "Claude Opus 5 (Max)": 73.6486,
+        "GLM-5.3 (max)": 68.9579,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 69.9115,
+        "Kimi K3 (max)": 68.5144,
+        "Muse Spark 1.2 (xhigh)": 54.8673,
+        "GLM-5.3-Flash": 63.3929,
+        "Claude Opus 4.8 (Max)": 58.9744,
+        "Gemini 3.8 Flash (high)": 73.8255,
+        "Qwen3.8 2.4T A95B": null,
+        "Claude Sonnet 5 (Max)": 53.8462
+      }
+    },
+    "task_cost": {
+      "source": "deepswe / DeepSWE v1.1 / pass@1",
+      "unit": "$/task",
+      "scale": 1,
+      "values": {
+        "Claude Fable 5.1 (Max)": null,
+        "Grok 4.6 (xhigh)": 3.449,
+        "Muse Spark 1.3 (max)": null,
+        "GPT-6 Astra (high)": 6.5238,
+        "Claude Opus 5 (Max)": 11.8376,
+        "GLM-5.3 (max)": 3.9934,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 13.4145,
+        "Kimi K3 (max)": 4.6547,
+        "Muse Spark 1.2 (xhigh)": 3.6955,
+        "GLM-5.3-Flash": 0.241,
+        "Claude Opus 4.8 (Max)": 13.2226,
+        "Gemini 3.8 Flash (high)": 2.3623,
+        "Qwen3.8 2.4T A95B": null,
+        "Claude Sonnet 5 (Max)": 26.3999
+      }
+    },
+    "price": {
+      "source": "artificial-analysis / - / blended_price_per_1m_usd_3to1",
+      "unit": "$/1M",
+      "scale": 1,
+      "values": {
+        "Claude Fable 5.1 (Max)": 20.0,
+        "Grok 4.6 (xhigh)": 3.0,
+        "Muse Spark 1.3 (max)": 2.0,
+        "GPT-6 Astra (high)": 20.0,
+        "Claude Opus 5 (Max)": 10.0,
+        "GLM-5.3 (max)": 2.15,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 20.0,
+        "Kimi K3 (max)": 6.0,
+        "Muse Spark 1.2 (xhigh)": 2.0,
+        "GLM-5.3-Flash": 0.2375,
+        "Claude Opus 4.8 (Max)": 10.0,
+        "Gemini 3.8 Flash (high)": 1.5,
+        "Qwen3.8 2.4T A95B": 3.0,
+        "Claude Sonnet 5 (Max)": 4.0
+      }
+    },
+    "e2e": {
+      "source": "artificial-analysis / - / end_to_end_response_time_median_seconds",
+      "unit": "s",
+      "scale": 1,
+      "values": {
+        "Claude Fable 5.1 (Max)": 272.0057,
+        "Grok 4.6 (xhigh)": 65.9476,
+        "Muse Spark 1.3 (max)": 31.8381,
+        "GPT-6 Astra (high)": 102.7431,
+        "Claude Opus 5 (Max)": 70.7567,
+        "GLM-5.3 (max)": 30.9699,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 110.8975,
+        "Kimi K3 (max)": 63.6087,
+        "Muse Spark 1.2 (xhigh)": 22.2312,
+        "GLM-5.3-Flash": 53.073,
+        "Claude Opus 4.8 (Max)": 41.7915,
+        "Gemini 3.8 Flash (high)": 12.3417,
+        "Qwen3.8 2.4T A95B": 64.5719,
+        "Claude Sonnet 5 (Max)": 190.2738
+      }
+    },
+    "ttft": {
+      "source": "artificial-analysis / - / time_to_first_token_median_seconds",
+      "unit": "s",
+      "scale": 1,
+      "values": {
+        "Claude Fable 5.1 (Max)": 264.912,
+        "Grok 4.6 (xhigh)": 58.1801,
+        "Muse Spark 1.3 (max)": 18.6884,
+        "GPT-6 Astra (high)": 94.9741,
+        "Claude Opus 5 (Max)": 62.0641,
+        "GLM-5.3 (max)": 2.3094,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 103.5466,
+        "Kimi K3 (max)": 3.5243,
+        "Muse Spark 1.2 (xhigh)": 14.0439,
+        "GLM-5.3-Flash": 1.504,
+        "Claude Opus 4.8 (Max)": 33.8718,
+        "Gemini 3.8 Flash (high)": 10.8427,
+        "Qwen3.8 2.4T A95B": 2.5453,
+        "Claude Sonnet 5 (Max)": 184.7255
+      }
+    },
+    "steps": {
+      "source": "deepswe / DeepSWE v1.1 / pass@1",
+      "unit": "steps",
+      "scale": 1,
+      "values": {
+        "Claude Fable 5.1 (Max)": null,
+        "Grok 4.6 (xhigh)": 66.0,
+        "Muse Spark 1.3 (max)": null,
+        "GPT-6 Astra (high)": 26.0,
+        "Claude Opus 5 (Max)": 90.5,
+        "GLM-5.3 (max)": 114.0,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 61.5,
+        "Kimi K3 (max)": 88.0,
+        "Muse Spark 1.2 (xhigh)": 94.0,
+        "GLM-5.3-Flash": 110.0,
+        "Claude Opus 4.8 (Max)": 116.0,
+        "Gemini 3.8 Flash (high)": 161.0,
+        "Qwen3.8 2.4T A95B": null,
+        "Claude Sonnet 5 (Max)": 260.0
+      }
+    },
+    "dur": {
+      "source": "deepswe / DeepSWE v1.1 / pass@1",
+      "unit": "s",
+      "scale": 1,
+      "values": {
+        "Claude Fable 5.1 (Max)": null,
+        "Grok 4.6 (xhigh)": 895.5381,
+        "Muse Spark 1.3 (max)": null,
+        "GPT-6 Astra (high)": 1132.4004,
+        "Claude Opus 5 (Max)": 1911.8199,
+        "GLM-5.3 (max)": 2116.1785,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 1411.5831,
+        "Kimi K3 (max)": 4541.4474,
+        "Muse Spark 1.2 (xhigh)": 927.8693,
+        "GLM-5.3-Flash": 1537.7995,
+        "Claude Opus 4.8 (Max)": 3492.7408,
+        "Gemini 3.8 Flash (high)": 686.7692,
+        "Qwen3.8 2.4T A95B": null,
+        "Claude Sonnet 5 (Max)": 4803.5432
+      }
+    }
+  },
+  "roles": [
+    {
+      "name": "Overall",
+      "slug": "overall",
+      "formula": "`0.3*coding + 0.25*agentic + 0.15*lcr + 0.15*nh + 0.15*acc`",
+      "weights": {
+        "coding": 0.3,
+        "agentic": 0.25,
+        "lcr": 0.15,
+        "nh": 0.15,
+        "acc": 0.15
+      },
+      "scores": {
+        "Claude Fable 5.1 (Max)": 66.017,
+        "Grok 4.6 (xhigh)": 66.0023,
+        "Muse Spark 1.3 (max)": 65.954,
+        "GPT-6 Astra (high)": 64.8107,
+        "Claude Opus 5 (Max)": 64.4107,
+        "GLM-5.3 (max)": 63.4221,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 63.349,
+        "Kimi K3 (max)": 63.0454,
+        "Muse Spark 1.2 (xhigh)": 61.3806,
+        "GLM-5.3-Flash": 61.3058,
+        "Claude Opus 4.8 (Max)": 61.0634,
+        "Gemini 3.8 Flash (high)": 60.3079,
+        "Qwen3.8 2.4T A95B": 60.0988,
+        "Claude Sonnet 5 (Max)": 59.9977
+      },
+      "not_scored": [],
+      "scores_zero": {
+        "Claude Fable 5.1 (Max)": 66.017,
+        "Grok 4.6 (xhigh)": 66.0023,
+        "Muse Spark 1.3 (max)": 65.954,
+        "GPT-6 Astra (high)": 64.8107,
+        "Claude Opus 5 (Max)": 64.4107,
+        "GLM-5.3 (max)": 63.4221,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 63.349,
+        "Kimi K3 (max)": 63.0454,
+        "Muse Spark 1.2 (xhigh)": 61.3806,
+        "GLM-5.3-Flash": 61.3058,
+        "Claude Opus 4.8 (Max)": 61.0634,
+        "Gemini 3.8 Flash (high)": 60.3079,
+        "Qwen3.8 2.4T A95B": 60.0988,
+        "Claude Sonnet 5 (Max)": 59.9977
+      },
+      "scores_median": {
+        "Claude Fable 5.1 (Max)": 66.017,
+        "Grok 4.6 (xhigh)": 66.0023,
+        "Muse Spark 1.3 (max)": 65.954,
+        "GPT-6 Astra (high)": 64.8107,
+        "Claude Opus 5 (Max)": 64.4107,
+        "GLM-5.3 (max)": 63.4221,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 63.349,
+        "Kimi K3 (max)": 63.0454,
+        "Muse Spark 1.2 (xhigh)": 61.3806,
+        "GLM-5.3-Flash": 61.3058,
+        "Claude Opus 4.8 (Max)": 61.0634,
+        "Gemini 3.8 Flash (high)": 60.3079,
+        "Qwen3.8 2.4T A95B": 60.0988,
+        "Claude Sonnet 5 (Max)": 59.9977
+      }
+    },
+    {
+      "name": "Batch migration",
+      "slug": "batch",
+      "formula": "`0.25*code_mig + 0.2*pass1 + 0.2*coding + 0.15*agentic + 0.1*lcr + 0.1*nh`",
+      "weights": {
+        "code_mig": 0.25,
+        "pass1": 0.2,
+        "coding": 0.2,
+        "agentic": 0.15,
+        "lcr": 0.1,
+        "nh": 0.1
+      },
+      "transforms": {},
+      "scores": {
+        "Claude Fable 5.1 (Max)": null,
+        "Grok 4.6 (xhigh)": 63.4576,
+        "Muse Spark 1.3 (max)": null,
+        "GPT-6 Astra (high)": 68.0374,
+        "Claude Opus 5 (Max)": 65.0112,
+        "GLM-5.3 (max)": 62.8501,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 62.5933,
+        "Kimi K3 (max)": 54.1519,
+        "Muse Spark 1.2 (xhigh)": 54.1073,
+        "GLM-5.3-Flash": 55.0702,
+        "Claude Opus 4.8 (Max)": 58.7196,
+        "Gemini 3.8 Flash (high)": 57.9597,
+        "Qwen3.8 2.4T A95B": null,
+        "Claude Sonnet 5 (Max)": 57.1186
+      },
+      "not_scored": [
+        {
+          "model": "Claude Fable 5.1 (Max)",
+          "missing": [
+            "pass1"
+          ]
+        },
+        {
+          "model": "Muse Spark 1.3 (max)",
+          "missing": [
+            "code_mig",
+            "pass1"
+          ]
+        },
+        {
+          "model": "Qwen3.8 2.4T A95B",
+          "missing": [
+            "code_mig",
+            "pass1"
+          ]
+        }
+      ],
+      "scores_zero": {
+        "Claude Fable 5.1 (Max)": 49.9705,
+        "Grok 4.6 (xhigh)": 63.4576,
+        "Muse Spark 1.3 (max)": 38.6597,
+        "GPT-6 Astra (high)": 68.0374,
+        "Claude Opus 5 (Max)": 65.0112,
+        "GLM-5.3 (max)": 62.8501,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 62.5933,
+        "Kimi K3 (max)": 54.1519,
+        "Muse Spark 1.2 (xhigh)": 54.1073,
+        "GLM-5.3-Flash": 55.0702,
+        "Claude Opus 4.8 (Max)": 58.7196,
+        "Gemini 3.8 Flash (high)": 57.9597,
+        "Qwen3.8 2.4T A95B": 36.0961,
+        "Claude Sonnet 5 (Max)": 57.1186
+      },
+      "scores_median": {
+        "Claude Fable 5.1 (Max)": 63.6734,
+        "Grok 4.6 (xhigh)": 63.4576,
+        "Muse Spark 1.3 (max)": 63.4831,
+        "GPT-6 Astra (high)": 68.0374,
+        "Claude Opus 5 (Max)": 65.0112,
+        "GLM-5.3 (max)": 62.8501,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 62.5933,
+        "Kimi K3 (max)": 54.1519,
+        "Muse Spark 1.2 (xhigh)": 54.1073,
+        "GLM-5.3-Flash": 55.0702,
+        "Claude Opus 4.8 (Max)": 58.7196,
+        "Gemini 3.8 Flash (high)": 57.9597,
+        "Qwen3.8 2.4T A95B": 60.9195,
+        "Claude Sonnet 5 (Max)": 57.1186
+      }
+    },
+    {
+      "name": "Interactive edit loop",
+      "slug": "interactive",
+      "formula": "`0.3*coding + 0.2*agentic + 0.2*nh + 0.15*e2e [inverse_log_minmax] + 0.15*price [inverse_log_minmax]`",
+      "weights": {
+        "coding": 0.3,
+        "agentic": 0.2,
+        "nh": 0.2,
+        "e2e": 0.15,
+        "price": 0.15
+      },
+      "transforms": {
+        "e2e": "inverse_log_minmax",
+        "price": "inverse_log_minmax"
+      },
+      "scores": {
+        "Claude Fable 5.1 (Max)": 41.5951,
+        "Grok 4.6 (xhigh)": 61.8454,
+        "Muse Spark 1.3 (max)": 65.4623,
+        "GPT-6 Astra (high)": 48.6808,
+        "Claude Opus 5 (Max)": 51.3941,
+        "GLM-5.3 (max)": 65.3208,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 44.8072,
+        "Kimi K3 (max)": 53.5259,
+        "Muse Spark 1.2 (xhigh)": 63.7849,
+        "GLM-5.3-Flash": 69.1517,
+        "Claude Opus 4.8 (Max)": 54.4156,
+        "Gemini 3.8 Flash (high)": 63.8617,
+        "Qwen3.8 2.4T A95B": 57.2615,
+        "Claude Sonnet 5 (Max)": 49.6742
+      },
+      "not_scored": [],
+      "scores_zero": {
+        "Claude Fable 5.1 (Max)": 41.5951,
+        "Grok 4.6 (xhigh)": 61.8454,
+        "Muse Spark 1.3 (max)": 65.4623,
+        "GPT-6 Astra (high)": 48.6808,
+        "Claude Opus 5 (Max)": 51.3941,
+        "GLM-5.3 (max)": 65.3208,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 44.8072,
+        "Kimi K3 (max)": 53.5259,
+        "Muse Spark 1.2 (xhigh)": 63.7849,
+        "GLM-5.3-Flash": 69.1517,
+        "Claude Opus 4.8 (Max)": 54.4156,
+        "Gemini 3.8 Flash (high)": 63.8617,
+        "Qwen3.8 2.4T A95B": 57.2615,
+        "Claude Sonnet 5 (Max)": 49.6742
+      },
+      "scores_median": {
+        "Claude Fable 5.1 (Max)": 41.5951,
+        "Grok 4.6 (xhigh)": 61.8454,
+        "Muse Spark 1.3 (max)": 65.4623,
+        "GPT-6 Astra (high)": 48.6808,
+        "Claude Opus 5 (Max)": 51.3941,
+        "GLM-5.3 (max)": 65.3208,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 44.8072,
+        "Kimi K3 (max)": 53.5259,
+        "Muse Spark 1.2 (xhigh)": 63.7849,
+        "GLM-5.3-Flash": 69.1517,
+        "Claude Opus 4.8 (Max)": 54.4156,
+        "Gemini 3.8 Flash (high)": 63.8617,
+        "Qwen3.8 2.4T A95B": 57.2615,
+        "Claude Sonnet 5 (Max)": 49.6742
+      }
+    },
+    {
+      "name": "Quality only",
+      "slug": "quality",
+      "formula": "`0.4*coding + 0.3*agentic + 0.3*nh`",
+      "weights": {
+        "coding": 0.4,
+        "agentic": 0.3,
+        "nh": 0.3
+      },
+      "transforms": {},
+      "scores": {
+        "Claude Fable 5.1 (Max)": 58.3125,
+        "Grok 4.6 (xhigh)": 69.0374,
+        "Muse Spark 1.3 (max)": 67.0878,
+        "GPT-6 Astra (high)": 62.0819,
+        "Claude Opus 5 (Max)": 59.878,
+        "GLM-5.3 (max)": 67.1174,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 56.8591,
+        "Kimi K3 (max)": 59.7956,
+        "Muse Spark 1.2 (xhigh)": 62.1614,
+        "GLM-5.3-Flash": 65.7625,
+        "Claude Opus 4.8 (Max)": 60.7661,
+        "Gemini 3.8 Flash (high)": 56.3319,
+        "Qwen3.8 2.4T A95B": 62.208,
+        "Claude Sonnet 5 (Max)": 60.1661
+      },
+      "not_scored": [],
+      "scores_zero": {
+        "Claude Fable 5.1 (Max)": 58.3125,
+        "Grok 4.6 (xhigh)": 69.0374,
+        "Muse Spark 1.3 (max)": 67.0878,
+        "GPT-6 Astra (high)": 62.0819,
+        "Claude Opus 5 (Max)": 59.878,
+        "GLM-5.3 (max)": 67.1174,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 56.8591,
+        "Kimi K3 (max)": 59.7956,
+        "Muse Spark 1.2 (xhigh)": 62.1614,
+        "GLM-5.3-Flash": 65.7625,
+        "Claude Opus 4.8 (Max)": 60.7661,
+        "Gemini 3.8 Flash (high)": 56.3319,
+        "Qwen3.8 2.4T A95B": 62.208,
+        "Claude Sonnet 5 (Max)": 60.1661
+      },
+      "scores_median": {
+        "Claude Fable 5.1 (Max)": 58.3125,
+        "Grok 4.6 (xhigh)": 69.0374,
+        "Muse Spark 1.3 (max)": 67.0878,
+        "GPT-6 Astra (high)": 62.0819,
+        "Claude Opus 5 (Max)": 59.878,
+        "GLM-5.3 (max)": 67.1174,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 56.8591,
+        "Kimi K3 (max)": 59.7956,
+        "Muse Spark 1.2 (xhigh)": 62.1614,
+        "GLM-5.3-Flash": 65.7625,
+        "Claude Opus 4.8 (Max)": 60.7661,
+        "Gemini 3.8 Flash (high)": 56.3319,
+        "Qwen3.8 2.4T A95B": 62.208,
+        "Claude Sonnet 5 (Max)": 60.1661
+      }
+    }
+  ],
+  "picks": {
+    "overall": {
+      "best": {
+        "model": "Claude Fable 5.1 (Max)",
+        "score": 66.02,
+        "price": 20.0
+      },
+      "cheap": {
+        "model": "Grok 4.6 (xhigh)",
+        "score": 66.0,
+        "price": 3.0,
+        "points_behind": 0.01,
+        "times_cheaper": 6.7
+      }
+    },
+    "batch": {
+      "best": {
+        "model": "GPT-6 Astra (high)",
+        "score": 68.04,
+        "price": 20.0
+      },
+      "cheap": {
+        "model": "Grok 4.6 (xhigh)",
+        "score": 63.46,
+        "price": 3.0,
+        "points_behind": 4.58,
+        "times_cheaper": 6.7
+      }
+    },
+    "interactive": {
+      "best": {
+        "model": "GLM-5.3-Flash",
+        "score": 69.15,
+        "price": 0.2375
+      },
+      "cheap": null
+    },
+    "quality": {
+      "best": {
+        "model": "Grok 4.6 (xhigh)",
+        "score": 69.04,
+        "price": 3.0
+      },
+      "cheap": {
+        "model": "GLM-5.3-Flash",
+        "score": 65.76,
+        "price": 0.2375,
+        "points_behind": 3.27,
+        "times_cheaper": 12.6
+      }
+    }
+  },
+  "sites": {
+    "artificial-analysis": "https://artificialanalysis.ai",
+    "vals-ai": "https://www.vals.ai",
+    "deepswe": "https://deepswe.datacurve.ai"
+  },
+  "medians": {
+    "coding": 76.0614,
+    "agentic": 51.0201,
+    "lcr": 80.6667,
+    "nh": 60.6915,
+    "acc": 46.4833,
+    "code_mig": 44.482,
+    "corpfin": 70.94,
+    "pass1": 68.5144,
+    "task_cost": 4.6547,
+    "price": 3.5,
+    "e2e": 64.0903,
+    "ttft": 26.2801,
+    "steps": 94.0,
+    "dur": 1537.7995
+  },
+  "frontier": [
+    {
+      "model": "GLM-5.3-Flash",
+      "price": 0.2375,
+      "overall": 61.31
+    },
+    {
+      "model": "Muse Spark 1.3 (max)",
+      "price": 2.0,
+      "overall": 65.95
+    },
+    {
+      "model": "Grok 4.6 (xhigh)",
+      "price": 3.0,
+      "overall": 66.0
+    },
+    {
+      "model": "Claude Fable 5.1 (Max)",
+      "price": 20.0,
+      "overall": 66.02
+    }
+  ]
+}

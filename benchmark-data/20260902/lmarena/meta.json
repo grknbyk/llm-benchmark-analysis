@@ -1,0 +1,148 @@
+{
+  "source_url": "https://lmarena.ai/leaderboard",
+  "scraped_at": "2026-09-02T19:25:04.462Z",
+  "arenas_captured": [
+    "text",
+    "code",
+    "vision",
+    "document",
+    "search",
+    "text-to-image",
+    "image-edit",
+    "image-to-code",
+    "text-to-video",
+    "image-to-video",
+    "video-to-video",
+    "agent"
+  ],
+  "categories_captured": {
+    "text": [
+      "expert",
+      "overall",
+      "industry-software-and-it-services",
+      "industry-writing-and-literature-and-language",
+      "industry-life-and-physical-and-social-science",
+      "industry-entertainment-and-sports-and-media",
+      "industry-business-and-management-and-financial-operations",
+      "industry-mathematical",
+      "industry-legal-and-government",
+      "industry-medicine-and-healthcare",
+      "math",
+      "instruction-following",
+      "multi-turn",
+      "creative-writing",
+      "coding",
+      "hard-prompts",
+      "hard-prompts-english",
+      "longer-query",
+      "english",
+      "non-english",
+      "chinese",
+      "french",
+      "german",
+      "spanish",
+      "russian",
+      "japanese",
+      "korean",
+      "polish",
+      "exclude-ties"
+    ],
+    "code": [
+      "fullstack",
+      "html",
+      "frontend",
+      "react",
+      "overall",
+      "reference-based-design",
+      "brand-marketing",
+      "consumer-product",
+      "gaming",
+      "simulations",
+      "content-creation-tools",
+      "data-analytics"
+    ],
+    "vision": [
+      "overall",
+      "chinese",
+      "english",
+      "captioning",
+      "creative-writing",
+      "diagram",
+      "entity-recognition",
+      "homework",
+      "humor",
+      "ocr"
+    ],
+    "document": [
+      "overall"
+    ],
+    "search": [
+      "overall"
+    ],
+    "text-to-image": [
+      "commercial-design",
+      "overall",
+      "cartoon",
+      "3d-modeling",
+      "photorealistic",
+      "text-rendering",
+      "art",
+      "portraits"
+    ],
+    "image-edit": [
+      "commercial-design",
+      "cartoon",
+      "3d-modeling",
+      "photorealistic",
+      "overall",
+      "art",
+      "text-rendering",
+      "portraits",
+      "multi-image-edit",
+      "multi-image-edit-3d-modeling",
+      "multi-image-edit-commercial-design",
+      "multi-image-edit-cartoon",
+      "multi-image-edit-photorealistic",
+      "multi-image-edit-art",
+      "multi-image-edit-portraits",
+      "multi-image-edit-text-rendering"
+    ],
+    "image-to-code": [
+      "overall"
+    ],
+    "text-to-video": [
+      "overall"
+    ],
+    "image-to-video": [
+      "overall"
+    ],
+    "video-to-video": [
+      "overall"
+    ],
+    "agent": [
+      "overall",
+      "code",
+      "chat",
+      "work"
+    ]
+  },
+  "leaderboard_variants_captured": [
+    "style_control",
+    "raw"
+  ],
+  "leaderboard_count": 124,
+  "row_count": 25958,
+  "extraction_method": "Chrome DevTools MCP. Opened https://lmarena.ai/leaderboard, which redirects to https://arena.ai/leaderboard (same product). list_network_requests showed no separate leaderboard JSON API: the data ships inside the Next.js RSC flight payload of each /leaderboard/{arena}/{category} route. Those exact requests were then re-issued from the page context with fetch(url, {headers:{RSC:\"1\"}}); the \"leaderboard\":{...} object was brace-matched out of each payload and JSON.parsed verbatim. The agent arena uses a different shape (\"snapshot\":{lastUpdated,totalSessions,totalObservations,modelCount,rows,signals}) and was extracted the same way. Factuality ratings came from GET /nextjs-api/factuality/ratings?arenaSlug=text&category={cat}, a plain JSON endpoint discovered by watching network traffic while clicking the Factuality radio in the UI.",
+  "notes": [
+    "lmarena.ai now redirects to arena.ai. source_url is kept as the requested lmarena.ai URL; per-record source_url points at the live arena.ai page.",
+    "No login, CAPTCHA or Cloudflare interstitial was encountered. The leaderboard is fully public.",
+    "Verification that the fetch-based reads match what the browser rendered: the DOM table on /leaderboard/text showed rank 1 claude-fable-5, score 1508, +-5, 27.013k votes, $10/$50, 1M context; the fetched payload for text|overall|style_control gives rating 1507.5857493966353 (rounds to 1508), ratingLower/Upper 1502.61/1512.56 (+-5), votes 27013, inputPricePerMillion 10, outputPricePerMillion 50, contextLength 1000000. Clicking the None radio in the DOM navigated to /leaderboard/text/overall-no-style-control and produced top model claude-opus-5-max at 1504, matching the fetched raw variant.",
+    "The ranking-mode control has three options: Style Control, Factuality, None. URL suffix \"-no-style-control\" returns the raw (styleControl:false) leaderboard. Both style_control and raw variants were captured for the text and vision arenas. The document and search arenas declare hasStyleControl:true but their pages already serve styleControl:false and expose no style-control URL, so only the raw variant exists for them. All remaining arenas have hasStyleControl:false, so their single variant is labelled \"raw\".",
+    "Factuality is not a leaderboard but a penalty-weight sweep (weights 0/25/50/75/100) giving rating/ratingLower/ratingUpper/rankLower/rankUpper per model key. It is stored verbatim in raw.json under factuality_text_ratings for all 29 text categories, but is NOT expanded into normalized.json because it has no single canonical score per model. It is only served for the text arena; vision returned {}.",
+    "Every value in normalized.json is copied verbatim from the site payload. Fields the site does not provide (votes for the agent arena, context_window and pricing for many image/video models, dates for arenas without voteCutoffISOString) are omitted, never estimated.",
+    "Each fetched payload was validated against the requested arena slug, category and styleControl flag before being stored; mismatches were rejected rather than saved. All leaderboards in this file passed that check.",
+    "Arena route slugs differ from arena slugs: image-to-code -> /leaderboard/code/image-to-webdev, video-to-video -> /leaderboard/video-edit. The code arena (WebDev) uses internal leaderboard ids prefixed \"webdev\".",
+    "ci for standard arenas is the absolute rating interval {lower, upper} from ratingLower/ratingUpper. The agent arena only publishes a symmetric half-width, stored as {half_width}.",
+    "Non-spec fields kept because the task asked for the underlying data: model_key, rank_upper, rank_lower, style_control, model_url, and (agent only) sessions / observations."
+  ]
+}

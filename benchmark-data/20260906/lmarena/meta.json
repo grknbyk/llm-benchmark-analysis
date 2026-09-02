@@ -1,0 +1,149 @@
+{
+  "source_url": "https://lmarena.ai/leaderboard",
+  "scraped_at": "2026-09-06T15:48:53.917Z",
+  "arenas_captured": [
+    "text",
+    "code",
+    "vision",
+    "document",
+    "search",
+    "text-to-image",
+    "image-edit",
+    "image-to-code",
+    "text-to-video",
+    "image-to-video",
+    "video-to-video",
+    "agent"
+  ],
+  "categories_captured": {
+    "text": [
+      "expert",
+      "overall",
+      "industry-software-and-it-services",
+      "industry-writing-and-literature-and-language",
+      "industry-life-and-physical-and-social-science",
+      "industry-entertainment-and-sports-and-media",
+      "industry-business-and-management-and-financial-operations",
+      "industry-mathematical",
+      "industry-legal-and-government",
+      "industry-medicine-and-healthcare",
+      "math",
+      "instruction-following",
+      "multi-turn",
+      "creative-writing",
+      "coding",
+      "hard-prompts",
+      "hard-prompts-english",
+      "longer-query",
+      "english",
+      "non-english",
+      "chinese",
+      "french",
+      "german",
+      "spanish",
+      "russian",
+      "japanese",
+      "korean",
+      "polish",
+      "exclude-ties"
+    ],
+    "code": [
+      "fullstack",
+      "html",
+      "frontend",
+      "react",
+      "overall",
+      "reference-based-design",
+      "brand-marketing",
+      "consumer-product",
+      "gaming",
+      "simulations",
+      "content-creation-tools",
+      "data-analytics"
+    ],
+    "vision": [
+      "overall",
+      "chinese",
+      "english",
+      "captioning",
+      "creative-writing",
+      "diagram",
+      "entity-recognition",
+      "homework",
+      "humor",
+      "ocr"
+    ],
+    "document": [
+      "overall"
+    ],
+    "search": [
+      "overall"
+    ],
+    "text-to-image": [
+      "commercial-design",
+      "overall",
+      "cartoon",
+      "3d-modeling",
+      "photorealistic",
+      "text-rendering",
+      "art",
+      "portraits"
+    ],
+    "image-edit": [
+      "commercial-design",
+      "cartoon",
+      "3d-modeling",
+      "photorealistic",
+      "overall",
+      "art",
+      "text-rendering",
+      "portraits",
+      "multi-image-edit",
+      "multi-image-edit-3d-modeling",
+      "multi-image-edit-commercial-design",
+      "multi-image-edit-cartoon",
+      "multi-image-edit-photorealistic",
+      "multi-image-edit-art",
+      "multi-image-edit-portraits",
+      "multi-image-edit-text-rendering"
+    ],
+    "image-to-code": [
+      "overall"
+    ],
+    "text-to-video": [
+      "overall"
+    ],
+    "image-to-video": [
+      "overall"
+    ],
+    "video-to-video": [
+      "overall"
+    ],
+    "agent": [
+      "overall",
+      "code",
+      "chat",
+      "work"
+    ]
+  },
+  "leaderboard_variants_captured": [
+    "style_control",
+    "raw"
+  ],
+  "leaderboard_count": 124,
+  "row_count": 26041,
+  "leaderboards_added_since_20260904": [],
+  "leaderboards_removed_since_20260904": [],
+  "extraction_method": "Chrome DevTools MCP, own page (id 6, isolatedContext 'lmarena-rescrape-20260906') on https://arena.ai/leaderboard. The RSC-header trick (fetch with {headers:{RSC:'1'}}) still 404s, unchanged since 2026-09-03, so every route was fetched as plain server-rendered HTML with the page's own fetch(url,{cache:'no-store'}). For each response: every <script>self.__next_f.push([id,\"...\"])</script> call was located with a bracket-depth-aware scan that is string-literal and escape aware, each array literal evaluated via new Function('return '+literal)() to recover the unescaped flight string, and the per-route strings concatenated in document order. The object following the first \"leaderboard\":{ marker (\"snapshot\":{ for the agent arena) was then brace-matched (string-literal and escape aware) and JSON.parsed; a missing marker means a truncated Suspense stream and the whole route was refetched, up to 8 attempts. Route coverage was verified live first: each arena's overview page was fetched and its category list resolved out of the flight payload's lazy chunk reference (\"categories\":\"$Q<hexid>\" pointing at chunk \"\\n<hexid>:<literal>\"), giving text 29, code 12, vision 10, text-to-image 8, image-edit 16, agent 4 and 1 each for document, search, image-to-code, text-to-video, image-to-video, video-to-video = 85 category routes; text and vision expose both style_control and raw variants (raw = same URL plus the '-no-style-control' suffix), every other arena a single raw variant, so 85 + 39 = 124 leaderboards. URL exceptions unchanged: image-to-code lives at /leaderboard/code/image-to-webdev (no /overall) and video-to-video at /leaderboard/video-edit. All 124 routes were fetched by 8 concurrent workers inside one fire-and-forget async task held in the page's own JS context (window.__LB / window.__S), polled from later evaluate_script calls, so a slow site could not time an evaluate_script out. 124/124 succeeded with zero permanent errors. Factuality ratings came from GET /nextjs-api/factuality/ratings?arenaSlug=text&category={cat}, a plain JSON endpoint, for all 29 text categories (unchanged from 2026-09-03; the weighted ratings are NOT present in the page flight payload, which carries only initialFactualityWeight/factualityEnabled/factualityCategory, and query-string overrides such as ?factualityWeight=25 are ignored server-side). benchmark slugs were taken verbatim from the trailing slug of each payload's own \"id\" field (leaderboard-sets/public/leaderboards/<slug>/leaderboard-snapshots/latest); the agent arena has no such id, so its benchmarks keep the 'arena-agent-{category}' naming used since 2026-09-03. The normalizer was validated by regenerating 2026-09-04's normalized.json from 2026-09-04's raw.json with the identical code: 26012/26012 records matched field for field, so the two days are directly comparable.",
+  "notes": [
+    "lmarena.ai still redirects to arena.ai. source_url is kept as the requested lmarena.ai URL; every per-record source_url points at the live arena.ai page.",
+    "No login, CAPTCHA or Cloudflare interstitial was encountered.",
+    "Tool contention was again significant early on: mcp__chrome-devtools__evaluate_script runs against whatever page is globally selected across ALL connected MCP clients, so despite calling select_page(6) immediately before every evaluate_script roughly 60 consecutive calls executed on other agents pages (vals.ai, livebench.ai, benchlm.ai, arcprize.org, tbench.ai, artificialanalysis.ai, epoch.ai, deepswe.datacurve.ai, designarena.ai). Every misfire was caught by an in-script hostname guard that throws before any fetch or write, so no wrong-site data was ever captured. NOTE for future runs: the guard must compare hostname EXACTLY ('arena.ai' / 'www.arena.ai' / 'lmarena.ai'); a substring test such as hostname.includes('arena.ai') passes on www.designarena.ai and did so once today before being fixed.",
+    "Every value in normalized.json is copied verbatim from the site payload. Fields the site returns as null (votes, contextLength, pricePerImage, pricePerSecond, modelUrl, prices) are omitted from the record rather than estimated; the agent arena keeps sessions/observations and a one-sided ci {half_width} because its payload has no rating interval.",
+    "The '-no-style-control' suffix is applied only to the raw variant of text and vision, the two arenas that expose both variants. All other arenas have a single raw variant at the plain URL, matching 2026-09-04 and 2026-09-03.",
+    "Non-spec fields kept because the task asked for the underlying data: model_key, rank_upper, rank_lower, style_control, model_url and (agent only) sessions / observations.",
+    "factuality_text_ratings lives in raw.json only (29 text categories, weights 0/25/50/75/100 per model). It is not expanded into normalized.json because it has no single canonical score per model, and it is served for the text arena only.",
+    "changes_vs_20260904: (1) Coverage identical: 124 leaderboards across the same 12 arenas and the same 85 categories. Live category discovery found NO leaderboard added and none removed since 2026-09-04; the added/removed lists above are empty. (2) row_count 26041 vs 26012 (+29), ordinary roster churn. (3) Model roster: 5 names appear that were absent on 2026-09-04 -- 'gpt-6-astra-max' (genuinely new, code arena only: webdev-overall-raw rank 1, 1797.04, 1199 votes; absent from every text, vision and media leaderboard), 'Claude Fable 5.1 (Max)' (agent arena), 'grok-imagine-video-1.5-agent', 'mai-image-2.6' and 'muse-spark-1.3 (xHigh)'. 2 names disappeared and both are renames rather than removals: 'mai-image-2.6-preview' -> 'mai-image-2.6' and 'muse-spark-1.3-xhigh' -> 'muse-spark-1.3 (xHigh)'. (4) Extraction mechanism unchanged from 2026-09-04 in every respect (flight-chunk parsing required, RSC header still 404s, same two URL exceptions, same agent payload shape, same factuality endpoint). (5) The latest voteCutoffISOString across the site moved from 2026-09-02 to 2026-09-05T13:00:00.000Z, so these are genuinely fresher snapshots, not a cached repeat.",
+    "Scores drift daily on this site because it is a live Elo-style arena; score and rank differences between 2026-09-04 and 2026-09-06 for the same model are normal movement, not scrape errors."
+  ]
+}

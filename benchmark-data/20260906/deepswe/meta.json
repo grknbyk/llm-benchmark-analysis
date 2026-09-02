@@ -1,0 +1,188 @@
+{
+  "source_url": "https://deepswe.datacurve.ai/",
+  "scraped_at": "2026-09-06T15:36:27Z",
+  "benchmarks_captured": [
+    "DeepSWE v1.1",
+    "DeepSWE v1",
+    "DeepSWE v1 (curated selection)"
+  ],
+  "row_count": 230,
+  "extraction_method": "JSON data artifacts fetched verbatim (no DOM scraping), plus one read of the server-rendered HTML for cross-checks. Opened own chrome-devtools page on https://deepswe.datacurve.ai/ in an isolated browser context named deepswe-rescrape-20260906 (page id 3, stable all run). Every evaluate_script was paired with select_page in the SAME tool-call turn and began with a location.href guard that THROWS on mismatch. Under contention from 8 other agents sharing the browser the guard fired on roughly 20-25 consecutive attempts per script before winning the race; every one of those was a thrown error, never a value written to disk. File size on disk was checked after each save. Used the page's own same-origin fetch() and evaluate_script's filePath option. No Node/curl fallback.",
+  "artifacts": [
+    {
+      "url": "https://deepswe.datacurve.ai/artifacts/v1.1/leaderboard-live.json",
+      "rows": 70,
+      "generated_at": "2026-09-03T22:24:37.984682+00:00",
+      "role": "leaderboard tab 'v1.1' (default). 70 harness+model+reasoning-effort configs, 28 distinct models.",
+      "changed_since_20260904": false
+    },
+    {
+      "url": "https://deepswe.datacurve.ai/artifacts/v1/leaderboard-live.json",
+      "rows": 29,
+      "generated_at": "2026-06-20T17:27:24.307648+00:00",
+      "role": "leaderboard tab 'v1'. 29 configs, 21 distinct models.",
+      "changed_since_20260904": false
+    },
+    {
+      "url": "https://deepswe.datacurve.ai/artifacts/v1/leaderboard.json",
+      "rows": 16,
+      "generated_at": null,
+      "role": "curated 16-config selection used by the /blog/deepswe post. Carries no generated_at stamp.",
+      "changed_since_20260904": false
+    },
+    {
+      "url": "https://deepswe.datacurve.ai/artifacts/v1.1/v1-delta.json",
+      "rows": null,
+      "role": "v1.1-vs-v1 re-grading comparison: 9 shared configs plus a 113-task breakdown. Included in raw.json for completeness; NOT normalized (does not fit the model/benchmark/metric record schema).",
+      "changed_since_20260904": false
+    },
+    {
+      "url": "https://deepswe.datacurve.ai/artifacts/v1.1/tasks.json",
+      "rows": 113,
+      "role": "Per-task metadata for the 113 DeepSWE v1.1 tasks: id, repository, repository_url, language, base_commit_hash, problem_title, display_description, prompt_characters. No model/score data. Included in raw.json for completeness; NOT normalized. scope = 'Tasks attempted in this benchmark version'.",
+      "changed_since_20260904": false
+    },
+    {
+      "url": "https://deepswe.datacurve.ai/artifacts/v1/tasks.json",
+      "rows": 113,
+      "role": "NEW ARTIFACT this run, not fetched on 2026-09-04. Same 8-field per-task schema and same 113 task count as v1.1/tasks.json, but the payload is NOT identical and the scope label differs: 'All 113 DeepSWE task definitions' vs v1.1's 'Tasks attempted in this benchmark version'. Included in raw.json for completeness; NOT normalized.",
+      "changed_since_20260904": "newly discovered"
+    }
+  ],
+  "artifact_probe": {
+    "paths_probed": 26,
+    "found_200": [
+      "v1.1/leaderboard-live.json",
+      "v1/leaderboard-live.json",
+      "v1/leaderboard.json",
+      "v1.1/v1-delta.json",
+      "v1.1/tasks.json",
+      "v1/tasks.json"
+    ],
+    "returned_404": [
+      "v1.2/leaderboard-live.json",
+      "v1.2/tasks.json",
+      "v2/leaderboard-live.json",
+      "v2/tasks.json",
+      "v1.1/leaderboard.json",
+      "v1/v1-delta.json",
+      "v1.1/models.json",
+      "v1.1/detail.json",
+      "v1.1/leaderboard-live-2.json",
+      "v1.1/runs.json",
+      "v1.1/costs.json",
+      "v1.1/pricing.json",
+      "v1.1/metadata.json",
+      "v1.1/summary.json",
+      "index.json",
+      "manifest.json",
+      "v1.1/v1.1-delta.json",
+      "v1.2/v1-delta.json",
+      "v1.1/trajectories.json",
+      "v1.1/per-task.json"
+    ],
+    "note": "Also scanned all 5 external <script src> bundles for any 'artifacts/*.json' string. They are PostHog analytics only (config.js, posthog-recorder.js, surveys.js, dead-clicks-autocapture.js, web-vitals.js) and reference no artifact URLs. There are no inline <script> blocks. No new benchmark version or split exists as of this scrape."
+  },
+  "new_fields_vs_20260904": {
+    "summary": "Records went from 18 fields to 33-59 depending on benchmark. Nothing from 2026-09-04 was removed; every previous field is still present under its previous name and with its previous value (verified record-by-record, see verification block).",
+    "identity_and_provenance": [
+      "model_slug (the raw artifact slug, e.g. 'glm-5-3-flash', alongside the existing display 'model')",
+      "provider_family (the site's own CSS family token, e.g. 'zhipu', 'moonshot', 'alibaba')",
+      "harness (the raw row's harness string, kept beside the existing 'agent')",
+      "source (the raw row's 'source' field, 'deep-swe')",
+      "artifact_url (which of the three leaderboard artifacts the record came from)",
+      "generated_at (the artifact stamp, kept explicitly beside 'date')"
+    ],
+    "cost": [
+      "cost_usd_raw (the artifact's own unadjusted mean_cost_usd / median_cost_usd)",
+      "cost_adjusted (boolean: does the site display something other than the raw figure)",
+      "cost_adjustment_factor (displayed / raw, where they differ)",
+      "cost_per_task_usd (report column; identical to cost_usd, which is already a per-task-attempt mean, named explicitly so the report never has to guess)",
+      "cost_basis (the raw row's pricing-note string; present only on gpt-6-astra rows)",
+      "median_cost_usd"
+    ],
+    "counts_and_confidence": [
+      "pass_rate",
+      "n_passed",
+      "n_attempted",
+      "n_tasks_passed_any",
+      "completed_by_attempt",
+      "pass_rate_by_attempt",
+      "ci_lo_pct",
+      "ci_hi_pct",
+      "ci_method",
+      "ci_passed",
+      "ci_attempted"
+    ],
+    "efficiency": [
+      "median_output_tokens",
+      "mean_input_tokens",
+      "median_input_tokens",
+      "mean_uncached_input_tokens",
+      "median_uncached_input_tokens",
+      "mean_cache_tokens",
+      "mean_cache_read_tokens",
+      "median_cache_read_tokens",
+      "mean_cache_write_tokens",
+      "median_cache_write_tokens",
+      "mean_reasoning_tokens",
+      "median_reasoning_tokens",
+      "mean_compute_units",
+      "median_compute_units",
+      "mean_duration_seconds",
+      "median_duration_seconds",
+      "median_agent_steps",
+      "median_output_tokens_to_pass"
+    ],
+    "curated_selection_only": [
+      "selection_notes",
+      "reasoning_efforts",
+      "n_pass_at_4",
+      "task_pass_any_rate",
+      "attempt_pass_rate",
+      "median_steps",
+      "median_agent_steps_to_pass"
+    ]
+  },
+  "corrections_to_20260904": [
+    "date: on 2026-09-04 only the 10 new gpt-6-astra records carried the then-current v1.1 stamp; the other 130 v1.1 records still carried the stale 2026-09-02T15:18:19Z, which contradicted that file's own meta note claiming all 70 configs had been updated. All 140 v1.1 records here carry the artifact's actual generated_at, 2026-09-03T22:24:37.984682+00:00.",
+    "reasoning_effort on curated rows is now taken from the artifact's own 'reasoning_efforts' field rather than left implicit, and 'reasoning_efforts' is also kept verbatim.",
+    "date on the 32 curated records is now an explicit null instead of an absent key; that artifact genuinely carries no generated_at."
+  ],
+  "notes": [
+    "AGENT/SCAFFOLD: every row on this site was run with the 'mini-swe-agent' harness. Kept as its own 'agent' field, never merged into the model name.",
+    "COST ADJUSTMENT, now measured rather than assumed: raw.json holds the untouched artifacts, whose mean_cost_usd is priced at the model's original API rates. The site displays a different figure for 7 models. This run did not take that on faith: the server-rendered HTML of the v1.1 tab embeds the fully-rendered row objects, so the displayed mean_cost_usd was read straight out of it for all 70 v1.1 configs and compared against raw. 19 of 70 v1.1 configs differ, covering exactly the 7 models named in previous runs: glm-5-3-flash (x0.5), gemini-3-6-flash (x0.5), gpt-5-6-luna (x0.2, all 5 efforts), gpt-5-6-terra (x0.8, all 5 efforts), gpt-5-6-sol (x0.76-0.77, all 5 efforts, effort-dependent so not a flat multiplier), deepseek-v4-pro (x6.90) and deepseek-v4-flash (x4.63). Note that the deepseek adjustments are INCREASES, not discounts. All 70 of these displayed values match 2026-09-04's normalized cost_usd to within 1e-9, which independently confirms the earlier run's figures.",
+    "COST ADJUSTMENT on the v1 and curated tabs: those tabs are not server-rendered, so their displayed costs could not be observed the same way without clicking through the UI. Their artifacts are byte-for-byte identical to 2026-09-04, so their adjusted cost_usd is carried forward verbatim from that file. Exactly one config is affected in each: mini_swe_agent_deepseek_v4_pro_default, adjusted x0.25 in both. This is a carry-forward, not an observation, and should be re-derived if the v1 artifact ever changes.",
+    "PROVIDER: no longer inherited on faith. Re-derived this run from the site's own rendering: the CSS custom property '--family-<x>' on the scatter labels gives a family token for 21 of the 28 v1.1 models, and the /icons/<Vendor>.svg filename on the bar rows gives a vendor for 16. The two agree everywhere they overlap. Families seen: openai, google, anthropic, xai, deepseek, meta, zhipu, alibaba, moonshot. Models covered by neither (older v1-only entries) fall back to the 2026-09-04 mapping. gpt-6-astra additionally carries an explicit 'provider':'openai' in the raw artifact, which matches. Zero records have a null provider.",
+    "MODEL NAMES: display names reproduce the site's slug->display transform (join two adjacent tokens with '.' when the second is purely numeric and the first ends in a digit, else with '-'; strip a trailing '-preview'). This run verified the transform against the site's own rendered labels rather than only inferring it: every display name produced matches a key in the rendered family/icon maps.",
+    "RANK: recomputed from scratch per (benchmark, metric) by score descending, with ties broken by the artifact's own row order, which is the site's own sort. pass@1 ranks are identical to 2026-09-04 across all three benchmarks. 13 DeepSWE v1.1 pass@4 records changed rank position purely because of tie ordering: 2026-09-04 appended the then-new gpt-6-astra rows after the pre-existing tied rows, whereas this run orders every tie by artifact position. No score changed and no model crossed a distinct score boundary. pass@4 has heavy ties (e.g. six configs share 80.53%), so these positions were always somewhat arbitrary.",
+    "METRICS: pass@1 = attempt pass rate over scored rollout attempts. pass@4 = tasks with at least one passing rollout divided by tasks attempted. Context-window failures and agent timeouts are scored failures; provider/verifier/network errors are excluded. Efficiency aggregates are over every scored attempt. Definitions taken verbatim from the artifact's 'unit' field, unchanged.",
+    "ci_half_pct / ci_lo_pct / ci_hi_pct are attached to pass@1 records only. The artifact's CI is computed on the attempt pass rate, so attaching it to a pass@4 record would misattribute it.",
+    "context_window: OMITTED, as before. median_peak_context_tokens is carried under its own name instead, and is null for gpt-6-astra rows because the source field is null for that model.",
+    "MODEL CHECK: 'muse-spark-1.3' is STILL NOT present. Only muse-spark-1.2 and muse-spark-1.1 exist. 'claude-fable-5.1' is also NOT present; the site has claude-fable-5 only. Both verified by scanning the model field of all 230 normalized records.",
+    "BROWSER CONTENTION: this scrape ran alongside 8 other agents on one browser instance. Even with select_page and evaluate_script issued in the same turn, the shared 'selected page' pointer was stolen on the large majority of attempts; each script needed roughly 20-25 retries. The throwing href guard is what made this safe, since every lost race surfaced as an error instead of as another site's data being written to raw.json."
+  ],
+  "changes_vs_20260904": {
+    "payload_changed": false,
+    "v1.1_generated_at_old": "2026-09-03T22:24:37.984682+00:00",
+    "v1.1_generated_at_new": "2026-09-03T22:24:37.984682+00:00",
+    "v1_generated_at_old": "2026-06-20T17:27:24.307648+00:00",
+    "v1_generated_at_new": "2026-06-20T17:27:24.307648+00:00",
+    "summary": "UNCHANGED. The v1.1 generated_at stamp did not move, and all five artifacts fetched on 2026-09-04 are byte-for-byte identical to what they returned today: v1.1/leaderboard-live.json (70 configs, 28 models), v1/leaderboard-live.json (29 configs), v1/leaderboard.json (16 configs), v1.1/v1-delta.json and v1.1/tasks.json. No model was added, removed or re-scored. gpt-6-astra (xhigh) remains #1 on DeepSWE v1.1 pass@1 at 74.12%, ahead of gemini-3.8-flash (high) at 73.83% and claude-opus-5 (max) at 73.65%. The only genuinely new thing on the server side is a sixth artifact, v1/tasks.json, which was never fetched before; it holds the 113 task definitions under a different scope label from v1.1/tasks.json and contains no model or score data. Everything else that differs between this folder and 2026-09-04 is on our side, not the site's: many more fields per record, provider and cost adjustment re-derived from the site's own rendering instead of inherited, a stale date fixed on 130 records, and a tie-break rule change affecting 13 pass@4 rank positions. Any reader comparing the two folders should treat the underlying benchmark data as identical."
+  },
+  "verification": {
+    "record_count_20260904": 230,
+    "record_count_20260906": 230,
+    "records_per_group": {
+      "DeepSWE v1.1 pass@1": 70,
+      "DeepSWE v1.1 pass@4": 70,
+      "DeepSWE v1 pass@1": 29,
+      "DeepSWE v1 pass@4": 29,
+      "DeepSWE v1 (curated selection) pass@1": 16,
+      "DeepSWE v1 (curated selection) pass@4": 16
+    },
+    "field_by_field_diff_vs_20260904": "All 230 (benchmark, metric, config) keys match exactly. Across the 13 fields the two files share, the only differences are the 13 DeepSWE v1.1 pass@4 rank positions described above. model, provider, agent, score, cost_usd, n_tasks_attempted, n_runs, mean_output_tokens, mean_agent_steps, median_peak_context_tokens, reasoning_effort and ci_half_pct are identical everywhere.",
+    "raw_json_bytes": 229071,
+    "cost_adjusted_records": 42
+  }
+}
