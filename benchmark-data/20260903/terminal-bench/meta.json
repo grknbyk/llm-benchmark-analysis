@@ -1,0 +1,52 @@
+{
+  "source_url": "https://www.tbench.ai/",
+  "scraped_at": "2026-09-02T21:59:08.000Z",
+  "benchmarks_captured": [
+    {
+      "version": "4.0",
+      "title": "Terminal-Bench 4.0",
+      "package": "terminal-bench/terminal-bench",
+      "leaderboard_name": "4-0-0",
+      "rows": 10,
+      "source_url": "https://www.tbench.ai/"
+    },
+    {
+      "version": "3.0",
+      "title": "Terminal-Bench 3.0",
+      "package": "terminal-bench/terminal-bench",
+      "leaderboard_name": "3-0-0",
+      "rows": 12,
+      "source_url": "https://www.tbench.ai/?version=3.0"
+    },
+    {
+      "version": "2.1",
+      "title": "Terminal-Bench 2.1",
+      "package": "terminal-bench/terminal-bench-2-1",
+      "leaderboard_name": "main",
+      "rows": 17,
+      "source_url": "https://www.tbench.ai/?version=2.1"
+    },
+    {
+      "version": "2.0",
+      "title": "Terminal-Bench 2.0",
+      "package": "terminal-bench/terminal-bench-2",
+      "leaderboard_name": "2-0",
+      "rows": 142,
+      "source_url": "https://www.tbench.ai/?version=2.0"
+    }
+  ],
+  "row_count": 181,
+  "extraction_method": "chrome-devtools MCP: reproduced the 20260902 scrape by re-issuing the same four POST requests (package/name pairs from the prior meta.json) directly to the Supabase edge function https://ofhuhcpkvzjlejydnvyd.supabase.co/functions/v1/leaderboard-read from the tbench.ai page context via fetch(), verified via location.href before the call, and saved responses verbatim as raw.json. normalized.json is derived from raw.json with the same field mapping as _normalize.js from the prior scrape.",
+  "notes": [
+    "No CSV/JSON static asset exists; all leaderboard data comes from the leaderboard-read edge function. Payloads were saved verbatim, not DOM-scraped.",
+    "The site's Benchmark selector offers exactly four versions: 4.0, 3.0, 2.1, 2.0, same as 20260902.",
+    "Agent/harness is a first-class field (metadata.agent_display) and is kept separate from the model name. reasoning_effort is also kept separate.",
+    "Metric is the leaderboard 'accuracy' field, displayed on the site as RESOLUTION RATE, in percent (0-100). score_ci95_half_width is the +/- 95% CI half width in percentage points.",
+    "context_window is not published by this site, so the field is omitted from every record.",
+    "cost_usd / total_tokens are the total across all trials for that run, as published. Terminal-Bench 2.0 rows publish accuracy only, so cost, tokens and trial counts are omitted for them.",
+    "Verified via the browser only; no curl fallback needed (curl/Node network access is blocked in this environment). Same-origin fetch from the page required no auth headers.",
+    "Rank values come from the source payload and contain ties.",
+    "No Muse Spark 1.3 or Gemini 3.8 Flash entries were found in any of the four leaderboard versions."
+  ],
+  "changes_vs_20260902": "Row counts identical per version (4.0=10, 3.0=12, 2.1=17, 2.0=142; total=181). Diffing normalized records by (model, agent, benchmark_version) key: 0 records added, 0 removed. Comparing score/rank per matching key found no differences either - the four leaderboard payloads appear byte-for-byte unchanged since 20260902 (no new runs submitted in the 24h window)."
+}

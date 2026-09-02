@@ -1,0 +1,55 @@
+{
+  "source_url": "https://benchlm.ai",
+  "final_url": "https://benchlm.ai/",
+  "scraped_at": "2026-09-04T07:59:31.000Z",
+  "benchmarks_captured": [
+    "Overall (bench-align-v5 composite index)",
+    "Elo (leaderboard Elo column)",
+    "Category index: Agentic",
+    "Category index: Coding",
+    "Category index: Reasoning",
+    "Category index: Multimodal & Grounded",
+    "Category index: Knowledge",
+    "Category index: Multilingual",
+    "Category index: Instruction Following",
+    "Category index: Math",
+    "...plus one row per benchmark's own name/fullName for every benchmark page on the site (410 benchmark pages on 2026-09-04, up from 409 on 2026-09-03) - same benchmark catalog family as 20260903/benchlm/meta.json (AA AIME 2025, AA-LCR, SWE-bench Verified, Terminal-Bench 2.1, etc.), not re-listed in full here to keep this file short; see normalized.json for the exact set of \"benchmark\" values captured today."
+  ],
+  "row_count": 9963,
+  "extraction_method": "chrome-devtools MCP: opened https://benchlm.ai in an isolated-context tab (isolatedContext=benchlm-rescrape-20260904), read __NEXT_DATA__ for the current buildId, then fetched the site's own SSG data endpoints /_next/data/sO7LcSOMOSP0YXfukxegt/{index,models,benchmarks,llm-pricing,llm-speed,frontier-ai-models,llm-price-performance}.json. Went deeper than the 20260903 run's slug-discovery source: instead of only trusting the /models listing page (which only lists 411 currently-tracked model families and undercounts total detail pages), slugs for both benchmarks and models were harvested directly from /sitemap.xml -> /sitemap-0.xml..sitemap-17.xml (85,506 <loc> entries scanned), then fetched /_next/data/sO7LcSOMOSP0YXfukxegt/benchmarks/<slug>.json for all 410 benchmark slugs and /_next/data/sO7LcSOMOSP0YXfukxegt/models/<slug>.json for all 411 model slugs. All fetches issued from the page's own fetch() inside evaluate_script with a 12-way concurrency pool and one retry per slug, saved straight to disk via the filePath option; no DOM scraping needed except to confirm __NEXT_DATA__.buildId. Operational note: the tool's 'Output saved to <path>' confirmation is returned even when the script's own WRONG_PAGE guard fired and the saved payload was just that tiny error object (this happened once, on the first raw.json save attempt, caught by checking the resulting file size on disk and redone); every filePath save in this run was verified against actual file size afterward.",
+  "site_stats": {
+    "modelCount": 417,
+    "rankedModelCount": 231,
+    "verifiedRankedModelCount": 105,
+    "estimatedRankedModelCount": 126,
+    "benchmarkCount": 417,
+    "lastUpdated": "September 3, 2026"
+  },
+  "counts": {
+    "benchmark_pages": 410,
+    "model_pages": 411,
+    "benchmark_leaderboard_rows": 8937,
+    "overall_leaderboard_rows_scored": 231,
+    "overall_leaderboard_rows_total": 411,
+    "category_index_rows": 623,
+    "elo_rows": 172
+  },
+  "fetch_errors": [],
+  "notes": [
+    "No XHR/fetch data API exists beyond /api/market (unrelated market blurb, not captured). All leaderboard data ships in Next.js SSG payloads, saved verbatim in raw.json.",
+    "raw.json holds the untouched pageProps for every benchmark page, every model page and the index/models/pricing/speed pages. On the 411 model-detail payloads the keys comparisonLinks, faqs, visuals, seo, radar and peerPosition were dropped before saving (site still nests model data one level deeper under pageProps.pageData, same as 20260903; those six keys were dropped from pageData and the remainder unwrapped to pageProps.pageData directly, matching the flat shape used in 20260903/benchlm/raw.json) to keep file size down; every other field is verbatim.",
+    "The homepage leaderboard still ships as tuple-encoded arrays (39 columns, no column names in the payload) inside pageProps.homepageData.leaderboard.rows, unchanged from 20260903. Re-verified against several rows today: [1]=model, [2]=slug, [3]=provider, [8]=contextWindow, [10]=inputPrice, [11]=outputPrice, [12]=blendedPrice, [13]=tokensPerSecond, [14]=latency seconds, [15]=Elo, [17]=release date, [26]=displayScore, [27]=full-precision overall score, [30]=category scores array in order Agentic,Coding,Reasoning,Multimodal & Grounded,Knowledge,Multilingual,Instruction Following,Math. Same mapping as 20260903 and 20260902.",
+    "rank for per-benchmark records is the position in the leaderboard order the site publishes for that benchmark (no numeric rank field in the payload), same convention as prior days.",
+    "rank for Overall was computed by sorting the 231 scored models (row[26] non-null) by full-precision overall score (row[27]) descending; score reported is the rounded displayScore (row[26]), matching prior-day convention. Category and Elo ranks are likewise computed by sorting the rows with a non-null value at that column descending.",
+    "cost_usd, context_window and date on every record prefer the model's own detail-page values (pricing.blendedPrice, pricing.contextWindow, model.releaseLabel parsed to ISO) and fall back to the per-benchmark leaderboard row's own contextWindow, or to the homepage row's blendedPrice/contextWindow/release-date columns for Overall/Category/Elo records. Fields are omitted (not fabricated as null/0) when no source has a value.",
+    "Benchmark name collisions exist across slugs; source_url disambiguates (benchmark pages use https://benchlm.ai/benchmarks/<pageSlug>; Overall records use https://benchlm.ai/models/<slug>; Category records use https://benchlm.ai/<categoryKey>; Elo records use https://benchlm.ai/).",
+    "No values were estimated or invented. Missing data is omitted. Zero fetch errors; all 410 benchmark and 411 model endpoints returned HTTP 200 on first or second attempt. Slug-list and top-level page fetches needed many select_page+evaluate_script retries (WRONG_PAGE aborts) because nine other agents were concurrently reselecting/renavigating tabs in the same shared browser session during this run; every retry was preceded by a location.href check that aborted the script instead of fetching on the wrong site. The large per-slug batch fetches (all-remaining-in-one-call, 12-way concurrency) needed far fewer retries than small fixed-size batches, since each successful call only needed one clean race-free window instead of many."
+  ],
+  "changes_vs_20260903": [
+    "Site's Next.js buildId changed from euf_1hAZlYZlUaI_uldoX to sO7LcSOMOSP0YXfukxegt (new deploy since yesterday).",
+    "Benchmark catalog grew from 409 to 410 pages; model catalog grew from 410 to 411 pages (site stats now report modelCount 417 / benchmarkCount 417 vs 416 / 416 on 20260903, and lastUpdated advanced from \"September 2, 2026\" to \"September 3, 2026\").",
+    "No new payload restructuring today: model-detail SSG payloads remain nested under pageProps.pageData and the homepage leaderboard remains pageProps.homepageData.leaderboard.rows, same shape as 20260903 (both were restructured relative to 20260902 and have not changed further since).",
+    "normalized.json record count is 9963 vs 9889 on 20260903 (+74), consistent with the modest benchmark/model catalog growth; per-category breakdown: benchmark_leaderboard_rows 8937 (was 8870), overall_leaderboard_rows_scored 231 (was 230), category_index_rows 623 (was 617), elo_rows 172 (unchanged).",
+    "Muse Spark 1.3, Gemini 3.8 Flash and Muse Spark 1.2 (named in the verification request) all exist today. Muse Spark 1.3 now has 25 benchmark rows (up from 9 on 20260903) - it gained an AA-LCR row (79, rank 15) that was absent yesterday; Terminal-Bench 2.1 (provider run) is unchanged at 88.8, rank 2; still no SWE-bench row of any kind for it. Gemini 3.8 Flash has 60 rows (up from 55): AA-LCR (81, rank 4), Terminal-Bench 2.1 provider run (89.4, rank 1) and Vals Terminal-Bench 2.1 (81.273, rank 4) are all unchanged from yesterday's values, as is its Vals SWE-bench mirror row (80, rank 24); still no true SWE-bench Verified row. Muse Spark 1.2 has 50 rows, including AA-LCR (83.3, rank 1), Terminal-Bench 2.1 provider run (82.9, rank 10), Vals Terminal-Bench 2.1 (69.663, rank 19) and Vals SWE-bench mirror (86.6, rank 14)."
+  ]
+}
