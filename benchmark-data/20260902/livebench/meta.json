@@ -1,0 +1,38 @@
+{
+  "source_url": "https://livebench.ai/#/",
+  "scraped_at": "2026-09-02T19:00:00.042Z",
+  "release": "LiveBench-2026-06-25",
+  "benchmarks_captured": [
+    "Overall",
+    "Reasoning",
+    "Coding",
+    "Agentic Coding",
+    "Mathematics",
+    "Data Analysis",
+    "Language",
+    "Instruction Following"
+  ],
+  "row_count": 392,
+  "model_count": 49,
+  "extraction_method": "network-json",
+  "files": {
+    "raw.json": "Verbatim contents of the three data files the site fetches, keyed by filename.",
+    "table_2026_06_25.csv": "Verbatim source: per-model, per-subtask scores (23 subtasks). Model ids are API ids, not display names.",
+    "categories_2026_06_25.json": "Verbatim source: mapping of the 7 categories to their subtasks.",
+    "cost_2026_06_25.csv": "Verbatim source: per-model, per-subtask cost and nq_* (question count) columns.",
+    "raw_leaderboard_dom.json": "DOM extraction of the rendered leaderboard: aggregated category scores, org and cost per successful task, which the CSVs do not contain pre-aggregated.",
+    "normalized.json": "One record per model per metric."
+  },
+  "notes": [
+    "Data endpoints discovered via performance resource entries: livebench.ai/table_2026_06_25.csv, categories_2026_06_25.json, cost_2026_06_25.csv (all ?v=1788285879).",
+    "The site's rendered leaderboard aggregates the subtask CSV into the 7 categories plus Overall; those aggregates were read from the DOM, so normalized.json is DOM-derived while raw.json is the untouched network source.",
+    "48 models shown by default; 'Include finetunes' adds 1 more (Smaug-Agentic), flagged with is_finetune. Both are included, 49 models total.",
+    "'Show org' was enabled to obtain the provider column.",
+    "cost_usd is the site's model-level 'COST PER SUCCESSFUL TASK' in USD. It is not per-category; it is repeated on every record of a model.",
+    "date is the LiveBench release date the scores belong to (2026-06-25), not a model release date.",
+    "rank is present only on Overall records, taken from the site's default Overall-descending sort. The site shows no per-category rank, so it is omitted there.",
+    "context_window is not published by LiveBench and is omitted.",
+    "An older release (2024-06-24, v1) is selectable on the site but was not captured; only the latest release was scraped.",
+    "Per-subtask scores are preserved in the raw CSVs but not expanded into normalized.json."
+  ]
+}

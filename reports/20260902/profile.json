@@ -1,0 +1,138 @@
+{
+  "stack": "Oracle APEX, Oracle DB, JS, HTML/CSS, ERP",
+  "slug": "erp-oracle-apex",
+  "data": "benchmark-data/20260904",
+  "title": "ERP / Oracle APEX model shortlist",
+  "stamp": "ERP / APEX INDEX  \u2022  SEP 04, 2026",
+  "out": "reports/20260902",
+  "report": "erp-oracle-apex-model-shortlist.md",
+  "scoring_sources": [
+    "artificial-analysis",
+    "vals-ai",
+    "deepswe"
+  ],
+  "metrics": {
+    "coding": {
+      "site": "artificial-analysis",
+      "benchmark": "Artificial Analysis Coding Index",
+      "metric": "score"
+    },
+    "agentic": {
+      "site": "artificial-analysis",
+      "benchmark": "Artificial Analysis Agentic Index",
+      "metric": "score"
+    },
+    "lcr": {
+      "site": "artificial-analysis",
+      "benchmark": "AA-LCR",
+      "metric": "score",
+      "scale": 100
+    },
+    "nh": {
+      "site": "artificial-analysis",
+      "benchmark": "AA-Omniscience Non-Hallucination Rate",
+      "metric": "score",
+      "scale": 100
+    },
+    "acc": {
+      "site": "artificial-analysis",
+      "benchmark": "AA-Omniscience Accuracy",
+      "metric": "score",
+      "scale": 100
+    },
+    "code_mig": {
+      "site": "vals-ai",
+      "benchmark": "Code Migration",
+      "metric": "accuracy",
+      "stderr": true
+    },
+    "corpfin": {
+      "site": "vals-ai",
+      "benchmark": "CorpFin v2",
+      "metric": "accuracy",
+      "stderr": true
+    },
+    "pass1": {
+      "site": "deepswe",
+      "benchmark": "DeepSWE v1.1",
+      "metric": "pass@1",
+      "unit": "%"
+    },
+    "task_cost": {
+      "site": "deepswe",
+      "field": "cost_usd",
+      "unit": "$/task"
+    },
+    "price": {
+      "site": "artificial-analysis",
+      "metric": "blended_price_per_1m_usd_3to1",
+      "unit": "$/1M"
+    },
+    "e2e": {
+      "site": "artificial-analysis",
+      "metric": "end_to_end_response_time_median_seconds",
+      "unit": "s"
+    },
+    "ttft": {
+      "site": "artificial-analysis",
+      "metric": "time_to_first_token_median_seconds",
+      "unit": "s"
+    }
+  },
+  "roles": [
+    {
+      "name": "Batch migration",
+      "slug": "batch",
+      "note": "Long unattended runs converting Forms and PL/SQL. Code Migration is the closest public proxy.",
+      "weights": {
+        "code_mig": 0.3,
+        "coding": 0.25,
+        "agentic": 0.2,
+        "lcr": 0.15,
+        "nh": 0.1
+      }
+    },
+    {
+      "name": "Interactive edit loop",
+      "slug": "interactive",
+      "note": "Page-edit turnaround, where waiting costs a developer more than tokens do.",
+      "weights": {
+        "coding": 0.3,
+        "agentic": 0.2,
+        "nh": 0.2,
+        "e2e": 0.15,
+        "price": 0.15
+      },
+      "transforms": {
+        "e2e": "inverse_log_minmax",
+        "price": "inverse_log_minmax"
+      }
+    },
+    {
+      "name": "Quality only",
+      "slug": "quality",
+      "note": "Model quality with cost and speed removed, for work where correctness dominates.",
+      "weights": {
+        "coding": 0.4,
+        "agentic": 0.3,
+        "nh": 0.3
+      }
+    }
+  ],
+  "overall": {
+    "coding": 0.3,
+    "agentic": 0.25,
+    "lcr": 0.15,
+    "nh": 0.15,
+    "acc": 0.15
+  },
+  "cheap_alternative": {
+    "max_points_behind": 5.0,
+    "min_price_ratio": 3.0
+  },
+  "gaps": [
+    "GPT-6 Astra carries no CorpFin v2 row and no latency row, so it cannot enter the interactive role.",
+    "Muse Spark 1.3 is on Artificial Analysis only, so it has no batch score."
+  ],
+  "note": "First report, built by the local make_charts.py in this folder before the pipeline was generalised. This profile is the worked example of the contract; re-running pipeline/make_charts.py here writes new chart files alongside the old ones."
+}

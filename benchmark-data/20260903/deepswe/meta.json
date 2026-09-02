@@ -1,0 +1,54 @@
+{
+  "source_url": "https://deepswe.datacurve.ai/",
+  "scraped_at": "2026-09-02T21:54:20.000Z",
+  "benchmarks_captured": [
+    "DeepSWE v1.1",
+    "DeepSWE v1",
+    "DeepSWE v1 (curated selection)"
+  ],
+  "row_count": 220,
+  "extraction_method": "JSON data artifacts fetched verbatim (no DOM scraping). Opened own chrome-devtools page (id 18) on https://deepswe.datacurve.ai/, verified location.href before every evaluate_script call, then used the page's own same-origin fetch() to pull the 4 known artifact URLs (discovered in the 2026-09-02 scrape) and saved each response straight to a file via evaluate_script's filePath option. No Node/curl fallback was needed today (no contention observed, and Bash-tool network access to curl was denied by sandbox policy).",
+  "artifacts": [
+    {
+      "url": "https://deepswe.datacurve.ai/artifacts/v1.1/leaderboard-live.json",
+      "bytes": 83881,
+      "rows": 65,
+      "generated_at": "2026-09-02T15:18:19Z",
+      "role": "leaderboard tab 'v1.1' (default). 65 harness+model+reasoning-effort configs, 27 distinct models."
+    },
+    {
+      "url": "https://deepswe.datacurve.ai/artifacts/v1/leaderboard-live.json",
+      "bytes": 36591,
+      "rows": 29,
+      "generated_at": "2026-06-20T17:27:24.307648+00:00",
+      "role": "leaderboard tab 'v1'. 29 configs, 21 distinct models."
+    },
+    {
+      "url": "https://deepswe.datacurve.ai/artifacts/v1/leaderboard.json",
+      "bytes": 15887,
+      "rows": 16,
+      "role": "curated 16-config selection used by the /blog/deepswe post; selection_source = 'computed from data/raw/rollouts/deep-swe-all-4x-cross-bench-minimal'. Not a tab on the main leaderboard."
+    },
+    {
+      "url": "https://deepswe.datacurve.ai/artifacts/v1.1/v1-delta.json",
+      "bytes": 21647,
+      "role": "v1.1-vs-v1 re-grading comparison for the 9 configs run in both versions. Included in raw.json for completeness; NOT normalized (it duplicates configs already present in the two leaderboards)."
+    }
+  ],
+  "notes": [
+    "All four artifact payloads fetched today are byte-for-byte identical (dict-equal, confirmed programmatically) to the 2026-09-02 raw.json, including generated_at timestamps (v1.1 = 2026-09-02T15:18:19Z). The site has not re-run or updated its data since yesterday's scrape.",
+    "Because raw data is unchanged, normalized.json applies the exact same deterministic transformation as 2026-09-02 and is therefore identical in content to the 2026-09-02 normalized.json (220 records), except that it is emitted as a clean array of 220 objects only -- the 2026-09-02 normalized.json was re-checked and in fact already contained 0 non-object entries (all 220 elements were dicts); the task brief's caveat about a stray string entry did not apply to this file as found.",
+    "AGENT/SCAFFOLD: every row on this site was run with the 'mini-swe-agent' harness. Kept as its own 'agent' field, never merged into the model name. The site states: 'All models run on mini-swe-agent for consistency.'",
+    "COST ADJUSTMENT: raw.json holds the untouched artifacts, whose mean_cost_usd is priced at the model's ORIGINAL API rates. The site re-prices 7 models client-side (glm-5-3-flash, gpt-5-6-luna, gpt-5-6-terra, gpt-5-6-sol, deepseek-v4-pro, deepseek-v4-flash, gemini-3-6-flash) using a from/to price table in its JS bundle, applying a factor computed from each row's actual input/cached/output token counts. normalized.json reports the ADJUSTED cost, i.e. the number the site actually displays. Not re-verified against the rendered page today since the underlying data is unchanged from 2026-09-02, when this was spot-checked and matched.",
+    "MODEL NAMES: the artifacts store slugs like 'gemini-3-8-flash'. normalized.json uses the site's own display formatter (also copied verbatim from the bundle) to produce 'gemini-3.8-flash'. No name was invented.",
+    "PROVIDER: not a field in the source data. Derived with the site's own provider-inference function from its JS bundle (the one that drives the provider icons), so the mapping is the site's, not ours.",
+    "RANK: not published by the site as a number. In normalized.json rank is the 1-based position after sorting all configs of that (benchmark, metric) by score descending. The site's default table view instead shows only the best config per model ('Best' toggle, 20 of 27 models), so ranks here run over configs, not models.",
+    "METRICS: two records are emitted per config, metric='pass@1' and metric='pass@4'. score is a percentage (0-100). pass@1 records also carry ci_half_pct, the 95% run-to-run confidence half-width the site prints as the +/- value. The site's definition: 'pass@1 is attempt pass rate over scored rollout attempts. pass@4 is tasks with at least one passing rollout divided by tasks attempted. Context-window failures and agent timeouts are scored failures; provider/verifier/network errors are excluded.'",
+    "context_window: OMITTED. The data has median_peak_context_tokens (observed peak context use), which is not a model context window, so it is carried under its own name instead and context_window is left out.",
+    "EXTRA FIELDS beyond the requested shape, all straight from the source: reasoning_effort, config, n_tasks_attempted, n_runs, mean_output_tokens, mean_agent_steps, median_peak_context_tokens, ci_half_pct.",
+    "date: the artifact's generated_at. v1.1 = 2026-09-02T15:18:19Z (unchanged from yesterday). The v1 curated artifact has no generated_at, so date is omitted on those 32 records.",
+    "COVERAGE: the leaderboard's other controls (Cost / Output tokens / Agent steps chart axes, the 'Best' vs 'All effort levels' toggle, and the Configs 52/65 and Models 20/27 filter counters) are all views over these same rows, not separate data; all 65 v1.1 configs are captured. No pagination or 'show more' returns additional rows. No login, CAPTCHA, or blocking encountered.",
+    "MODEL CHECK: 'muse-spark-1.3' / 'Muse Spark 1.3' is NOT present on this leaderboard as of this scrape. Only muse-spark-1.2 and muse-spark-1.1 exist in the data. Not fabricated -- verified absent by scanning all 220 normalized records' model field."
+  ],
+  "changes_vs_20260902": "No changes. All 4 source artifacts (leaderboard-live.json v1.1 and v1, leaderboard.json curated, v1-delta.json) are byte-for-byte/dict-equal to the 2026-09-02 scrape, including generated_at timestamps. raw.json and normalized.json content are therefore identical to yesterday's (220 records each); only scraped_at in this meta.json and this changes note differ. The site itself states the v1.1 data covers '113 tasks, updated September 2, 2026' -- consistent with no update having occurred."
+}

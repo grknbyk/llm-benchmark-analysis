@@ -1,0 +1,873 @@
+{
+  "stack": "Oracle APEX, Oracle DB, JS, HTML/CSS, ERP",
+  "data": "benchmark-data/20260915",
+  "generated_from": "reports/20260915-erp-oracle-apex/profile.json",
+  "join": {
+    "GPT-6 Astra (max)": {
+      "vals-ai": "gpt6astra",
+      "deepswe": "gpt6astra"
+    },
+    "Claude Fable 5.1 (Max)": {
+      "vals-ai": null,
+      "deepswe": null
+    },
+    "Claude Fable 5 (Max, Opus 4.8 Fallback)": {
+      "vals-ai": null,
+      "deepswe": null
+    },
+    "Claude Opus 5 (Max)": {
+      "vals-ai": null,
+      "deepswe": null
+    },
+    "GLM-5.3 (max)": {
+      "vals-ai": "glm53",
+      "deepswe": "glm53"
+    },
+    "Muse Spark 1.3 (max)": {
+      "vals-ai": "musespark13",
+      "deepswe": null
+    },
+    "GPT-5.6 Sol (max)": {
+      "vals-ai": "gpt56sol",
+      "deepswe": "gpt56sol"
+    },
+    "Qwen3.8 Max (0902)": {
+      "vals-ai": "qwen38",
+      "deepswe": "qwen38"
+    },
+    "Grok 4.6 (high)": {
+      "vals-ai": "grok46",
+      "deepswe": "grok46"
+    },
+    "GLM-5.3-Flash": {
+      "vals-ai": "glm53flash",
+      "deepswe": "glm53flash"
+    },
+    "Claude Opus 4.8 (Max)": {
+      "vals-ai": null,
+      "deepswe": null
+    },
+    "Gemini 3.8 Flash (high)": {
+      "vals-ai": "gemini38flash",
+      "deepswe": "gemini38flash"
+    },
+    "GPT-5.6 Terra (max)": {
+      "vals-ai": "gpt56terra",
+      "deepswe": "gpt56terra"
+    },
+    "Kimi K3 (max)": {
+      "vals-ai": "kimik3",
+      "deepswe": "kimik3"
+    }
+  },
+  "columns": [
+    {
+      "name": "lcr",
+      "site": "artificial-analysis",
+      "unit": "",
+      "better": "high",
+      "plain": "\u00c7ok uzun bir belgeyi ne kadar iyi takip etti\u011fi.",
+      "label": "Artificial Analysis Long Context Reasoning"
+    },
+    {
+      "name": "nh",
+      "site": "artificial-analysis",
+      "unit": "",
+      "better": "high",
+      "plain": "Cevap uydurmak yerine bilmedi\u011fini ne s\u0131kl\u0131kla kabul etti\u011fi.",
+      "label": "AA-Omniscience non-hallucination rate"
+    },
+    {
+      "name": "acc",
+      "site": "artificial-analysis",
+      "unit": "",
+      "better": "high",
+      "plain": "Verdi\u011fi cevab\u0131n ne s\u0131kl\u0131kla do\u011fru oldu\u011fu.",
+      "label": "AA-Omniscience accuracy"
+    },
+    {
+      "name": "price",
+      "site": "artificial-analysis",
+      "unit": "$/1M",
+      "better": "low",
+      "plain": "Bir milyon token'\u0131n ka\u00e7 dolar oldu\u011fu.",
+      "label": "1M token ba\u015f\u0131na harmanlanm\u0131\u015f fiyat, 3:1 girdi/\u00e7\u0131kt\u0131"
+    },
+    {
+      "name": "e2e",
+      "site": "artificial-analysis",
+      "unit": "s",
+      "better": "low",
+      "plain": "Cevab\u0131n tamam\u0131 gelene kadar ge\u00e7en saniye.",
+      "label": "U\u00e7tan uca yan\u0131t s\u00fcresi, medyan"
+    },
+    {
+      "name": "ttft",
+      "site": "artificial-analysis",
+      "unit": "s",
+      "better": "low",
+      "plain": "\u0130lk kelime g\u00f6r\u00fcnene kadar ge\u00e7en saniye.",
+      "label": "\u0130lk token'a kadar ge\u00e7en s\u00fcre, medyan"
+    },
+    {
+      "name": "scicode",
+      "site": "artificial-analysis",
+      "unit": "",
+      "better": "high",
+      "plain": "\u00c7al\u0131\u015fan bilimsel kod yazabilme. Adaylar\u0131n hepsinde \u00f6l\u00e7\u00fcl\u00fc.",
+      "label": "SciCode"
+    },
+    {
+      "name": "tbench4",
+      "site": "artificial-analysis",
+      "unit": "",
+      "better": "high",
+      "plain": "Bir kabukta \u00e7ok ad\u0131ml\u0131 i\u015fi ara\u00e7 kullanarak bitirebilme.",
+      "label": "Terminal-Bench 4.0"
+    },
+    {
+      "name": "code_mig",
+      "site": "vals-ai",
+      "unit": "",
+      "better": "high",
+      "plain": "Eski bir program\u0131 ba\u015fka bir dile ne kadar iyi yeniden yazd\u0131\u011f\u0131.",
+      "label": "Vals AI Code Migration"
+    },
+    {
+      "name": "corpfin",
+      "site": "vals-ai",
+      "unit": "",
+      "better": "high",
+      "plain": "Uzun s\u00f6zle\u015fmelerle ilgili sorular\u0131 ne kadar iyi yan\u0131tlad\u0131\u011f\u0131.",
+      "label": "Vals AI CorpFin v2"
+    },
+    {
+      "name": "pass1",
+      "site": "deepswe",
+      "unit": "%",
+      "better": "high",
+      "plain": "Ger\u00e7ek bir hatay\u0131 ilk denemede ne s\u0131kl\u0131kla d\u00fczeltti\u011fi.",
+      "label": "DeepSWE v1.1 pass@1"
+    },
+    {
+      "name": "task_cost",
+      "site": "deepswe",
+      "unit": "$/task",
+      "better": "low",
+      "plain": "Biten bir g\u00f6revin dolar cinsinden maliyeti.",
+      "label": "DeepSWE g\u00f6rev ba\u015f\u0131na maliyet"
+    },
+    {
+      "name": "steps",
+      "site": "deepswe",
+      "unit": "steps",
+      "better": "low",
+      "plain": "Bir g\u00f6revi bitirmek i\u00e7in ka\u00e7 tura ihtiyac\u0131 oldu\u011fu.",
+      "label": "DeepSWE g\u00f6rev ba\u015f\u0131na ajan turu"
+    },
+    {
+      "name": "dur",
+      "site": "deepswe",
+      "unit": "s",
+      "better": "low",
+      "plain": "Bir g\u00f6revin saniye cinsinden ne kadar s\u00fcrd\u00fc\u011f\u00fc.",
+      "label": "DeepSWE g\u00f6rev s\u00fcresi"
+    },
+    {
+      "name": "batch",
+      "site": "index",
+      "unit": "0-100",
+      "better": "high",
+      "plain": "A\u011f\u0131rl\u0131kl\u0131 puan, 0 ile 100 aras\u0131, y\u00fcksek olan iyidir: 0.25*code_mig + 0.2*pass1 + 0.2*scicode + 0.15*tbench4 + 0.1*lcr + 0.1*nh",
+      "label": "Toplu ta\u015f\u0131ma"
+    },
+    {
+      "name": "interactive",
+      "site": "index",
+      "unit": "0-100",
+      "better": "high",
+      "plain": "A\u011f\u0131rl\u0131kl\u0131 puan, 0 ile 100 aras\u0131, y\u00fcksek olan iyidir: 0.3*scicode + 0.2*tbench4 + 0.2*nh + 0.15*e2e [inverse_log_minmax] + 0.15*price [inverse_log_minmax]",
+      "label": "Etkile\u015fimli d\u00fczenleme d\u00f6ng\u00fcs\u00fc"
+    },
+    {
+      "name": "quality",
+      "site": "index",
+      "unit": "0-100",
+      "better": "high",
+      "plain": "A\u011f\u0131rl\u0131kl\u0131 puan, 0 ile 100 aras\u0131, y\u00fcksek olan iyidir: 0.4*scicode + 0.3*tbench4 + 0.3*nh",
+      "label": "Yaln\u0131zca kalite"
+    },
+    {
+      "name": "overall",
+      "site": "index",
+      "unit": "0-100",
+      "better": "high",
+      "plain": "A\u011f\u0131rl\u0131kl\u0131 puan, 0 ile 100 aras\u0131, y\u00fcksek olan iyidir: 0.3*scicode + 0.25*tbench4 + 0.15*lcr + 0.15*nh + 0.15*acc",
+      "label": "Genel a\u011f\u0131rl\u0131kl\u0131 endeks"
+    }
+  ],
+  "benchmarks": {
+    "lcr": {
+      "source": "artificial-analysis / AA-LCR / score",
+      "unit": "",
+      "scale": 100,
+      "values": {
+        "GPT-6 Astra (max)": 80.6667,
+        "Claude Fable 5.1 (Max)": 85.3333,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 82.3333,
+        "Claude Opus 5 (Max)": 79.3333,
+        "GLM-5.3 (max)": 79.6667,
+        "Muse Spark 1.3 (max)": 83.0,
+        "GPT-5.6 Sol (max)": 84.0,
+        "Qwen3.8 Max (0902)": 80.3333,
+        "Grok 4.6 (high)": 80.3333,
+        "GLM-5.3-Flash": 80.0,
+        "Claude Opus 4.8 (Max)": 77.6667,
+        "Gemini 3.8 Flash (high)": 81.3333,
+        "GPT-5.6 Terra (max)": 83.0,
+        "Kimi K3 (max)": 88.6667
+      }
+    },
+    "nh": {
+      "source": "artificial-analysis / AA-Omniscience Non-Hallucination Rate / score",
+      "unit": "",
+      "scale": 100,
+      "values": {
+        "GPT-6 Astra (max)": 48.6631,
+        "Claude Fable 5.1 (Max)": 27.4161,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 36.3636,
+        "Claude Opus 5 (Max)": 39.1823,
+        "GLM-5.3 (max)": 70.446,
+        "Muse Spark 1.3 (max)": 67.0606,
+        "GPT-5.6 Sol (max)": 7.7997,
+        "Qwen3.8 Max (0902)": 71.1637,
+        "Grok 4.6 (high)": 65.7115,
+        "GLM-5.3-Flash": 72.3678,
+        "Claude Opus 4.8 (Max)": 60.7492,
+        "Gemini 3.8 Flash (high)": 44.8238,
+        "GPT-5.6 Terra (max)": 12.1241,
+        "Kimi K3 (max)": 46.8045
+      }
+    },
+    "acc": {
+      "source": "artificial-analysis / AA-Omniscience Accuracy / score",
+      "unit": "",
+      "scale": 100,
+      "values": {
+        "GPT-6 Astra (max)": 62.6,
+        "Claude Fable 5.1 (Max)": 67.2333,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 65.35,
+        "Claude Opus 5 (Max)": 60.8667,
+        "GLM-5.3 (max)": 33.85,
+        "Muse Spark 1.3 (max)": 43.5833,
+        "GPT-5.6 Sol (max)": 59.4,
+        "Qwen3.8 Max (0902)": 31.6833,
+        "Grok 4.6 (high)": 48.2333,
+        "GLM-5.3-Flash": 27.5,
+        "Claude Opus 4.8 (Max)": 48.8333,
+        "Gemini 3.8 Flash (high)": 54.6,
+        "GPT-5.6 Terra (max)": 46.8,
+        "Kimi K3 (max)": 47.5833
+      }
+    },
+    "code_mig": {
+      "source": "vals-ai / Code Migration / accuracy",
+      "unit": "",
+      "scale": 1,
+      "values": {
+        "GPT-6 Astra (max)": 67.74,
+        "Claude Fable 5.1 (Max)": 54.607,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 55.065,
+        "Claude Opus 5 (Max)": 57.473,
+        "GLM-5.3 (max)": 44.222,
+        "Muse Spark 1.3 (max)": null,
+        "GPT-5.6 Sol (max)": 52.916,
+        "Qwen3.8 Max (0902)": 23.958,
+        "Grok 4.6 (high)": 44.572,
+        "GLM-5.3-Flash": 20.515,
+        "Claude Opus 4.8 (Max)": 47.25,
+        "Gemini 3.8 Flash (high)": 36.546,
+        "GPT-5.6 Terra (max)": 47.804,
+        "Kimi K3 (max)": 16.099
+      }
+    },
+    "corpfin": {
+      "source": "vals-ai / CorpFin v2 / accuracy",
+      "unit": "",
+      "scale": 1,
+      "values": {
+        "GPT-6 Astra (max)": null,
+        "Claude Fable 5.1 (Max)": null,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 71.834,
+        "Claude Opus 5 (Max)": 73.194,
+        "GLM-5.3 (max)": null,
+        "Muse Spark 1.3 (max)": null,
+        "GPT-5.6 Sol (max)": 64.375,
+        "Qwen3.8 Max (0902)": 65.851,
+        "Grok 4.6 (high)": 66.161,
+        "GLM-5.3-Flash": null,
+        "Claude Opus 4.8 (Max)": 66.706,
+        "Gemini 3.8 Flash (high)": null,
+        "GPT-5.6 Terra (max)": 65.307,
+        "Kimi K3 (max)": 71.562
+      }
+    },
+    "pass1": {
+      "source": "deepswe / DeepSWE v1.1 / pass@1",
+      "unit": "%",
+      "scale": 1,
+      "values": {
+        "GPT-6 Astra (max)": 74.115,
+        "Claude Fable 5.1 (Max)": null,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 69.9115,
+        "Claude Opus 5 (Max)": 73.6486,
+        "GLM-5.3 (max)": 68.9579,
+        "Muse Spark 1.3 (max)": null,
+        "GPT-5.6 Sol (max)": 72.6667,
+        "Qwen3.8 Max (0902)": 57.461,
+        "Grok 4.6 (high)": 67.4779,
+        "GLM-5.3-Flash": 63.3929,
+        "Claude Opus 4.8 (Max)": 58.9744,
+        "Gemini 3.8 Flash (high)": 73.8255,
+        "GPT-5.6 Terra (max)": 69.6231,
+        "Kimi K3 (max)": 68.5144
+      }
+    },
+    "task_cost": {
+      "source": "deepswe / DeepSWE v1.1 / pass@1",
+      "unit": "$/task",
+      "scale": 1,
+      "values": {
+        "GPT-6 Astra (max)": 6.5238,
+        "Claude Fable 5.1 (Max)": null,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 13.4145,
+        "Claude Opus 5 (Max)": 11.8376,
+        "GLM-5.3 (max)": 3.9934,
+        "Muse Spark 1.3 (max)": null,
+        "GPT-5.6 Sol (max)": 6.456,
+        "Qwen3.8 Max (0902)": 3.7291,
+        "Grok 4.6 (high)": 3.449,
+        "GLM-5.3-Flash": 0.241,
+        "Claude Opus 4.8 (Max)": 13.2226,
+        "Gemini 3.8 Flash (high)": 2.3623,
+        "GPT-5.6 Terra (max)": 3.9567,
+        "Kimi K3 (max)": 4.6547
+      }
+    },
+    "price": {
+      "source": "artificial-analysis / - / blended_price_per_1m_usd_3to1",
+      "unit": "$/1M",
+      "scale": 1,
+      "values": {
+        "GPT-6 Astra (max)": 20.0,
+        "Claude Fable 5.1 (Max)": 20.0,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 20.0,
+        "Claude Opus 5 (Max)": 10.0,
+        "GLM-5.3 (max)": 2.15,
+        "Muse Spark 1.3 (max)": 2.0,
+        "GPT-5.6 Sol (max)": 8.0,
+        "Qwen3.8 Max (0902)": 3.0,
+        "Grok 4.6 (high)": 3.0,
+        "GLM-5.3-Flash": 0.2375,
+        "Claude Opus 4.8 (Max)": 10.0,
+        "Gemini 3.8 Flash (high)": 1.5,
+        "GPT-5.6 Terra (max)": 4.5,
+        "Kimi K3 (max)": 6.0
+      }
+    },
+    "e2e": {
+      "source": "artificial-analysis / - / end_to_end_response_time_median_seconds",
+      "unit": "s",
+      "scale": 1,
+      "values": {
+        "GPT-6 Astra (max)": 291.7562,
+        "Claude Fable 5.1 (Max)": 242.5596,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 93.1936,
+        "Claude Opus 5 (Max)": 53.5145,
+        "GLM-5.3 (max)": 40.6494,
+        "Muse Spark 1.3 (max)": 31.8864,
+        "GPT-5.6 Sol (max)": 107.135,
+        "Qwen3.8 Max (0902)": 63.2076,
+        "Grok 4.6 (high)": 44.6451,
+        "GLM-5.3-Flash": 24.3101,
+        "Claude Opus 4.8 (Max)": 25.3347,
+        "Gemini 3.8 Flash (high)": 17.7677,
+        "GPT-5.6 Terra (max)": 144.697,
+        "Kimi K3 (max)": 76.4153
+      }
+    },
+    "ttft": {
+      "source": "artificial-analysis / - / time_to_first_token_median_seconds",
+      "unit": "s",
+      "scale": 1,
+      "values": {
+        "GPT-6 Astra (max)": 282.4965,
+        "Claude Fable 5.1 (Max)": 234.9812,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 85.4458,
+        "Claude Opus 5 (Max)": 43.5073,
+        "GLM-5.3 (max)": 3.0946,
+        "Muse Spark 1.3 (max)": 20.5664,
+        "GPT-5.6 Sol (max)": 99.4041,
+        "Qwen3.8 Max (0902)": 2.7201,
+        "Grok 4.6 (high)": 36.191,
+        "GLM-5.3-Flash": 2.4546,
+        "Claude Opus 4.8 (Max)": 16.429,
+        "Gemini 3.8 Flash (high)": 16.2776,
+        "GPT-5.6 Terra (max)": 139.7561,
+        "Kimi K3 (max)": 4.5215
+      }
+    },
+    "steps": {
+      "source": "deepswe / DeepSWE v1.1 / pass@1",
+      "unit": "steps",
+      "scale": 1,
+      "values": {
+        "GPT-6 Astra (max)": 26.0,
+        "Claude Fable 5.1 (Max)": null,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 61.5,
+        "Claude Opus 5 (Max)": 90.5,
+        "GLM-5.3 (max)": 114.0,
+        "Muse Spark 1.3 (max)": null,
+        "GPT-5.6 Sol (max)": 53.0,
+        "Qwen3.8 Max (0902)": 102.0,
+        "Grok 4.6 (high)": 66.0,
+        "GLM-5.3-Flash": 110.0,
+        "Claude Opus 4.8 (Max)": 116.0,
+        "Gemini 3.8 Flash (high)": 161.0,
+        "GPT-5.6 Terra (max)": 71.0,
+        "Kimi K3 (max)": 88.0
+      }
+    },
+    "dur": {
+      "source": "deepswe / DeepSWE v1.1 / pass@1",
+      "unit": "s",
+      "scale": 1,
+      "values": {
+        "GPT-6 Astra (max)": 1132.4004,
+        "Claude Fable 5.1 (Max)": null,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 1411.5831,
+        "Claude Opus 5 (Max)": 1911.8199,
+        "GLM-5.3 (max)": 2116.1785,
+        "Muse Spark 1.3 (max)": null,
+        "GPT-5.6 Sol (max)": 1128.6249,
+        "Qwen3.8 Max (0902)": 2567.2747,
+        "Grok 4.6 (high)": 895.5381,
+        "GLM-5.3-Flash": 1537.7995,
+        "Claude Opus 4.8 (Max)": 3492.7408,
+        "Gemini 3.8 Flash (high)": 686.7692,
+        "GPT-5.6 Terra (max)": 1016.6698,
+        "Kimi K3 (max)": 4541.4474
+      }
+    },
+    "scicode": {
+      "source": "artificial-analysis / SciCode / score",
+      "unit": "",
+      "scale": 100,
+      "values": {
+        "GPT-6 Astra (max)": 56.4815,
+        "Claude Fable 5.1 (Max)": 63.0787,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 60.9954,
+        "Claude Opus 5 (Max)": 56.3657,
+        "GLM-5.3 (max)": 59.0278,
+        "Muse Spark 1.3 (max)": 58.7963,
+        "GPT-5.6 Sol (max)": 57.0602,
+        "Qwen3.8 Max (0902)": 52.0833,
+        "Grok 4.6 (high)": 56.4815,
+        "GLM-5.3-Flash": 51.6204,
+        "Claude Opus 4.8 (Max)": 54.3981,
+        "Gemini 3.8 Flash (high)": 56.5972,
+        "GPT-5.6 Terra (max)": 54.9769,
+        "Kimi K3 (max)": 59.4907
+      }
+    },
+    "tbench4": {
+      "source": "artificial-analysis / Terminal-Bench 4.0 / score",
+      "unit": "",
+      "scale": 100,
+      "values": {
+        "GPT-6 Astra (max)": 59.0909,
+        "Claude Fable 5.1 (Max)": 52.0202,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 42.4242,
+        "Claude Opus 5 (Max)": 48.9899,
+        "GLM-5.3 (max)": 41.9192,
+        "Muse Spark 1.3 (max)": 33.3333,
+        "GPT-5.6 Sol (max)": 39.899,
+        "Qwen3.8 Max (0902)": 38.8889,
+        "Grok 4.6 (high)": 21.2121,
+        "GLM-5.3-Flash": 32.8283,
+        "Claude Opus 4.8 (Max)": 21.7172,
+        "Gemini 3.8 Flash (high)": 19.697,
+        "GPT-5.6 Terra (max)": 35.3535,
+        "Kimi K3 (max)": 12.6263
+      }
+    }
+  },
+  "roles": [
+    {
+      "name": "Overall",
+      "slug": "overall",
+      "formula": "`0.3*scicode + 0.25*tbench4 + 0.15*lcr + 0.15*nh + 0.15*acc`",
+      "weights": {
+        "scicode": 0.3,
+        "tbench4": 0.25,
+        "lcr": 0.15,
+        "nh": 0.15,
+        "acc": 0.15
+      },
+      "scores": {
+        "GPT-6 Astra (max)": 86.1202,
+        "Claude Fable 5.1 (Max)": 85.2382,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 80.5466,
+        "Claude Opus 5 (Max)": 79.7507,
+        "GLM-5.3 (max)": 77.0333,
+        "Muse Spark 1.3 (max)": 75.5262,
+        "GPT-5.6 Sol (max)": 71.9455,
+        "Qwen3.8 Max (0902)": 71.7898,
+        "Grok 4.6 (high)": 69.5848,
+        "GLM-5.3-Flash": 68.194,
+        "Claude Opus 4.8 (Max)": 67.6033,
+        "Gemini 3.8 Flash (high)": 67.3917,
+        "GPT-5.6 Terra (max)": 66.6057,
+        "Kimi K3 (max)": 65.9493
+      },
+      "not_scored": [],
+      "scores_zero": {
+        "GPT-6 Astra (max)": 86.1202,
+        "Claude Fable 5.1 (Max)": 85.2382,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 80.5466,
+        "Claude Opus 5 (Max)": 79.7507,
+        "GLM-5.3 (max)": 77.0333,
+        "Muse Spark 1.3 (max)": 75.5262,
+        "GPT-5.6 Sol (max)": 71.9455,
+        "Qwen3.8 Max (0902)": 71.7898,
+        "Grok 4.6 (high)": 69.5848,
+        "GLM-5.3-Flash": 68.194,
+        "Claude Opus 4.8 (Max)": 67.6033,
+        "Gemini 3.8 Flash (high)": 67.3917,
+        "GPT-5.6 Terra (max)": 66.6057,
+        "Kimi K3 (max)": 65.9493
+      },
+      "scores_median": {
+        "GPT-6 Astra (max)": 64.5621,
+        "Claude Fable 5.1 (Max)": 81.2073,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 67.8665,
+        "Claude Opus 5 (Max)": 54.1492,
+        "GLM-5.3 (max)": 54.8328,
+        "Muse Spark 1.3 (max)": 57.0407,
+        "GPT-5.6 Sol (max)": 49.5955,
+        "Qwen3.8 Max (0902)": 35.2785,
+        "Grok 4.6 (high)": 42.264,
+        "GLM-5.3-Flash": 29.0514,
+        "Claude Opus 4.8 (Max)": 32.5186,
+        "Gemini 3.8 Flash (high)": 40.6665,
+        "GPT-5.6 Terra (max)": 36.5796,
+        "Kimi K3 (max)": 52.2492
+      }
+    },
+    {
+      "name": "Toplu ta\u015f\u0131ma",
+      "slug": "batch",
+      "formula": "`0.25*code_mig + 0.2*pass1 + 0.2*scicode + 0.15*tbench4 + 0.1*lcr + 0.1*nh`",
+      "weights": {
+        "code_mig": 0.25,
+        "pass1": 0.2,
+        "scicode": 0.2,
+        "tbench4": 0.15,
+        "lcr": 0.1,
+        "nh": 0.1
+      },
+      "transforms": {},
+      "scores": {
+        "GPT-6 Astra (max)": 77.5409,
+        "Claude Fable 5.1 (Max)": null,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 68.4653,
+        "Claude Opus 5 (Max)": 65.867,
+        "GLM-5.3 (max)": 61.3277,
+        "Muse Spark 1.3 (max)": null,
+        "GPT-5.6 Sol (max)": 60.141,
+        "Qwen3.8 Max (0902)": 25.3287,
+        "Grok 4.6 (high)": 48.4634,
+        "GLM-5.3-Flash": 27.9044,
+        "Claude Opus 4.8 (Max)": 32.8818,
+        "Gemini 3.8 Flash (high)": 49.5878,
+        "GPT-5.6 Terra (max)": 48.668,
+        "Kimi K3 (max)": 43.0524
+      },
+      "not_scored": [
+        {
+          "model": "Claude Fable 5.1 (Max)",
+          "missing": [
+            "pass1"
+          ]
+        },
+        {
+          "model": "Muse Spark 1.3 (max)",
+          "missing": [
+            "code_mig",
+            "pass1"
+          ]
+        }
+      ],
+      "scores_zero": {
+        "GPT-6 Astra (max)": 77.5409,
+        "Claude Fable 5.1 (Max)": 61.3673,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 68.4653,
+        "Claude Opus 5 (Max)": 65.867,
+        "GLM-5.3 (max)": 61.3277,
+        "Muse Spark 1.3 (max)": 33.2366,
+        "GPT-5.6 Sol (max)": 60.141,
+        "Qwen3.8 Max (0902)": 25.3287,
+        "Grok 4.6 (high)": 48.4634,
+        "GLM-5.3-Flash": 27.9044,
+        "Claude Opus 4.8 (Max)": 32.8818,
+        "Gemini 3.8 Flash (high)": 49.5878,
+        "GPT-5.6 Terra (max)": 48.668,
+        "Kimi K3 (max)": 43.0524
+      },
+      "scores_median": {
+        "GPT-6 Astra (max)": 77.5409,
+        "Claude Fable 5.1 (Max)": 75.5735,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 68.4653,
+        "Claude Opus 5 (Max)": 65.867,
+        "GLM-5.3 (max)": 61.3277,
+        "Muse Spark 1.3 (max)": 62.5232,
+        "GPT-5.6 Sol (max)": 60.141,
+        "Qwen3.8 Max (0902)": 25.3287,
+        "Grok 4.6 (high)": 48.4634,
+        "GLM-5.3-Flash": 27.9044,
+        "Claude Opus 4.8 (Max)": 32.8818,
+        "Gemini 3.8 Flash (high)": 49.5878,
+        "GPT-5.6 Terra (max)": 48.668,
+        "Kimi K3 (max)": 43.0524
+      }
+    },
+    {
+      "name": "Etkile\u015fimli d\u00fczenleme d\u00f6ng\u00fcs\u00fc",
+      "slug": "interactive",
+      "formula": "`0.3*scicode + 0.2*tbench4 + 0.2*nh + 0.15*e2e [inverse_log_minmax] + 0.15*price [inverse_log_minmax]`",
+      "weights": {
+        "scicode": 0.3,
+        "tbench4": 0.2,
+        "nh": 0.2,
+        "e2e": 0.15,
+        "price": 0.15
+      },
+      "transforms": {
+        "e2e": "inverse_log_minmax",
+        "price": "inverse_log_minmax"
+      },
+      "scores": {
+        "GPT-6 Astra (max)": 45.3847,
+        "Claude Fable 5.1 (Max)": 54.0225,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 52.3362,
+        "Claude Opus 5 (Max)": 49.2327,
+        "GLM-5.3 (max)": 69.5175,
+        "Muse Spark 1.3 (max)": 65.7132,
+        "GPT-5.6 Sol (max)": 34.4515,
+        "Qwen3.8 Max (0902)": 46.7603,
+        "Grok 4.6 (high)": 50.8415,
+        "GLM-5.3-Flash": 57.0152,
+        "Claude Opus 4.8 (Max)": 43.0305,
+        "Gemini 3.8 Flash (high)": 51.3061,
+        "GPT-5.6 Terra (max)": 28.7157,
+        "Kimi K3 (max)": 43.9423
+      },
+      "not_scored": [],
+      "scores_zero": {
+        "GPT-6 Astra (max)": 45.3847,
+        "Claude Fable 5.1 (Max)": 54.0225,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 52.3362,
+        "Claude Opus 5 (Max)": 49.2327,
+        "GLM-5.3 (max)": 69.5175,
+        "Muse Spark 1.3 (max)": 65.7132,
+        "GPT-5.6 Sol (max)": 34.4515,
+        "Qwen3.8 Max (0902)": 46.7603,
+        "Grok 4.6 (high)": 50.8415,
+        "GLM-5.3-Flash": 57.0152,
+        "Claude Opus 4.8 (Max)": 43.0305,
+        "Gemini 3.8 Flash (high)": 51.3061,
+        "GPT-5.6 Terra (max)": 28.7157,
+        "Kimi K3 (max)": 43.9423
+      },
+      "scores_median": {
+        "GPT-6 Astra (max)": 45.3847,
+        "Claude Fable 5.1 (Max)": 54.0225,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 52.3362,
+        "Claude Opus 5 (Max)": 49.2327,
+        "GLM-5.3 (max)": 69.5175,
+        "Muse Spark 1.3 (max)": 65.7132,
+        "GPT-5.6 Sol (max)": 34.4515,
+        "Qwen3.8 Max (0902)": 46.7603,
+        "Grok 4.6 (high)": 50.8415,
+        "GLM-5.3-Flash": 57.0152,
+        "Claude Opus 4.8 (Max)": 43.0305,
+        "Gemini 3.8 Flash (high)": 51.3061,
+        "GPT-5.6 Terra (max)": 28.7157,
+        "Kimi K3 (max)": 43.9423
+      }
+    },
+    {
+      "name": "Yaln\u0131zca kalite",
+      "slug": "quality",
+      "formula": "`0.4*scicode + 0.3*tbench4 + 0.3*nh`",
+      "weights": {
+        "scicode": 0.4,
+        "tbench4": 0.3,
+        "nh": 0.3
+      },
+      "transforms": {},
+      "scores": {
+        "GPT-6 Astra (max)": 65.9559,
+        "Claude Fable 5.1 (Max)": 74.5491,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 65.2379,
+        "Claude Opus 5 (Max)": 54.6251,
+        "GLM-5.3 (max)": 73.8787,
+        "Muse Spark 1.3 (max)": 65.9542,
+        "GPT-5.6 Sol (max)": 36.5986,
+        "Qwen3.8 Max (0902)": 48.0132,
+        "Grok 4.6 (high)": 49.4205,
+        "GLM-5.3-Flash": 43.0435,
+        "Claude Opus 4.8 (Max)": 40.1682,
+        "Gemini 3.8 Flash (high)": 39.1413,
+        "GPT-5.6 Terra (max)": 28.4003,
+        "Kimi K3 (max)": 45.5974
+      },
+      "not_scored": [],
+      "scores_zero": {
+        "GPT-6 Astra (max)": 65.9559,
+        "Claude Fable 5.1 (Max)": 74.5491,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 65.2379,
+        "Claude Opus 5 (Max)": 54.6251,
+        "GLM-5.3 (max)": 73.8787,
+        "Muse Spark 1.3 (max)": 65.9542,
+        "GPT-5.6 Sol (max)": 36.5986,
+        "Qwen3.8 Max (0902)": 48.0132,
+        "Grok 4.6 (high)": 49.4205,
+        "GLM-5.3-Flash": 43.0435,
+        "Claude Opus 4.8 (Max)": 40.1682,
+        "Gemini 3.8 Flash (high)": 39.1413,
+        "GPT-5.6 Terra (max)": 28.4003,
+        "Kimi K3 (max)": 45.5974
+      },
+      "scores_median": {
+        "GPT-6 Astra (max)": 65.9559,
+        "Claude Fable 5.1 (Max)": 74.5491,
+        "Claude Fable 5 (Max, Opus 4.8 Fallback)": 65.2379,
+        "Claude Opus 5 (Max)": 54.6251,
+        "GLM-5.3 (max)": 73.8787,
+        "Muse Spark 1.3 (max)": 65.9542,
+        "GPT-5.6 Sol (max)": 36.5986,
+        "Qwen3.8 Max (0902)": 48.0132,
+        "Grok 4.6 (high)": 49.4205,
+        "GLM-5.3-Flash": 43.0435,
+        "Claude Opus 4.8 (Max)": 40.1682,
+        "Gemini 3.8 Flash (high)": 39.1413,
+        "GPT-5.6 Terra (max)": 28.4003,
+        "Kimi K3 (max)": 45.5974
+      }
+    }
+  ],
+  "picks": {
+    "overall": {
+      "best": {
+        "model": "GPT-6 Astra (max)",
+        "score": 86.12,
+        "price": 20.0
+      },
+      "cheap": {
+        "model": "GLM-5.3 (max)",
+        "score": 77.03,
+        "price": 2.15,
+        "points_behind": 9.09,
+        "times_cheaper": 9.3
+      }
+    },
+    "batch": {
+      "best": {
+        "model": "GPT-6 Astra (max)",
+        "score": 77.54,
+        "price": 20.0
+      },
+      "cheap": null
+    },
+    "interactive": {
+      "best": {
+        "model": "GLM-5.3 (max)",
+        "score": 69.52,
+        "price": 2.15
+      },
+      "cheap": null
+    },
+    "quality": {
+      "best": {
+        "model": "Claude Fable 5.1 (Max)",
+        "score": 74.55,
+        "price": 20.0
+      },
+      "cheap": {
+        "model": "GLM-5.3 (max)",
+        "score": 73.88,
+        "price": 2.15,
+        "points_behind": 0.67,
+        "times_cheaper": 9.3
+      }
+    }
+  },
+  "sites": {
+    "artificial-analysis": "https://artificialanalysis.ai",
+    "deepswe": "https://deepswe.datacurve.ai"
+  },
+  "medians": {
+    "lcr": 81.0,
+    "nh": 47.7338,
+    "acc": 48.5333,
+    "code_mig": 47.25,
+    "corpfin": 66.4335,
+    "pass1": 69.2905,
+    "task_cost": 4.324,
+    "price": 5.25,
+    "e2e": 58.361,
+    "ttft": 28.3787,
+    "steps": 89.25,
+    "dur": 1474.6913,
+    "scicode": 56.5394,
+    "tbench4": 37.1212
+  },
+  "frontier": [
+    {
+      "model": "GLM-5.3-Flash",
+      "price": 0.2375,
+      "overall": 68.19
+    },
+    {
+      "model": "Muse Spark 1.3 (max)",
+      "price": 2.0,
+      "overall": 75.53
+    },
+    {
+      "model": "GLM-5.3 (max)",
+      "price": 2.15,
+      "overall": 77.03
+    },
+    {
+      "model": "Claude Opus 5 (Max)",
+      "price": 10.0,
+      "overall": 79.75
+    },
+    {
+      "model": "Claude Fable 5 (Max, Opus 4.8 Fallback)",
+      "price": 20.0,
+      "overall": 80.55
+    },
+    {
+      "model": "Claude Fable 5.1 (Max)",
+      "price": 20.0,
+      "overall": 85.24
+    },
+    {
+      "model": "GPT-6 Astra (max)",
+      "price": 20.0,
+      "overall": 86.12
+    }
+  ]
+}

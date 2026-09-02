@@ -1,0 +1,60 @@
+{
+  "source_url": "https://deepswe.datacurve.ai/",
+  "scraped_at": "2026-09-04T07:57:24.000Z",
+  "benchmarks_captured": [
+    "DeepSWE v1.1",
+    "DeepSWE v1",
+    "DeepSWE v1 (curated selection)"
+  ],
+  "row_count": 230,
+  "extraction_method": "JSON data artifacts fetched verbatim (no DOM scraping). Opened own chrome-devtools page on https://deepswe.datacurve.ai/ inside an isolated browser context (isolatedContext=deepswe-rescrape-20260904, per a mid-task coordinator instruction to rename the context; the page's numeric id churned repeatedly under heavy contention from 9 other agents sharing the same browser -- final stable id was 17). Selected the page and verified location.href before every evaluate_script call; a same-turn select_page + evaluate_script pairing (both tool calls issued together) was needed to close the race window, since single-call select-then-verify-then-fetch sequences lost the race to other agents' concurrent select_page calls roughly 35 times in a row before that fix worked. Used the page's own same-origin fetch() to pull the 4 known artifact URLs plus 8 candidate probe paths, saved via evaluate_script's filePath option. No Node/curl fallback was used.",
+  "artifacts": [
+    {
+      "url": "https://deepswe.datacurve.ai/artifacts/v1.1/leaderboard-live.json",
+      "rows": 70,
+      "generated_at": "2026-09-03T22:24:37.984682+00:00",
+      "role": "leaderboard tab 'v1.1' (default). 70 harness+model+reasoning-effort configs, 28 distinct models (up from 65 configs / 27 models on 2026-09-03)."
+    },
+    {
+      "url": "https://deepswe.datacurve.ai/artifacts/v1/leaderboard-live.json",
+      "rows": 29,
+      "generated_at": "2026-06-20T17:27:24.307648+00:00",
+      "role": "leaderboard tab 'v1'. 29 configs, 21 distinct models. Byte-for-byte identical to 2026-09-03."
+    },
+    {
+      "url": "https://deepswe.datacurve.ai/artifacts/v1/leaderboard.json",
+      "rows": 16,
+      "role": "curated 16-config selection used by the /blog/deepswe post. Byte-for-byte identical to 2026-09-03."
+    },
+    {
+      "url": "https://deepswe.datacurve.ai/artifacts/v1.1/v1-delta.json",
+      "role": "v1.1-vs-v1 re-grading comparison for the 9 configs run in both versions. Byte-for-byte identical to 2026-09-03. Included in raw.json for completeness; NOT normalized.",
+      "note": "Not re-checked for new configs vs v1.1's new gpt-6-astra rows since gpt-6-astra has no v1 counterpart to delta against."
+    },
+    {
+      "url": "https://deepswe.datacurve.ai/artifacts/v1.1/tasks.json",
+      "rows": 113,
+      "role": "NEW artifact, did not exist (or was not fetched) in the 2026-09-03 scrape. Per-task metadata for the 113 DeepSWE v1.1 tasks: id, repository, repository_url, language, base_commit_hash, problem_title, display_description, prompt_characters. No model/score data -- not a leaderboard row source. Included in raw.json for completeness; NOT normalized (does not fit the model/benchmark/metric record schema). Discovered by probing candidate paths ('v1.1/tasks.json' returned 200; 'v1.2/leaderboard-live.json', 'v1.1/leaderboard.json', 'v2/leaderboard-live.json', 'v1.1/leaderboard-live-2.json', 'v1/v1-delta.json', 'v1.1/models.json', 'v1.1/detail.json' all returned 404 -- no new leaderboard version or split exists)."
+    }
+  ],
+  "notes": [
+    "AGENT/SCAFFOLD: every row on this site was run with the 'mini-swe-agent' harness. Kept as its own 'agent' field, never merged into the model name. Unchanged from 2026-09-03.",
+    "COST ADJUSTMENT: raw.json holds the untouched artifacts, whose mean_cost_usd is priced at the model's ORIGINAL API rates. The site re-prices 7 specific models client-side (glm-5-3-flash, gpt-5-6-luna, gpt-5-6-terra, gpt-5-6-sol, deepseek-v4-pro, deepseek-v4-flash, gemini-3-6-flash); normalized.json carries those adjusted values forward unchanged from 2026-09-03 raw data (those 65 pre-existing configs are byte-identical to yesterday). The new gpt-6-astra model is NOT in the re-pricing list, so its cost_usd in normalized.json is the raw, unadjusted mean_cost_usd verbatim.",
+    "MODEL NAMES: display names reproduce the site's slug->display transform inferred from the 2026-09-03 dataset's slug/display pairs (join two adjacent tokens with '.' when the second token is purely numeric and the first ends in a digit, else join with '-'; strip a trailing '-preview'). Applied to the new model: raw slug 'gpt-6-astra' -> display 'gpt-6-astra' (no dot insertion needed, single digit token). Not independently re-verified against the rendered page's JS bundle today.",
+    "PROVIDER: new gpt-6-astra rows carry an explicit 'provider': 'openai' field directly in the raw artifact (a field absent from all pre-existing rows, which have no provider field in raw and had provider derived from the site's JS bundle on 2026-09-02/03). Mapped to 'OpenAI' for Title-Case consistency with the rest of normalized.json. All other 65 configs' provider values are unchanged from 2026-09-03 (not re-derived, since their raw rows are byte-identical).",
+    "RANK: recomputed from scratch for benchmark='DeepSWE v1.1' across both metrics (pass@1, pass@4) over all 70 configs, since the 5 new gpt-6-astra rows changed the sort order for existing configs too. Ranks for 'DeepSWE v1' and 'DeepSWE v1 (curated selection)' are unchanged (no new rows in those artifacts) and were carried forward verbatim from 2026-09-03.",
+    "METRICS: unchanged definitions from 2026-09-03 (pass@1 = attempt pass rate over scored rollout attempts; pass@4 = tasks with >=1 passing rollout / tasks attempted).",
+    "context_window: OMITTED, same as 2026-09-03 (median_peak_context_tokens carried under its own name instead; null for gpt-6-astra rows since the source field is null for that model).",
+    "EXTRA FIELDS beyond the requested shape, all straight from the source: reasoning_effort, config, n_tasks_attempted, n_runs, mean_output_tokens, mean_agent_steps, median_peak_context_tokens, ci_half_pct.",
+    "date: the artifact's generated_at. v1.1 rows now carry 2026-09-03T22:24:37.984682+00:00 (up from 2026-09-02T15:18:19Z) for ALL 70 v1.1 configs, including the 65 unchanged ones -- the site appears to stamp date at the artifact/query level, not per-row, so pre-existing rows' 'date' field changed even though their scores/costs did not.",
+    "MODEL CHECK: 'muse-spark-1.3' / 'Muse Spark 1.3' is STILL NOT present on this leaderboard as of this scrape. Only muse-spark-1.2 and muse-spark-1.1 exist in the data. Verified absent by scanning all 230 normalized records' model field.",
+    "COVERAGE: probed 8 candidate artifact paths beyond the 4 known ones plus the newly-discovered tasks.json; no other new version/split exists as of this scrape (all returned 404).",
+    "BROWSER CONTENTION: this scrape ran concurrently with 9 other agents sharing one browser instance. select_page->evaluate_script as two separate tool calls lost the shared 'selected page' race to other agents' calls dozens of times in a row before switching to issuing both calls together in the same turn, which worked on the first try. Anyone re-running this pattern under similar contention should expect the same and plan for many retries or the same-turn batching workaround."
+  ],
+  "changes_vs_20260903": {
+    "payload_changed": true,
+    "v1.1_generated_at_old": "2026-09-02T15:18:19Z",
+    "v1.1_generated_at_new": "2026-09-03T22:24:37.984682+00:00",
+    "summary": "A new model, gpt-6-astra (OpenAI), was added to the DeepSWE v1.1 leaderboard with all 5 reasoning-effort configs (low, medium, high, xhigh, max) -- 65 configs/27 models on 2026-09-03 became 70 configs/28 models today. All 65 pre-existing v1.1 configs are byte-for-byte identical in their raw metrics (scores, costs, tokens, steps) to 2026-09-03; only their 'date' field changed because the artifact's generated_at timestamp is shared across all rows. v1 leaderboard-live.json, v1 curated leaderboard.json, and v1.1 v1-delta.json are all byte-for-byte identical to 2026-09-03 (no changes). A previously-unfetched artifact, v1.1/tasks.json (per-task metadata, 113 rows), was discovered and added to raw.json but is not part of the normalized model/benchmark/metric schema. LEADERBOARD MOVEMENT: gpt-6-astra (xhigh) now ranks #1 on DeepSWE v1.1 pass@1 at 74.12%, displacing gemini-3.8-flash (high) from #1 (73.83%) to #2. muse-spark-1.3 is still absent from the site."
+  }
+}

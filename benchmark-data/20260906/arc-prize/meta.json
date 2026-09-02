@@ -1,0 +1,45 @@
+{
+  "source_url": "https://arcprize.org/leaderboard",
+  "scraped_at": "2026-09-06T15:45:50Z",
+  "extraction_method": "network-json",
+  "row_count": 927,
+  "benchmarks_captured": [
+    "ARC-AGI-1 / Semi-Private (verified) - 223 rows",
+    "ARC-AGI-1 / Public Eval (verified) - 202 rows",
+    "ARC-AGI-2 / Semi-Private (verified) - 225 rows",
+    "ARC-AGI-2 / Public Eval (verified) - 213 rows",
+    "ARC-AGI-2 / Private Eval (verified) - 3 rows",
+    "ARC-AGI-3 / Semi-Private (verified) - 39 rows",
+    "ARC-AGI-1 / Semi-Private (community) - 2 rows",
+    "ARC-AGI-1 / Public Train (community) - 1 row",
+    "ARC-AGI-2 / Semi-Private (community) - 3 rows",
+    "ARC-AGI-2 / Public Train (community) - 2 rows",
+    "ARC-AGI-3 / Public Demo (community) - 14 rows"
+  ],
+  "notes": [
+    "Primary data came from the site's own JSON endpoints, not the DOM: /media/data/datasets.json, models.json, providers.json, evaluations.json, and the per-version rollups /media/data/leaderboard/v1.json, v2.json, v3.json. All seven returned HTTP 200. evaluations.json (925 rows) is the superset; the v1/v2/v3 files are pre-joined subsets of it and were saved for completeness.",
+    "The Community Leaderboard tab (https://arcprize.org/leaderboard/community) has no JSON endpoint. Its 22 rows were taken from the server-rendered React Server Component flight payload (self.__next_f), which carries unrounded numbers, rather than from the rendered table.",
+    "Do not read community costs off the rendered page: the site formats them with locale separators, so a cost of 2986.04 renders as '$2.986' and 18000 renders as '$18.000'. The values in raw.json / normalized.json are the underlying numbers.",
+    "cost_usd carries ARC's costPerTask field and is present for ARC-AGI-1 and ARC-AGI-2 rows. ARC-AGI-3 evaluations carry no per-task cost; the source gives them a separate 'cost' field holding the total run cost, which is emitted as cost_usd_total. Community rows likewise carry only a run total under cost_usd_total. The two are not interchangeable and were kept apart rather than merged.",
+    "score is expressed as a percentage (0-100). Verified rows come from ARC as 0-1 fractions and were multiplied by 100 and rounded to 4 decimals; community rows are already percentages in the source. metric is set to accuracy_pct throughout.",
+    "rank is computed, not published: rows are ordered by score descending within each (leaderboard, benchmark, benchmark_set) group, with ties sharing a rank.",
+    "20 evaluation rows carry display:false in evaluations.json and are hidden on the site. They are excluded from normalized.json but retained verbatim in raw.json.",
+    "context_window is not published anywhere on the ARC Prize leaderboard, so the field is omitted from every record rather than filled in.",
+    "datasets.json also declares v1_Private_Eval and v3_Public_Demo. v1_Private_Eval has zero evaluations in the source; v3_Public_Demo appears only via community submissions.",
+    "System type is preserved as model_type (Base LLM, CoT, CoT + Synthesis, Refinement, Custom). Kaggle/competition entries are identifiable by provider 'ARC Prize 2024' / 'ARC Prize 2025'.",
+    "results_url is relative to https://arcprize.org as published by the site.",
+    "FIELD ADDED THIS RUN: provider_display_name. provider continues to carry ARC's providerId verbatim (unchanged from earlier dates, so date-to-date diffs stay clean). For five providers the id is a slug that differs from the human-readable displayName in providers.json -- bespoke/Bespoke, j_berman/J. Berman, e_pang/E. Pang, poetiq/Poetiq, johan_land/Johan Land -- and that displayName is now carried alongside on the 9 affected rows. The field is omitted where id and displayName are identical. No field was removed or renamed.",
+    "Rebuild check: applying this run's normalization to this run's endpoints reproduces all 927 records of benchmark-data/20260904/arc-prize/normalized.json field-for-field, with provider_display_name as the sole addition. The pipeline and the 'no change' finding below are therefore both verified, not assumed."
+  ],
+  "changes_vs_20260904": [
+    "No change. Row count 927 -> 927. Verified 905 -> 905, community 22 -> 22.",
+    "datasets.json, providers.json, models.json and evaluations.json are byte-identical in content to the 20260904 capture: 8 datasets, 20 providers, 266 models, 925 evaluations, with no model added, removed or renamed and no score, cost, date or URL altered on any row.",
+    "The only difference anywhere in the source is the generatedAt stamp on the three rollup files, which advanced from 2026-09-03T19:34 to 2026-09-04T14:38 (v1, v2 and v3 alike). Their evaluations arrays are unchanged, so this is a rebuild of the site's static files, not new data.",
+    "Community leaderboard unchanged: the same 22 RSC entries with identical names, scores, costs, dates and URLs.",
+    "Zero rank movement. No score deltas at all (not even rounding-level), and because no rows were added or removed, no displacement effects either.",
+    "No boolean model names in this scrape. The Anthropic model=true bug fixed on 20260903 (-> 'Claude Opus 4.6 (120K, Max)') remains fixed.",
+    "'Tiny Recursion Model (TRM)' (bespoke, verified) still has model_type='' (empty string, not null) across its 4 rows -- same cosmetic state as 20260903 and 20260904.",
+    "Report shortlist, checked as case-insensitive substrings over both leaderboards. PRESENT and already present on 20260904 with identical scores: 'Grok 4.6' (xAI, 4 effort variants, 17 rows), 'GPT-6 Astra' (OpenAI, incl. the Provider Adapter variants, 36 rows), 'Claude Opus 5' (Anthropic, High and Max, 9 rows), 'Claude Fable 5.1' (Anthropic, 5 effort variants, 20 rows). ABSENT under any name variant searched: 'Gemini 3.8 Flash' (checked 'gemini 3.8') and 'GLM-5.3-Flash' (checked 'glm-5.3' and 'glm 5.3').",
+    "Correction to the brief for this run, which stated that no shortlist model had ever appeared on ARC Prize: four of the six are on the verified leaderboard and were already in the 20260904 capture. The 20260904 changes note only ever addressed Muse Spark and Gemini 3.8 Flash, so this is a gap in that note rather than new site data."
+  ]
+}

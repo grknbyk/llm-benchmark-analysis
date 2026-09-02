@@ -1,0 +1,4 @@
+.claude/*
+!.claude/skills/
+reports/**/_*
+__pycache__/

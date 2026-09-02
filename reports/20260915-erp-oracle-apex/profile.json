@@ -1,0 +1,319 @@
+{
+  "stack": "Oracle APEX, Oracle DB, JS, HTML/CSS, ERP",
+  "slug": "erp-oracle-apex",
+  "data": "benchmark-data/20260915",
+  "title": "ERP / Oracle APEX model kısa listesi",
+  "stamp": "ERP / APEX INDEX  •  SEP 15, 2026",
+  "out": "reports/20260915-erp-oracle-apex",
+  "report": "erp-oracle-apex-model-shortlist.md",
+  "scoring_sources": [
+    "artificial-analysis",
+    "vals-ai",
+    "deepswe"
+  ],
+  "metrics": {
+    "lcr": {
+      "site": "artificial-analysis",
+      "benchmark": "AA-LCR",
+      "metric": "score",
+      "scale": 100,
+      "plain": "Çok uzun bir belgeyi ne kadar iyi takip ettiği.",
+      "label": "Artificial Analysis Long Context Reasoning",
+      "better": "high"
+    },
+    "nh": {
+      "site": "artificial-analysis",
+      "benchmark": "AA-Omniscience Non-Hallucination Rate",
+      "metric": "score",
+      "scale": 100,
+      "plain": "Cevap uydurmak yerine bilmediğini ne sıklıkla kabul ettiği.",
+      "label": "AA-Omniscience non-hallucination rate",
+      "better": "high"
+    },
+    "acc": {
+      "site": "artificial-analysis",
+      "benchmark": "AA-Omniscience Accuracy",
+      "metric": "score",
+      "scale": 100,
+      "plain": "Verdiği cevabın ne sıklıkla doğru olduğu.",
+      "label": "AA-Omniscience accuracy",
+      "better": "high"
+    },
+    "code_mig": {
+      "site": "vals-ai",
+      "benchmark": "Code Migration",
+      "metric": "accuracy",
+      "stderr": true,
+      "plain": "Eski bir programı başka bir dile ne kadar iyi yeniden yazdığı.",
+      "label": "Vals AI Code Migration",
+      "better": "high"
+    },
+    "corpfin": {
+      "site": "vals-ai",
+      "benchmark": "CorpFin v2",
+      "metric": "accuracy",
+      "stderr": true,
+      "plain": "Uzun sözleşmelerle ilgili soruları ne kadar iyi yanıtladığı.",
+      "label": "Vals AI CorpFin v2",
+      "better": "high"
+    },
+    "pass1": {
+      "site": "deepswe",
+      "benchmark": "DeepSWE v1.1",
+      "metric": "pass@1",
+      "unit": "%",
+      "plain": "Gerçek bir hatayı ilk denemede ne sıklıkla düzelttiği.",
+      "label": "DeepSWE v1.1 pass@1",
+      "better": "high"
+    },
+    "task_cost": {
+      "site": "deepswe",
+      "field": "cost_usd",
+      "unit": "$/task",
+      "better": "low",
+      "plain": "Biten bir görevin dolar cinsinden maliyeti.",
+      "label": "DeepSWE görev başına maliyet",
+      "benchmark": "DeepSWE v1.1",
+      "metric": "pass@1"
+    },
+    "price": {
+      "site": "artificial-analysis",
+      "metric": "blended_price_per_1m_usd_3to1",
+      "unit": "$/1M",
+      "plain": "Bir milyon token'ın kaç dolar olduğu.",
+      "label": "1M token başına harmanlanmış fiyat, 3:1 girdi/çıktı",
+      "better": "low"
+    },
+    "e2e": {
+      "site": "artificial-analysis",
+      "metric": "end_to_end_response_time_median_seconds",
+      "unit": "s",
+      "plain": "Cevabın tamamı gelene kadar geçen saniye.",
+      "label": "Uçtan uca yanıt süresi, medyan",
+      "better": "low"
+    },
+    "ttft": {
+      "site": "artificial-analysis",
+      "metric": "time_to_first_token_median_seconds",
+      "unit": "s",
+      "better": "low",
+      "plain": "İlk kelime görünene kadar geçen saniye.",
+      "label": "İlk token'a kadar geçen süre, medyan"
+    },
+    "steps": {
+      "site": "deepswe",
+      "field": "median_agent_steps",
+      "unit": "steps",
+      "better": "low",
+      "plain": "Bir görevi bitirmek için kaç tura ihtiyacı olduğu.",
+      "label": "DeepSWE görev başına ajan turu",
+      "benchmark": "DeepSWE v1.1",
+      "metric": "pass@1"
+    },
+    "dur": {
+      "site": "deepswe",
+      "field": "mean_duration_seconds",
+      "unit": "s",
+      "better": "low",
+      "plain": "Bir görevin saniye cinsinden ne kadar sürdüğü.",
+      "label": "DeepSWE görev süresi",
+      "benchmark": "DeepSWE v1.1",
+      "metric": "pass@1"
+    },
+    "scicode": {
+      "site": "artificial-analysis",
+      "benchmark": "SciCode",
+      "metric": "score",
+      "scale": 100,
+      "better": "high",
+      "label": "SciCode",
+      "plain": "Çalışan bilimsel kod yazabilme. Adayların hepsinde ölçülü."
+    },
+    "tbench4": {
+      "site": "artificial-analysis",
+      "benchmark": "Terminal-Bench 4.0",
+      "metric": "score",
+      "scale": 100,
+      "better": "high",
+      "label": "Terminal-Bench 4.0",
+      "plain": "Bir kabukta çok adımlı işi araç kullanarak bitirebilme."
+    }
+  },
+  "roles": [
+    {
+      "name": "Toplu taşıma",
+      "slug": "batch",
+      "note": "Long unattended runs converting Forms and PL/SQL. Code Migration is the closest public proxy.",
+      "weights": {
+        "code_mig": 0.25,
+        "pass1": 0.2,
+        "scicode": 0.2,
+        "tbench4": 0.15,
+        "lcr": 0.1,
+        "nh": 0.1
+      }
+    },
+    {
+      "name": "Etkileşimli düzenleme döngüsü",
+      "slug": "interactive",
+      "note": "Page-edit turnaround, where waiting costs a developer more than tokens do.",
+      "weights": {
+        "scicode": 0.3,
+        "tbench4": 0.2,
+        "nh": 0.2,
+        "e2e": 0.15,
+        "price": 0.15
+      },
+      "transforms": {
+        "e2e": "inverse_log_minmax",
+        "price": "inverse_log_minmax"
+      }
+    },
+    {
+      "name": "Yalnızca kalite",
+      "slug": "quality",
+      "note": "Model quality with cost and speed removed, for work where correctness dominates.",
+      "weights": {
+        "scicode": 0.4,
+        "tbench4": 0.3,
+        "nh": 0.3
+      }
+    }
+  ],
+  "overall": {
+    "scicode": 0.3,
+    "tbench4": 0.25,
+    "lcr": 0.15,
+    "nh": 0.15,
+    "acc": 0.15
+  },
+  "cheap_alternative": {
+    "max_points_behind": 10.0,
+    "min_price_ratio": 3.0
+  },
+  "gaps": [
+    "Artificial Analysis, 20260906 ile 20260915 taramaları arasında Coding Index (255 satır) ve Agentic Index (119 satır) yayımlamayı bıraktı. Bu iki endeks profilin dört endeksinin de içindeydi. Yerlerine SciCode ve Terminal-Bench 4.0 kondu; ikisi de 14 adayın 14'ünü kapsıyor.",
+    "Aynı tarama aralığında AA-Openness Index (314 satır), AA-Multilingual Index (112 satır) ve MLCR (83 satır) da kaldırıldı. Hiçbiri bu profilde kullanılmıyordu.",
+    "Bu raporun `overall` endeksi 20260906 raporununkiyle karşılaştırılamaz. Formül değişti ve `normalize: candidate_minmax` açıldı, yani her puan aday kümesine görelidir.",
+    "`cheap_alternative.max_points_behind` 5.0'dan 10.0'a çıkarıldı. Bu tolerans endeksin kendi biriminde ölçülür ve `normalize` açılınca endeks aralıkları yaklaşık üç kat genişledi (overall 6.0'dan 20.2'ye). 5.0'ı bırakmak kuralı sessizce sıkılaştırır, gevşetmezdi."
+  ],
+  "scatters": [
+    {
+      "title": "Görev başına maliyete karşı DeepSWE pass@1",
+      "x": "task_cost",
+      "y": "pass1",
+      "size": "dur",
+      "log_x": true,
+      "task_cost_label": "görev başına maliyet",
+      "pass1_label": "DeepSWE pass@1",
+      "dur_label": "görev süresi"
+    },
+    {
+      "title": "Fiyata karşı SciCode",
+      "x": "price",
+      "y": "scicode",
+      "size": "e2e",
+      "log_x": true,
+      "price_label": "harmanlanmış fiyat",
+      "scicode_label": "SciCode",
+      "e2e_label": "yanıt süresi"
+    },
+    {
+      "title": "Ajan turlarına karşı DeepSWE pass@1",
+      "x": "steps",
+      "y": "pass1",
+      "size": "task_cost",
+      "steps_label": "ajan turu",
+      "pass1_label": "DeepSWE pass@1",
+      "task_cost_label": "görev başına maliyet"
+    }
+  ],
+  "full_width": [
+    "Endeksler ve seçimler"
+  ],
+  "language": "tr",
+  "glossary": {
+    "TTFT": "Time to first token: istek gönderildikten ilk çıktı token'ı gelene kadar geçen saniye. Anthropic ve OpenAI modellerinde gizli düşünme süresi de buna dahildir.",
+    "E2E": "Uçtan uca yanıt süresi: istekten tam cevaba kadar geçen medyan saniye (Artificial Analysis).",
+    "AA-LCR": "Artificial Analysis Long Context Reasoning, 0-1. Büyük şemaları ve uzun paketleri taşıyabilmenin vekili.",
+    "Code Migration": "Vals AI benchmark'ı: gerçek programları başka bir dilde yeniden yazma (CLI, COBOL, kod kalitesi alt görevleri). Kapalı set, 0-100, stderr ile yayımlanır.",
+    "Code Mig.": "Vals AI Code Migration benchmark'ı, 0-100.",
+    "CorpFin v2": "Vals AI benchmark'ı: uzun kurumsal kredi sözleşmeleri üzerinde akıl yürütme. 0-100, stderr ile.",
+    "Non-halluc": "AA-Omniscience uydurmama oranı, 0-1: bilinmeyen soruların kaçında modelin cevap uydurmak yerine çekildiği.",
+    "non-hallucination": "AA-Omniscience uydurmama oranı, 0-1: bilinmeyen soruların kaçında modelin cevap uydurmak yerine çekildiği.",
+    "acc": "AA-Omniscience doğruluk, 0-1: soruların kaçını doğru yanıtladığı. Uydurmama oranı ile birlikte okunur: yüksek çekilme artı düşük doğruluk, modelin bildiğini değil sustuğunu gösterir.",
+    "$/1M": "Artificial Analysis harmanlanmış fiyatı, 1M token başına, 3:1 girdi:çıktı oranıyla.",
+    "$/task": "DeepSWE v1.1 ortalama dolar/tamamlanan görev, düşünme token'ları dahil.",
+    "DeepSWE": "Datacurve'ün uzun ufuklu yazılım mühendisliği benchmark'ı: 91 depoda 113 görev, her model mini-swe-agent iskelesi altında koşturulur.",
+    "mini-swe-agent": "DeepSWE'nin her model için kullandığı tek ajan iskelesi.",
+    "IFBench": "Artificial Analysis'in raporladığı talimat izleme benchmark'ı, 0-1.",
+    "Intelligence Index": "Artificial Analysis'in bilgi, akıl yürütme, kod ve ajan değerlendirmelerinden oluşan bileşik endeksi, 0-100.",
+    "Vals": "Vals AI, bağımsız benchmark yayıncısı (vals.ai).",
+    "Artificial Analysis": "Bağımsız model benchmark ve fiyat takipçisi (artificialanalysis.ai).",
+    "max effort": "Artificial Analysis'teki akıl yürütme eforu ayarı. Yüksek efor daha çok düşünme token'ı harcar; token başına fiyat sabit kalır, görev başına maliyet kalmaz.",
+    "xhigh": "Artificial Analysis'in adlandırmasıyla, max'ın bir altındaki akıl yürütme eforu.",
+    "SciCode": "Artificial Analysis'in yayımladığı kod yazma benchmark'ı, 0-1, raporda 100 ile ölçeklenir. Bilimsel hesaplama problemlerini çalışan koda çevirmeyi ölçer.",
+    "Terminal-Bench 4.0": "Bir kabukta çok adımlı ajan görevleri, 0-1, raporda 100 ile ölçeklenir. 2.1 sürümünden belirgin biçimde zordur: 2.1'de 89 alan bir model burada 19'da kalabilir, o yüzden sürümler karşılaştırılmaz.",
+    "candidate_minmax": "Her terim, bu raporun aday kümesi içinde 0-100 bandına gerilir. Bunun sonucu: bir puan mutlak değil, yalnızca bu 14 modele göre anlamlıdır ve aday kümesi değişirse her puan değişir.",
+    "SQLcl": "Oracle'ın komut satırı SQL istemcisi. MCP sunucusu ayrı bir depo değil, `sql -mcp` ile başlatılan bir modudur.",
+    "ORDS": "Oracle REST Data Services. Oracle veritabanının önüne REST arayüzü koyar; 26.2'den beri kendi MCP uç noktasını da yayımlıyor.",
+    "APEXlang": "Oracle'ın APEX uygulamalarını metin olarak ifade eden dili. Ajanla çalışma yolu bunun üzerinden: dışa aktar, düzenle, doğrula, geri yükle.",
+    "WebMCP": "Bir web sayfasının kendi araçlarını ajana tanımlaması. Araçlar düz HTML form elemanlarına ya da `navigator.modelContext` ile bildirilir, yalnızca HTTPS üzerinde çalışır.",
+    "CVSS": "Common Vulnerability Scoring System. Bir güvenlik açığının 0-10 arası ciddiyet puanı; 7.0 ve üstü yüksek sayılır.",
+    "RBAC": "Role Based Access Control. Yetkinin kullanıcıya değil role verilmesi.",
+    "VPD": "Virtual Private Database. Oracle'da satır düzeyinde erişim kısıtlaması."
+  },
+  "candidates": {
+    "top_n": 14
+  },
+  "name_strip": [
+    [
+      "(Adaptive Reasoning, ",
+      "("
+    ],
+    [
+      ", Default Fallback",
+      ""
+    ],
+    [
+      " Effort",
+      ""
+    ],
+    [
+      "Artificial Analysis ",
+      ""
+    ]
+  ],
+  "strings": {
+    "model": "model",
+    "index": "endeks",
+    "weights": "ağırlıklar",
+    "best model": "en iyi model",
+    "cheap alternative": "ucuz alternatif",
+    "no model has every input": "hiçbir modelde tüm girdiler yok",
+    "none qualifies": "uygun model yok",
+    "behind": "geride",
+    "cheaper": "kat ucuz",
+    "models": "model",
+    "models with a price": "fiyatı olan model",
+    "on the frontier": "sınırda",
+    "bubble size": "baloncuk boyutu",
+    "log scale": "log ölçek",
+    "computed in this report": "bu raporda hesaplandı",
+    "weighted score": "Ağırlıklı puan, 0 ile 100 arası, yüksek olan iyidir",
+    "weighted score raw": "Ağırlıklı puan, metriklerin kendi birimlerinde, yüksek olan iyidir",
+    "Overall": "Genel",
+    "Overall weighted index": "Genel ağırlıklı endeks",
+    "against the overall index": "genel endekse karşı",
+    "index scale": "endeks",
+    "missing benchmark": "eksik benchmark",
+    "exclude": "dışarıda bırak",
+    "fill 0": "0 ile doldur",
+    "fill median": "medyan ile doldur",
+    "n/a": "yok",
+    "not scored": "{model}, {label} üzerinde puanlanmamış: {missing} yok. Eksik bir benchmark asla doldurulmaz, model o endeksin dışında kalır.",
+    "no row": "{label}: {site}, {model} için satır yayımlamıyor. Yerine hiçbir şey varsayılmıyor.",
+    "an input": "bir girdi"
+  },
+  "normalize": "candidate_minmax"
+}

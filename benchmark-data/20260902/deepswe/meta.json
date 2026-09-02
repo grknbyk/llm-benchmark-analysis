@@ -1,0 +1,51 @@
+{
+  "source_url": "https://deepswe.datacurve.ai/",
+  "scraped_at": "2026-09-02T19:30:16.024Z",
+  "benchmarks_captured": [
+    "DeepSWE v1.1",
+    "DeepSWE v1",
+    "DeepSWE v1 (curated selection)"
+  ],
+  "row_count": 220,
+  "extraction_method": "JSON data artifacts fetched verbatim (no DOM scraping). Discovered the artifact URLs in the browser via chrome-devtools (performance resource entries + the app's JS bundles), then re-issued the exact same GETs with Node fetch because another agent kept stealing the shared browser's page selection.",
+  "artifacts": [
+    {
+      "url": "https://deepswe.datacurve.ai/artifacts/v1.1/leaderboard-live.json",
+      "bytes": 83881,
+      "rows": 65,
+      "generated_at": "2026-09-02T15:18:19Z",
+      "role": "leaderboard tab 'v1.1' (default). 65 harness+model+reasoning-effort configs, 27 distinct models."
+    },
+    {
+      "url": "https://deepswe.datacurve.ai/artifacts/v1/leaderboard-live.json",
+      "bytes": 36591,
+      "rows": 29,
+      "generated_at": "2026-06-20T17:27:24.307648+00:00",
+      "role": "leaderboard tab 'v1'. 29 configs, 21 distinct models."
+    },
+    {
+      "url": "https://deepswe.datacurve.ai/artifacts/v1/leaderboard.json",
+      "bytes": 15887,
+      "rows": 16,
+      "role": "curated 16-config selection used by the /blog/deepswe post; selection_source = 'computed from data/raw/rollouts/deep-swe-all-4x-cross-bench-minimal'. Not a tab on the main leaderboard."
+    },
+    {
+      "url": "https://deepswe.datacurve.ai/artifacts/v1.1/v1-delta.json",
+      "bytes": 21647,
+      "role": "v1.1-vs-v1 re-grading comparison for the 9 configs run in both versions. Included in raw.json for completeness; NOT normalized (it duplicates configs already present in the two leaderboards)."
+    }
+  ],
+  "notes": [
+    "CONTENTION FALLBACK USED. The shared browser's 'selected page' was repeatedly hijacked by other agents; every evaluate_script call was guarded with a location.href check and wrong-page reads were discarded. Discovery was done in the browser; the payloads were then re-fetched with Node. Verification: Node-fetched byte lengths (83881 / 36591 / 15887) match exactly the byte lengths the browser's own same-origin fetch reported for the same URLs, and spot-checked values match the rendered page (see cost_adjustment note below).",
+    "AGENT/SCAFFOLD: every row on this site was run with the 'mini-swe-agent' harness. Kept as its own 'agent' field, never merged into the model name. The site states: 'All models run on mini-swe-agent for consistency.'",
+    "COST ADJUSTMENT: raw.json holds the untouched artifacts, whose mean_cost_usd is priced at the model's ORIGINAL API rates. The site re-prices 7 models client-side (glm-5-3-flash, gpt-5-6-luna, gpt-5-6-terra, gpt-5-6-sol, deepseek-v4-pro, deepseek-v4-flash, gemini-3-6-flash) using a from/to price table in its JS bundle, applying a factor computed from each row's actual input/cached/output token counts. normalized.json reports the ADJUSTED cost, i.e. the number the site actually displays. That logic was replicated verbatim from the bundle, not approximated. Spot check after adjustment vs the rendered page: gemini-3.8-flash[high] $2.36, claude-opus-5[max] $11.84, gpt-5.6-sol[max] $6.46, gpt-5.6-luna[max] $0.61, glm-5.3-flash[max] $0.24 (raw value was $0.48), deepseek-v4-pro[max] $1.67, deepseek-v4-flash[max] $0.46, gemini-3.6-flash[high] $2.21, claude-sonnet-5[max] $26.40 - all match.",
+    "MODEL NAMES: the artifacts store slugs like 'gemini-3-8-flash'. normalized.json uses the site's own display formatter (also copied verbatim from the bundle) to produce 'gemini-3.8-flash'. No name was invented.",
+    "PROVIDER: not a field in the source data. Derived with the site's own provider-inference function from its JS bundle (the one that drives the provider icons), so the mapping is the site's, not ours.",
+    "RANK: not published by the site as a number. In normalized.json rank is the 1-based position after sorting all configs of that (benchmark, metric) by score descending. The site's default table view instead shows only the best config per model ('Best' toggle, 20 of 27 models), so ranks here run over configs, not models.",
+    "METRICS: two records are emitted per config, metric='pass@1' and metric='pass@4'. score is a percentage (0-100). pass@1 records also carry ci_half_pct, the 95% run-to-run confidence half-width the site prints as the +/- value. The site's definition: 'pass@1 is attempt pass rate over scored rollout attempts. pass@4 is tasks with at least one passing rollout divided by tasks attempted. Context-window failures and agent timeouts are scored failures; provider/verifier/network errors are excluded.'",
+    "context_window: OMITTED. The data has median_peak_context_tokens (observed peak context use), which is not a model context window, so it is carried under its own name instead and context_window is left out.",
+    "EXTRA FIELDS beyond the requested shape, all straight from the source: reasoning_effort, config, n_tasks_attempted, n_runs, mean_output_tokens, mean_agent_steps, median_peak_context_tokens, ci_half_pct.",
+    "date: the artifact's generated_at. v1.1 = 2026-09-02T15:18:19Z (page footer says '113 tasks, updated September 2, 2026'). The v1 curated artifact has no generated_at, so date is omitted on those 32 records.",
+    "COVERAGE: the leaderboard's other controls (Cost / Output tokens / Agent steps chart axes, the 'Best' vs 'All effort levels' toggle, and the Configs 52/65 and Models 20/27 filter counters) are all views over these same rows, not separate data; all 65 v1.1 configs are captured. No pagination or 'show more' returns additional rows. No login, CAPTCHA, or blocking encountered."
+  ]
+}

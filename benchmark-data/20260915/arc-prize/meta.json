@@ -1,0 +1,45 @@
+{
+  "source_url": "https://arcprize.org/leaderboard",
+  "scraped_at": "2026-09-15T19:17:39Z",
+  "extraction_method": "network-json",
+  "row_count": 927,
+  "benchmarks_captured": [
+    "ARC-AGI-1 / Semi-Private (verified) - 223 rows",
+    "ARC-AGI-1 / Public Eval (verified) - 202 rows",
+    "ARC-AGI-2 / Semi-Private (verified) - 225 rows",
+    "ARC-AGI-2 / Public Eval (verified) - 213 rows",
+    "ARC-AGI-2 / Private Eval (verified) - 3 rows",
+    "ARC-AGI-3 / Semi-Private (verified) - 39 rows",
+    "ARC-AGI-1 / Semi-Private (community) - 2 rows",
+    "ARC-AGI-1 / Public Train (community) - 1 row",
+    "ARC-AGI-2 / Semi-Private (community) - 3 rows",
+    "ARC-AGI-2 / Public Train (community) - 2 rows",
+    "ARC-AGI-3 / Public Demo (community) - 14 rows"
+  ],
+  "notes": [
+    "Primary data came from the site's own JSON endpoints, not the DOM: /media/data/datasets.json, models.json, providers.json, evaluations.json, and the per-version rollups /media/data/leaderboard/v1.json, v2.json, v3.json. All seven returned HTTP 200, fetched same-origin inside evaluate_script and saved verbatim via filePath (no value passed through the agent's own output). evaluations.json (925 rows) is the superset; the v1/v2/v3 files are pre-joined subsets of it and were saved for completeness.",
+    "The Community Leaderboard tab (https://arcprize.org/leaderboard/community) has no JSON endpoint. Its 22 rows were extracted from the server-rendered React Server Component flight payload (self.__next_f): the page's own __next_f array was concatenated and saved verbatim to a scratch file, then the 'data':[...] array inside it was located and bracket-matched (string-aware, so brackets inside quoted text do not break the match) to recover the 22-element array. Both the raw payload and the parsed array were file artifacts; no row was retyped by hand.",
+    "Do not read community costs off the rendered page: the site formats them with locale separators, so a cost of 2986.04 renders as '$2.986' and 18000 renders as '$18.000'. The values in raw.json / normalized.json are the underlying numbers, taken from the flight payload.",
+    "cost_usd carries ARC's costPerTask field and is present for ARC-AGI-1 and ARC-AGI-2 rows. ARC-AGI-3 evaluations carry no per-task cost; the source gives them a separate 'cost' field holding the total run cost, which is emitted as cost_usd_total. Community rows likewise carry only a run total under cost_usd_total. The two are not interchangeable and were kept apart rather than merged.",
+    "score is expressed as a percentage (0-100). Verified rows come from ARC as 0-1 fractions and were multiplied by 100 and rounded to 4 decimals; community rows are already percentages in the source. metric is set to accuracy_pct throughout.",
+    "rank is computed, not published: rows are ordered by score descending within each (leaderboard, benchmark, benchmark_set) group, with ties sharing a rank.",
+    "20 evaluation rows carry display:false in evaluations.json and are hidden on the site. They are excluded from normalized.json but retained verbatim in raw.json.",
+    "context_window is not published anywhere on the ARC Prize leaderboard, so the field is omitted from every record rather than filled in.",
+    "datasets.json also declares v1_Private_Eval and v3_Public_Demo. v1_Private_Eval has zero evaluations in the source; v3_Public_Demo appears only via community submissions.",
+    "System type is preserved as model_type (Base LLM, CoT, CoT + Synthesis, Refinement, Custom). Kaggle/competition entries are identifiable by provider 'ARC Prize 2024' / 'ARC Prize 2025'.",
+    "results_url is relative to https://arcprize.org as published by the site.",
+    "provider_display_name is carried alongside provider (ARC's providerId, verbatim) for the 5 providers whose slug differs from providers.json's displayName -- bespoke/Bespoke, j_berman/J. Berman, e_pang/E. Pang, poetiq/Poetiq, johan_land/Johan Land -- on the same 9 affected rows as 20260906. No field was removed or renamed since that run.",
+    "Rebuild check: normalized.json from this run's endpoints is field-for-field equal (as parsed objects, ignoring key order) to benchmark-data/20260906/arc-prize/normalized.json across all 927 records. raw.json is byte-identical to the 20260906 capture. Verified by an explicit per-record dict comparison, not by eyeballing counts."
+  ],
+  "changes_vs_20260906": [
+    "No change. Row count 927 -> 927. Verified 905 -> 905, community 22 -> 22.",
+    "datasets.json, providers.json, models.json and evaluations.json are byte-identical in content to the 20260906 capture: 8 datasets, 20 providers, 266 models, 925 evaluations, with no model added, removed or renamed and no score, cost, date or URL altered on any row.",
+    "Community leaderboard unchanged: the same 22 RSC entries with identical names, scores, costs, dates and URLs.",
+    "Zero rank movement. No score deltas at all (not even rounding-level), and because no rows were added or removed, no displacement effects either.",
+    "No schema drift. normalized.json carries the same field set as 20260906: model, provider, provider_display_name, benchmark, benchmark_set, metric, score, cost_usd, cost_usd_total, model_type, date, leaderboard, code_url, paper_url, source_url, results_url, rank. Nothing added, nothing dropped.",
+    "No boolean model names in this scrape. The Anthropic model=true bug fixed on 20260903 remains fixed; every model and provider field checked back out as a string.",
+    "'Tiny Recursion Model (TRM)' (bespoke, verified) still has model_type='' (empty string, not null) across its 4 rows -- same cosmetic state as prior scrapes.",
+    "Report shortlist, checked as case-insensitive substrings over both leaderboards, row counts identical to 20260906: 'Claude Fable 5.1' (Anthropic, 5 effort variants, 20 rows), 'Grok 4.6' (xAI, 4 effort variants, 17 rows), 'GPT-6 Astra' (OpenAI, incl. Provider Adapter variants, 36 rows), 'Claude Opus 5' (Anthropic, High and Max, 9 rows). ABSENT under any name variant searched: 'GLM-5.3-Flash' (checked 'glm-5.3', 'glm 5.3', 'glm5.3') and 'Muse Spark 1.3' (checked 'muse spark', 'musespark').",
+    "Correction carried over from 20260906's own note: this site is provenance only for the ERP shortlist in the sense that none of these four models were scored here for ERP-relevant work -- ARC-AGI is an abstract-reasoning benchmark, not a proxy for any ERP task -- but four of the six named models (Claude Fable 5.1, Grok 4.6, GPT-6 Astra, Claude Opus 5) do have rows on the verified leaderboard, unchanged since 20260906. GLM-5.3-Flash and Muse Spark 1.3 remain genuinely absent."
+  ]
+}

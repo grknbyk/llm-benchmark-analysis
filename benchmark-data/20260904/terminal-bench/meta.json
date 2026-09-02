@@ -1,0 +1,60 @@
+{
+  "source_url": "https://www.tbench.ai/",
+  "scraped_at": "2026-09-04T07:58:34.000Z",
+  "benchmarks_captured": [
+    {
+      "version": "4.0",
+      "title": "Terminal-Bench 4.0",
+      "package": "terminal-bench/terminal-bench",
+      "leaderboard_name": "4-0-0",
+      "rows": 18,
+      "source_url": "https://www.tbench.ai/"
+    },
+    {
+      "version": "3.0",
+      "title": "Terminal-Bench 3.0",
+      "package": "terminal-bench/terminal-bench",
+      "leaderboard_name": "3-0-0",
+      "rows": 12,
+      "source_url": "https://www.tbench.ai/?version=3.0"
+    },
+    {
+      "version": "2.1",
+      "title": "Terminal-Bench 2.1",
+      "package": "terminal-bench/terminal-bench-2-1",
+      "leaderboard_name": "main",
+      "rows": 22,
+      "source_url": "https://www.tbench.ai/?version=2.1"
+    },
+    {
+      "version": "2.0",
+      "title": "Terminal-Bench 2.0",
+      "package": "terminal-bench/terminal-bench-2",
+      "leaderboard_name": "2-0",
+      "rows": 142,
+      "source_url": "https://www.tbench.ai/?version=2.0"
+    }
+  ],
+  "row_count": 194,
+  "extraction_method": "chrome-devtools MCP: re-issued the same four POST requests (package/name pairs from the 20260903 meta.json) directly to the Supabase edge function https://ofhuhcpkvzjlejydnvyd.supabase.co/functions/v1/leaderboard-read from the tbench.ai page context via fetch(), verified location.href === 'https://www.tbench.ai/' inside the script before trusting any result (guarded every select_page + evaluate_script pair and retried on a wrong-page hit rather than saving mismatched data - concurrent agents in the shared browser caused the selected page to flip repeatedly, requiring roughly 20 retries before a clean run). Also DOM-probed the page for a version selector (none found: no <select>/<option> elements, version switching is done client-side without exposing extra options) and speculatively POSTed four additional package/name guesses (5-0-0, 4-1-0, 3-1-0, and package terminal-bench-2-2/main) which all returned HTTP 404, confirming no new leaderboard version beyond 4.0/3.0/2.1/2.0 exists as of 2026-09-04. Payloads saved verbatim as raw.json; normalized.json derived with the same field mapping as the 20260903 scrape (row-level id/rank/n_trials + metadata.* + metrics.* for 4.0/3.0/2.1; the flatter 2.0 metadata schema with plain-string model_display/model_org/agent_org and no cost/tokens/reasoning_effort, matching the 20260903 normalization).",
+  "notes": [
+    "No CSV/JSON static asset exists; all leaderboard data comes from the leaderboard-read edge function. Payloads were saved verbatim, not DOM-scraped.",
+    "The site's Benchmark selector still offers exactly four versions: 4.0, 3.0, 2.1, 2.0 - no new version tab found in the DOM, and probes for plausible new version/package names (5-0-0, 4-1-0, 3-1-0, terminal-bench-2-2) all returned HTTP 404.",
+    "Agent/harness is a first-class field (metadata.agent_display) and is kept separate from the model name. reasoning_effort is also kept separate. Both omitted for Terminal-Bench 2.0 rows, which use a flatter metadata schema.",
+    "Metric is the leaderboard 'accuracy' field, displayed on the site as RESOLUTION RATE, in percent (0-100). score_ci95_half_width is the +/- 95% CI half width in percentage points.",
+    "context_window is not published by this site, so the field is omitted from every record.",
+    "cost_usd / total_tokens are the total across all trials for that run, as published. Terminal-Bench 2.0 rows publish accuracy only, so cost, tokens and trial counts are omitted for them.",
+    "Verified via the browser only; no curl fallback needed (curl/Node network access is blocked in this environment). Same-origin fetch from the page required no auth headers.",
+    "Rank values come from the source payload and contain ties.",
+    "No Muse Spark 1.3 or Muse Spark 1.2 entries were found in any of the four leaderboard versions (only Muse Spark 1.1 is present, in Terminal-Bench 2.1, unchanged from 20260903). Gemini 3.8 Flash and Grok 4.6 - absent on 20260903 per that scrape's notes - now appear as new Terminal-Bench 4.0/3.0 rows (see changes_vs_20260903).",
+    "Heavy concurrent-agent contention on the shared browser's page-selection pointer made nearly every select_page+evaluate_script pair land on a different agent's page; every evaluate_script call re-checked location.href before touching data and discarded/retried on a mismatch, so no wrong-page data was saved despite ~20 retries being needed to complete the scrape."
+  ],
+  "changes_vs_20260903": {
+    "method": "Diffed raw leaderboard rows per version by the source payload's stable row id (uuid). 'changed' counts rows present in both snapshots whose accuracy score or rank differ (rank commonly shifts when new rows are inserted above existing ones).",
+    "4.0": { "old_rows": 10, "new_rows": 18, "added": 8, "removed": 0, "changed": 10 },
+    "3.0": { "old_rows": 12, "new_rows": 12, "added": 0, "removed": 0, "changed": 0 },
+    "2.1": { "old_rows": 17, "new_rows": 22, "added": 5, "removed": 0, "changed": 17 },
+    "2.0": { "old_rows": 142, "new_rows": 142, "added": 0, "removed": 0, "changed": 0 },
+    "summary": "13 new runs submitted since 20260903, all in Terminal-Bench 4.0 (+8) and 2.1 (+5). New Terminal-Bench 4.0 leader: GPT-6 Astra / Codex (OpenAI), 58.18% (rank 1, up from Opus 5 / Claude Code at 51.82%). New Terminal-Bench 2.1 leader: GPT-6 Astra / Codex (OpenAI), 87.42% (rank 1, up from Fable 5 / Claude Code at 83.82%). Terminal-Bench 3.0 and 2.0 are byte-for-byte unchanged (0 added/removed/changed)."
+  }
+}

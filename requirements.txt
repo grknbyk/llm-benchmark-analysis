@@ -1,0 +1,7 @@
+# pip install -r requirements.txt
+# Or skip the install entirely and let uv fetch them per run:
+#   uv run --with matplotlib --with pandas --with plotly python pipeline/make_charts.py <profile>
+pandas>=2.0
+matplotlib>=3.8
+plotly>=5.20
+markdown>=3.5

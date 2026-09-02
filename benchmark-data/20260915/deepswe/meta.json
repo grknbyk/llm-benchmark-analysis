@@ -1,0 +1,146 @@
+{
+  "source_url": "https://deepswe.datacurve.ai/",
+  "scraped_at": "2026-09-15T19:15:25Z",
+  "benchmarks_captured": [
+    "DeepSWE v1.1",
+    "DeepSWE v1",
+    "DeepSWE v1 (curated selection)"
+  ],
+  "row_count": 230,
+  "extraction_method": "JSON data artifacts fetched verbatim (no DOM scraping), same-origin, via the page's own fetch() inside evaluate_script, saved through the filePath option. Opened own chrome-devtools page on https://deepswe.datacurve.ai/ in an isolated browser context named deepswe-rescrape-20260915 (page id 3, stable all run except one navigate_page mistake described in notes). Every evaluate_script was paired with select_page in the SAME tool-call turn and began with a location.href guard that THROWS on mismatch, comparing hostname with === not includes. Under contention from other agents sharing the browser the guard fired on several consecutive attempts before winning the race; every one of those was a thrown error, never a value written to disk. File size on disk and a diff against 20260906/deepswe/raw.json were checked after the save. Also navigated the same page (select_page + navigate_page paired) to the page route https://deepswe.datacurve.ai/data/v1.1?hm_stat=avg_duration_seconds&pivot=true to read the hm_stat option list directly out of the rendered <select> elements. No Node/curl fallback.",
+  "artifacts": [
+    {
+      "url": "https://deepswe.datacurve.ai/artifacts/v1.1/leaderboard-live.json",
+      "rows": 70,
+      "generated_at": "2026-09-03T22:24:37.984682+00:00",
+      "role": "leaderboard tab 'v1.1' (default). 70 harness+model+reasoning-effort configs, 28 distinct models.",
+      "changed_since_20260906": false
+    },
+    {
+      "url": "https://deepswe.datacurve.ai/artifacts/v1/leaderboard-live.json",
+      "rows": 29,
+      "generated_at": "2026-06-20T17:27:24.307648+00:00",
+      "role": "leaderboard tab 'v1'. 29 configs, 21 distinct models.",
+      "changed_since_20260906": false
+    },
+    {
+      "url": "https://deepswe.datacurve.ai/artifacts/v1/leaderboard.json",
+      "rows": 16,
+      "generated_at": null,
+      "role": "curated 16-config selection used by the /blog/deepswe post. Carries no generated_at stamp.",
+      "changed_since_20260906": false
+    },
+    {
+      "url": "https://deepswe.datacurve.ai/artifacts/v1.1/v1-delta.json",
+      "rows": null,
+      "role": "v1.1-vs-v1 re-grading comparison: 9 shared configs plus a 113-task breakdown. Included in raw.json for completeness; NOT normalized (does not fit the model/benchmark/metric record schema).",
+      "changed_since_20260906": false
+    },
+    {
+      "url": "https://deepswe.datacurve.ai/artifacts/v1.1/tasks.json",
+      "rows": 113,
+      "role": "Per-task metadata for the 113 DeepSWE v1.1 tasks. No model/score data. Included in raw.json for completeness; NOT normalized. scope = 'Tasks attempted in this benchmark version'.",
+      "changed_since_20260906": false
+    },
+    {
+      "url": "https://deepswe.datacurve.ai/artifacts/v1/tasks.json",
+      "rows": 113,
+      "role": "Same 8-field per-task schema and same 113 task count as v1.1/tasks.json, scope label 'All 113 DeepSWE task definitions'. Included in raw.json for completeness; NOT normalized.",
+      "changed_since_20260906": false
+    }
+  ],
+  "artifact_probe": {
+    "paths_probed": 32,
+    "found_200": [
+      "v1.1/leaderboard-live.json",
+      "v1/leaderboard-live.json",
+      "v1/leaderboard.json",
+      "v1.1/v1-delta.json",
+      "v1.1/tasks.json",
+      "v1/tasks.json"
+    ],
+    "returned_404": [
+      "v1.2/leaderboard-live.json", "v1.2/tasks.json", "v1.2/leaderboard.json", "v1.2/v1-delta.json",
+      "v2/leaderboard-live.json", "v2/tasks.json", "v2/leaderboard.json",
+      "v1.1/leaderboard.json", "v1/v1-delta.json", "v1.1/models.json", "v1.1/detail.json",
+      "v1.1/runs.json", "v1.1/costs.json", "v1.1/pricing.json", "v1.1/metadata.json", "v1.1/summary.json",
+      "index.json", "manifest.json", "v1.1/trajectories.json", "v1.1/per-task.json",
+      "v1.1/delta.json", "v1/delta.json", "v1.1/v2-delta.json", "v2/v1-delta.json", "v2/v1.1-delta.json",
+      "v1.1/leaderboard-history.json", "v1/leaderboard-history.json"
+    ],
+    "note": "No new artifact this run. Same 6 files found as on 20260906, including the v1/tasks.json discovered that day. No v1.2 or v2 benchmark version exists as of this scrape."
+  },
+  "data_route_probe": {
+    "url": "https://deepswe.datacurve.ai/data/v1.1?hm_stat=avg_duration_seconds&pivot=true",
+    "method": "Navigated the isolated page to this route (select_page + navigate_page paired in one turn, href-guard verified afterward) and read the rendered <select> element option lists and button labels directly from the DOM heatmap-pivot controls.",
+    "hm_stat_values": [
+      "pass_rate",
+      "avg_cost_usd",
+      "total_cost_usd",
+      "avg_steps",
+      "avg_input_tokens",
+      "avg_output_tokens",
+      "avg_peak_context_tokens",
+      "avg_duration_seconds",
+      "n_trials",
+      "n_errors"
+    ],
+    "other_pivot_controls_on_same_page": {
+      "model_grouping": ["effort (Split effort)", "base (Base model)"],
+      "trial_filter": ["all (All trials)", "non_errored (Exclude errored)", "successful (Only passed)"],
+      "cell_display": ["numbers (Numbers)", "color (Color only)"]
+    },
+    "finding_a_mean_vs_median": "hm_stat exposes only the mean/avg family (avg_cost_usd, avg_steps, avg_input_tokens, avg_output_tokens, avg_peak_context_tokens, avg_duration_seconds) plus counts. It offers no median_* option anywhere. This confirms the task's premise: the page's own publishable-statistic list is the MEAN family, and the artifact's median_* fields (median_cost_usd, median_agent_steps, median_output_tokens, median_input_tokens, median_duration_seconds, median_peak_context_tokens, etc.) are not what the site surfaces as its headline numbers, even though raw.json/normalized.json keep every median_* field verbatim per the task instruction to keep every field.",
+    "finding_b_gaps_hm_stat_vs_artifact": "Three hm_stat values have no matching field in the leaderboard-live.json artifact rows, checked field-by-field against the 59-key row schema: (1) total_cost_usd -- absent; only mean_cost_usd and median_cost_usd exist, so a total would have to be derived (e.g. mean_cost_usd * n_attempted) rather than read off the artifact. (2) avg_peak_context_tokens -- absent; the artifact carries median_peak_context_tokens only, no mean variant, which breaks the otherwise-universal mean/median pairing for every other efficiency stat. (3) n_errors -- absent; the artifact has n_attempted, n_passed, ci_attempted, ci_passed but no explicit error/failure count field. These three are genuine gaps between what the page's heatmap can pivot on and what the same-origin JSON artifacts expose; they most likely come from a per-trial dataset backing the heatmap and tasks/trials views that was not found as a separate fetchable artifact (probed candidate paths for it, see artifact_probe, all 404)."
+  },
+  "cost_adjustment_carried_forward": {
+    "note": "raw.json is byte-for-byte identical to 20260906/deepswe/raw.json (see changes_vs_20260906), so the cost-adjustment mapping measured that day is carried forward unchanged rather than re-derived: 19 of 70 v1.1 configs differ from their raw mean_cost_usd, covering 7 models -- glm-5-3-flash (x0.5), gemini-3-6-flash (x0.5), gpt-5-6-luna (x0.2, all 5 efforts), gpt-5-6-terra (x0.8, all 5 efforts), gpt-5-6-sol (x0.76-0.77, all 5 efforts, effort-dependent), deepseek-v4-pro (x6.90) and deepseek-v4-flash (x4.63, all increases not discounts) -- plus one v1-tab config, mini_swe_agent_deepseek_v4_pro_default, adjusted x0.25. This scrape did not re-verify the adjustment against the server-rendered HTML the way 20260906 did; it is a carry-forward on the strength of the byte-identical artifact, and should be re-observed the next time the artifact actually changes.",
+    "cost_adjusted_records": 42
+  },
+  "notes": [
+    "AGENT/SCAFFOLD: every row on this site was run with the 'mini-swe-agent' harness. Kept as its own 'agent' field, never merged into the model name.",
+    "MODEL CHECK: 'muse-spark-1.3' is STILL NOT present (only muse-spark-1.2 and muse-spark-1.1 exist). 'claude-fable-5.1' is also NOT present (site has claude-fable-5 only). Both re-verified by scanning the model field of all 230 normalized records this run.",
+    "OPERATOR ERROR, corrected: one navigate_page call was issued right after select_page(3) but in a way that let another agent's select_page win the shared pointer first, so navigate_page briefly sent a different agent's page (the livebench-rescrape-20260915 page) to the deepswe data route instead of my own page. Caught immediately via list_pages, and fixed by selecting that page back and navigating it back to its prior URL (https://livebench.ai/#/?showorg=1) before continuing. All subsequent navigate_page and evaluate_script calls paired select_page in the same turn and verified location.href inside the script afterward. Flagging this because navigate_page, unlike evaluate_script, has no pageId parameter and no href guard of its own -- it acts on whatever page is currently selected at call time, so the same-turn pairing discipline matters for it too, not just for evaluate_script.",
+    "BROWSER CONTENTION: this scrape ran alongside several other agents on one shared browser instance. Even with select_page and evaluate_script/navigate_page issued in the same turn, the shared 'selected page' pointer was stolen on multiple attempts; each script needed several retries. The throwing href guard is what made evaluate_script safe, since every lost race surfaced as an error instead of another site's data being written to raw.json.",
+    "NORMALIZED.JSON: not regenerated field-by-field this run. Because raw.json is byte-for-byte identical to 20260906/deepswe/raw.json (verified by diff), and normalized.json carries no scrape-run-specific field (no per-record scraped_at; every record's generated_at/date already reflects the artifact's own stamp), the transformation from an unchanged input is itself unchanged, so 20260906/deepswe/normalized.json was copied verbatim rather than retyped or re-derived by hand. This is a mechanical file copy of a machine-produced file, not a transcription."
+  ],
+  "changes_vs_20260906": {
+    "payload_changed": false,
+    "v1.1_generated_at_old": "2026-09-03T22:24:37.984682+00:00",
+    "v1.1_generated_at_new": "2026-09-03T22:24:37.984682+00:00",
+    "v1_generated_at_old": "2026-06-20T17:27:24.307648+00:00",
+    "v1_generated_at_new": "2026-06-20T17:27:24.307648+00:00",
+    "raw_json_diff": "byte-for-byte identical to benchmark-data/20260906/deepswe/raw.json (229071 bytes both, `diff -q` reports no differences).",
+    "models_added": [],
+    "models_removed": [],
+    "schema_drift": "None. Same 6 artifacts, same 59-key row schema on leaderboard-live.json, same 230 normalized records across the same 6 (benchmark, metric) groups.",
+    "new_artifacts": false,
+    "hm_stat_values_this_run": [
+      "pass_rate", "avg_cost_usd", "total_cost_usd", "avg_steps", "avg_input_tokens",
+      "avg_output_tokens", "avg_peak_context_tokens", "avg_duration_seconds", "n_trials", "n_errors"
+    ],
+    "summary": "UNCHANGED since 20260906. Neither the v1.1 nor the v1 generated_at stamp moved, and raw.json is byte-for-byte identical. No model was added, removed or re-scored; gpt-6-astra (xhigh) remains #1 on DeepSWE v1.1 pass@1 at 74.12%. The only new information this run is on the reporting side, not the site's data: the data-route probe of /data/v1.1?hm_stat=...&pivot=true, which lists the 10 hm_stat values the heatmap can pivot on (all mean/avg-family plus counts, confirming the site publishes MEAN not median) and surfaces 3 genuine gaps (total_cost_usd, avg_peak_context_tokens, n_errors) that the JSON artifacts do not carry as fields."
+  },
+  "verification": {
+    "record_count_20260906": 230,
+    "record_count_20260915": 230,
+    "records_per_group": {
+      "DeepSWE v1.1 pass@1": 70,
+      "DeepSWE v1.1 pass@4": 70,
+      "DeepSWE v1 pass@1": 29,
+      "DeepSWE v1 pass@4": 29,
+      "DeepSWE v1 (curated selection) pass@1": 16,
+      "DeepSWE v1 (curated selection) pass@4": 16
+    },
+    "raw_json_bytes": 229071,
+    "normalized_json_bytes_identical_to_20260906": true,
+    "models_of_interest": {
+      "Claude Fable 5.1": "ABSENT (site has claude-fable-5 only, no .1 variant)",
+      "Grok 4.6": "PRESENT (grok-4.6)",
+      "GLM-5.3-Flash": "PRESENT (glm-5.3-flash)",
+      "GPT-6 Astra": "PRESENT (gpt-6-astra, #1 on DeepSWE v1.1 pass@1 at 74.12%)",
+      "Claude Opus 5": "PRESENT (claude-opus-5)",
+      "Muse Spark 1.3": "ABSENT (site has muse-spark-1.2 and muse-spark-1.1 only, no 1.3)"
+    }
+  }
+}

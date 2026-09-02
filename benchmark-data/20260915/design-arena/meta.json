@@ -1,0 +1,273 @@
+{
+ "source_url": "https://www.designarena.ai/leaderboard",
+ "scraped_at": "2026-09-15T19:19:52.000Z",
+ "categories_captured": [
+  "models/allcategories",
+  "models/website",
+  "models/uicomponent",
+  "models/gamedev",
+  "models/dataviz",
+  "models/3d",
+  "models/website/image",
+  "models/website/video",
+  "models/svg",
+  "models/ascii",
+  "models/slides",
+  "models/image",
+  "models/imagetoimage",
+  "models/graphicdesign",
+  "models/logo",
+  "models/video",
+  "models/videotovideo",
+  "models/imagetovideo",
+  "models/multitovideo",
+  "models/multimodaltovideo",
+  "models/tts",
+  "models/audiorealism",
+  "agents/fullstack",
+  "agents/agon_webapps",
+  "agents/agon_webapps/image",
+  "agents/agentic_gamedev",
+  "agents/agon_godot",
+  "agents/nativeapps",
+  "agents/mobileapps",
+  "agents/agon_slides",
+  "agents/agon_slides_html",
+  "builders/website",
+  "builders/mobile",
+  "llm-scores"
+ ],
+ "categories_swept_and_empty": [
+  "models/music",
+  "models/sts",
+  "models/worldmodel",
+  "agents/agon_dataviz",
+  "agents/agentic_3d",
+  "agents/fullstack_gamedev",
+  "agents/agon_html"
+ ],
+ "row_count": 2075,
+ "extraction_method": "Reproduced the 20260906 scrape method verbatim: same private JSON API (POST /api/leaderboard {arenaType, category, variationName: 'public', inputModality?}; GET /api/registry; GET /api/leaderboard/judge-scores; POST /api/leaderboard/llm-scores) on https://www.designarena.ai/leaderboard. A dedicated page was opened at pageId 10 (isolatedContext=design-arena-rescrape-20260915) in a browser session shared with nine other rescrape agents. The full 43-endpoint sweep (33 populated categories including llm-scores + 7 known-empty categories + registry + judge-scores) was executed via Node fetch in Bash, the fallback recorded as accepted in the 20260906 meta.json. Page-selection contention was heavy while cross-checking in the browser: roughly 15 select_page->evaluate_script pairs landed on other agents' pages (artificialanalysis.ai, deepswe.datacurve.ai, benchlm.ai, livebench.ai, arena.ai/leaderboard, www.tbench.ai, www.vals.ai) before one landed on the correct www.designarena.ai page. Every one was caught by an href guard that throws rather than returning an error object, so no foreign payload was written to disk. Mid-sweep, the dedicated page (pageId 10) was itself navigated away to www.vals.ai/benchmarks/rsi_index by another agent's tool call while still carrying this agent's isolatedContext label; it was renavigated back to https://www.designarena.ai/leaderboard before the cross-check was retried and confirmed. No page belonging to another agent was navigated, hijacked, or closed by this agent; only the one page this agent opened (pageId 10) was closed at the end of the run.",
+ "notes": [
+  "Node-fetch/browser cross-check: models/allcategories was fetched BOTH through the page's own fetch() inside evaluate_script on the confirmed www.designarena.ai page AND through Node fetch in Bash. Both returned status 200, count 166, identical metadata ({\"lastUpdateTime\":\"2026-09-15T18:30:09.346501+00:00\",\"totalVotes\":1567964}), and an identical top-3 row set. The payloads match, so the bulk Node sweep is trusted.",
+  "raw.json holds untouched API payloads keyed by \"<arenaType>/<category>[/<inputModality>]\", plus the full /api/registry (models, providers, pricing, each as separate top-level objects -- unchanged shape from 20260906), and the judge-scores / llm-scores payloads.",
+  "All 7 persistently-empty categories were swept and every one returned HTTP 200 with success:true and data: [] -- models/music, models/sts, models/worldmodel, agents/agon_dataviz, agents/agentic_3d, agents/fullstack_gamedev, agents/agon_html. Still empty, no change since 20260906. Detail: {\"models/music\":{\"success\":true,\"data_len\":0},\"models/sts\":{\"success\":true,\"data_len\":0},\"models/worldmodel\":{\"success\":true,\"data_len\":0},\"agents/agon_dataviz\":{\"success\":true,\"data_len\":0},\"agents/agentic_3d\":{\"success\":true,\"data_len\":0},\"agents/fullstack_gamedev\":{\"success\":true,\"data_len\":0},\"agents/agon_html\":{\"success\":true,\"data_len\":0}}.",
+  "Elo is the site metric; battles map to votes; winRate is a percentage (0-100). btStdErr is the Bradley-Terry standard error the API returns, populated on essentially every row, same as 20260906.",
+  "rank is not returned by the API; it is assigned here as 1-based position in the array order the API already returns (confirmed descending by elo/llmScore), same method as 20260906.",
+  "cost_usd_input_per_1m_tokens / cost_usd_output_per_1m_tokens come from registry.pricing[model_id].text.{input,output} only where present. Nothing blended or estimated. Image/video/per-second pricing in the registry is not mapped onto these two fields.",
+  "context_window is not exposed anywhere on the site, so it is omitted from every record, same as 20260906.",
+  "date is the per-category metadata.lastUpdateTime returned by the API. llm-scores has no metadata block, so its records carry no date, same as 20260906.",
+  "GPT-6 Astra (model_id gpt-6-astra) was registry-only with ZERO leaderboard rows on 20260906 (registry active:false at the time). As of this scrape it is registry active:true and now carries 13 leaderboard rows across models/allcategories, models/uicomponent, models/gamedev, models/dataviz, models/3d, models/svg, models/ascii, agents/fullstack, agents/agon_webapps, agents/agon_webapps/image, agents/mobileapps, agents/agon_slides, llm-scores. This is the announced-model graduating to voted-on state; both the 20260906 absence and today's rows are real and are reported separately here, not merged.",
+  "Deca 2.6 Pro (model_id deca-2.6-pro) is NEW in /api/registry today and has ZERO leaderboard rows. Registry entry: {\"id\":\"deca-2.6-pro\",\"displayName\":\"Deca 2.6 Pro\",\"provider\":\"genlabs\",\"active\":true,\"openSource\":false,\"router\":false,\"arenas\":{\"models\":[\"website\",\"3d\",\"dataviz\",\"gamedev\",\"uicomponent\"]},\"vision\":false}. It is absent from all 33 populated category payloads and from llm-scores. This is the announced-but-not-yet-voted-on state, reported separately from any leaderboard row -- there are none for it.",
+  "70 of the 506 registry models have zero leaderboard rows anywhere today (was 71 of 495 on 20260906).",
+  "Murf Falcon 2 (murf_falcon_2) already existed in the registry with zero rows on 20260906 and has now gained its first leaderboard row (models/tts, rank 23, elo 1023). This is an existing registry entry graduating to voted-on state, distinct from a brand-new registry addition.",
+  "judge-scores was captured for completeness and holds 5 blocks (judge_fullstack, adoption, dau_curves, retention, arena_downloads). Only llm-scores is normalized into records, same as 20260906.",
+  "No login, no voting, no CAPTCHA; nothing was blocked on the designarena.ai side. All 43 Node-fetch requests returned HTTP 200.",
+  "Only variationName \"public\" appears in the client code; no other variation was requested, same as 20260906.",
+  "Target-model check (registry presence vs leaderboard rows reported separately, never merged): {\"Claude Fable 5.1\":{\"model_id\":\"claude-fable-5-1\",\"display_name\":\"Claude Fable 5.1\",\"in_registry\":true,\"leaderboard_row_count\":13},\"Grok 4.6\":{\"model_id\":\"grogu\",\"display_name\":\"Grok 4.6\",\"in_registry\":true,\"leaderboard_row_count\":18},\"GLM-5.3-Flash\":{\"model_id\":\"notebook\",\"display_name\":\"GLM-5.3-Flash\",\"in_registry\":true,\"leaderboard_row_count\":10},\"GPT-6 Astra\":{\"model_id\":\"gpt-6-astra\",\"display_name\":\"GPT-6 Astra (xhigh)\",\"in_registry\":true,\"leaderboard_row_count\":13},\"Claude Opus 5\":{\"model_id\":\"claude-opus-5\",\"display_name\":\"Claude Opus 5\",\"in_registry\":true,\"leaderboard_row_count\":15},\"Muse Spark 1.3\":{\"model_id\":\"muse-spark-1.3\",\"display_name\":\"Muse Spark 1.3 (xhigh)\",\"in_registry\":true,\"leaderboard_row_count\":13}}"
+ ],
+ "changes_vs_20260906": {
+  "summary": "Category set unchanged: the same 33 populated categories (including llm-scores) + the same 7 categories still empty. No category was added or removed by the site. row_count rose 1997 -> 2075 (net +78: 85 model+category rows added, 7 removed). Registry grew 495 -> 506 models. No schema drift: identical normalized-record field set and identical raw.json top-level registry shape (models/providers/pricing) as 20260906.",
+  "models_added_to_leaderboards": [
+   "aleph2",
+   "caffeine",
+   "decaf",
+   "deepseek-v4-1-flash",
+   "flux-3-video-edit",
+   "gpt-6-astra",
+   "gpt-image-2.5-flare",
+   "gpt-image-2.5-sunburst",
+   "murf_falcon_2",
+   "muse-spark-1.3-max",
+   "p-video-2",
+   "p-video-2-draft",
+   "replit-slides",
+   "solar-pro4-direct"
+  ],
+  "models_removed_from_leaderboards": [
+   "claude-opus-5-xhigh",
+   "solar-pro4"
+  ],
+  "registry_models_added": [
+   "aleph2",
+   "caffeine",
+   "deca-2.6-pro",
+   "decaf",
+   "deepseek-v4-1-flash",
+   "flux-3-video-edit",
+   "gpt-image-2.5-flare",
+   "gpt-image-2.5-sunburst",
+   "muse-spark-1.3-max",
+   "p-video-2",
+   "p-video-2-draft",
+   "replit-slides",
+   "solar-pro4-direct"
+  ],
+  "registry_models_removed": [
+   "claude-opus-5-xhigh",
+   "solar-pro4"
+  ],
+  "registry_only_entries_no_leaderboard_rows_notable": {
+   "gpt-6-astra": "was registry-only on 20260906, now HAS rows (see notes) -- no longer in this bucket",
+   "deca-2.6-pro": "NEW registry entry today with zero leaderboard rows -- current announced-but-not-voted-on case"
+  },
+  "row_level_additions_by_model": {
+   "muse-spark-1.3-max": [
+    "models/allcategories",
+    "models/website",
+    "models/uicomponent",
+    "models/gamedev",
+    "models/dataviz",
+    "models/3d",
+    "agents/fullstack",
+    "llm-scores"
+   ],
+   "gpt-6-astra": [
+    "models/allcategories",
+    "models/uicomponent",
+    "models/gamedev",
+    "models/dataviz",
+    "models/3d",
+    "models/svg",
+    "models/ascii",
+    "agents/fullstack",
+    "agents/agon_webapps",
+    "agents/agon_webapps/image",
+    "agents/mobileapps",
+    "agents/agon_slides",
+    "llm-scores"
+   ],
+   "deepseek-v4-1-flash": [
+    "models/allcategories",
+    "models/website",
+    "models/uicomponent",
+    "models/gamedev",
+    "models/dataviz",
+    "models/3d",
+    "models/website/image"
+   ],
+   "solar-pro4-direct": [
+    "models/allcategories",
+    "models/website",
+    "models/uicomponent",
+    "models/gamedev",
+    "models/dataviz",
+    "models/3d",
+    "agents/agon_webapps"
+   ],
+   "muse-spark-1.3": [
+    "models/website/image",
+    "models/website/video",
+    "agents/fullstack",
+    "agents/agon_webapps",
+    "agents/agon_webapps/image",
+    "agents/agon_slides",
+    "llm-scores"
+   ],
+   "gemini-3.8-flash": [
+    "models/website/video",
+    "agents/fullstack",
+    "agents/agon_webapps",
+    "agents/mobileapps",
+    "agents/agon_slides",
+    "llm-scores"
+   ],
+   "minimax-m3": [
+    "models/website/video"
+   ],
+   "gpt-5.6-sol-xhigh": [
+    "models/svg",
+    "agents/agon_webapps/image"
+   ],
+   "claude-fable-5-1": [
+    "models/ascii",
+    "agents/fullstack",
+    "agents/agon_webapps/image",
+    "agents/agon_slides",
+    "llm-scores"
+   ],
+   "gemini-3.7-flash": [
+    "models/ascii"
+   ],
+   "qwen3.8-max-preview": [
+    "models/ascii"
+   ],
+   "deepseek-v4-flash-0731": [
+    "models/ascii"
+   ],
+   "replit-slides": [
+    "models/slides"
+   ],
+   "gpt-image-2.5-sunburst": [
+    "models/image",
+    "models/imagetoimage",
+    "models/graphicdesign",
+    "models/logo"
+   ],
+   "gpt-image-2.5-flare": [
+    "models/image",
+    "models/imagetoimage",
+    "models/graphicdesign",
+    "models/logo"
+   ],
+   "mai-image-2.6-flash": [
+    "models/imagetoimage"
+   ],
+   "mai-image-2.6": [
+    "models/imagetoimage",
+    "models/graphicdesign"
+   ],
+   "p-video-2": [
+    "models/video",
+    "models/imagetovideo"
+   ],
+   "p-video-2-draft": [
+    "models/video",
+    "models/imagetovideo"
+   ],
+   "fig": [
+    "models/videotovideo",
+    "models/multimodaltovideo"
+   ],
+   "flux-3-video-edit": [
+    "models/videotovideo"
+   ],
+   "aleph2": [
+    "models/videotovideo"
+   ],
+   "decaf": [
+    "models/videotovideo"
+   ],
+   "caffeine": [
+    "models/videotovideo"
+   ],
+   "murf_falcon_2": [
+    "models/tts"
+   ],
+   "claude-opus-4-6": [
+    "agents/agentic_gamedev"
+   ],
+   "glm-5.3": [
+    "agents/agon_slides"
+   ],
+   "qwen3.8-max": [
+    "agents/agon_slides"
+   ]
+  },
+  "row_level_removals_by_model": {
+   "solar-pro4": [
+    "models/allcategories",
+    "models/website",
+    "models/uicomponent",
+    "models/gamedev",
+    "models/dataviz",
+    "models/3d"
+   ],
+   "claude-opus-5-xhigh": [
+    "agents/mobileapps"
+   ]
+  },
+  "drift_note": "Elo, votes, wins and losses moved slightly on nearly all surviving rows from nine more days of voting (site totalVotes 1496427 -> 1567964 on models/allcategories). That drift is ordinary, not error.",
+  "schema_drift": "None. Same normalized-record fields, same raw.json registry shape (models/providers/pricing), same 33+7 category set as 20260906."
+ }
+}

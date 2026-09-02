@@ -1,0 +1,42 @@
+{
+  "source_url": "https://livebench.ai/#/",
+  "scraped_at": "2026-09-04T07:53:04.754Z",
+  "release": "LiveBench-2026-06-25",
+  "benchmarks_captured": [
+    "Overall",
+    "Reasoning",
+    "Coding",
+    "Agentic Coding",
+    "Mathematics",
+    "Data Analysis",
+    "Language",
+    "Instruction Following"
+  ],
+  "row_count": 408,
+  "model_count": 51,
+  "extraction_method": "network-json + DOM leaderboard",
+  "files": {
+    "raw.json": "Verbatim contents of the three data files the site fetches, keyed by filename (table, categories, cost).",
+    "table_2026_06_25.csv": "Verbatim source: per-model, per-subtask scores (23 subtasks). Model ids are API ids, not display names. Folded into raw.json, not persisted separately.",
+    "categories_2026_06_25.json": "Verbatim source: mapping of the 7 categories to their subtasks. Folded into raw.json, not persisted separately.",
+    "cost_2026_06_25.csv": "Verbatim source: per-model, per-subtask cost and nq_* (question count) columns. Folded into raw.json, not persisted separately.",
+    "raw_leaderboard_dom.json": "DOM extraction of the rendered leaderboard: aggregated category scores, org, open-weights flag and cost per successful task, which the CSVs do not contain pre-aggregated. (Not persisted as a separate file in this scrape; folded directly into normalized.json.)",
+    "normalized.json": "One record per model per metric."
+  },
+  "notes": [
+    "Data endpoints discovered via performance resource entries: livebench.ai/table_2026_06_25.csv, categories_2026_06_25.json, cost_2026_06_25.csv (all ?v=1788445256, a newer cache-busting version than the 20260903 scrape's ?v=1788377630 — same release date, 2026-06-25).",
+    "The site's rendered leaderboard aggregates the subtask CSV into the 7 categories plus Overall; those aggregates were read from the DOM, so normalized.json is DOM-derived while raw.json is the untouched network source.",
+    "50 models shown by default (grew from 49 on 20260903); 'Include finetunes' adds 1 more (Smaug-Agentic), flagged with is_finetune. Both are included, 51 models total.",
+    "'Show org' was enabled to obtain the provider column.",
+    "cost_usd is the site's model-level 'COST PER SUCCESSFUL TASK' in USD. It is not per-category; it is repeated on every record of a model.",
+    "date is the LiveBench release date the scores belong to (2026-06-25), not a model release date.",
+    "rank is present only on Overall records, taken from the site's default Overall-descending sort. The site shows no per-category rank, so it is omitted there.",
+    "context_window is not published by LiveBench and is omitted.",
+    "Release selector on the site still shows only two options: '2024-06-24 · v1' and '2026-06-25 · latest'. No newer release string than LiveBench-2026-06-25 exists as of this scrape.",
+    "Per-subtask scores are preserved in the raw CSVs but not expanded into normalized.json.",
+    "'Muse Spark 1.3 xHigh Effort' now exists on the site (org listed as Meta by the site's own 'Show org' column): Overall 81.6, Reasoning 89.7, Coding 81.1, Agentic Coding 64.1, Mathematics 95.9, Data Analysis 79.6, Language 82.8, Instruction Following 78.0, cost_usd 0.219. It did not exist in the 20260903 scrape.",
+    "'Gemini 3.8 Flash High' is present and unchanged vs 20260903: Overall 75.8, Reasoning 89.3, Coding 72.5, Agentic Coding 54.2, Mathematics 91.6, Data Analysis 54.0, Language 87.8, Instruction Following 81.4, cost_usd 0.307.",
+    "'Muse Spark 1.2 xHigh Effort' is present and unchanged vs 20260903: Overall 78.0, Reasoning 90.0, Coding 77.5, Agentic Coding 57.6, Mathematics 91.2, Data Analysis 76.5, Language 78.6, Instruction Following 74.3, cost_usd 0.375."
+  ],
+  "changes_vs_20260903": "Model count grew from 50 to 51 (default-shown models grew from 49 to 50; the single finetune, Smaug-Agentic, is unchanged). The added model is 'Muse Spark 1.3 xHigh Effort' (org shown as Meta by the site, open_weights=false): Overall 81.6, Reasoning 89.7, Coding 81.1, Agentic Coding 64.1, Mathematics 95.9, Data Analysis 79.6, Language 82.8, Instruction Following 78.0, cost_usd 0.219. It did not appear in the 20260903 scrape at all and ranks 3rd overall, above every model except the two Claude Fable 5.x entries. No models were removed. All other 50 models and their scores/costs are present in both scrapes; a spot check of shared models (e.g. Claude Fable 5.1 Max Effort, Gemini 3.8 Flash High, Muse Spark 1.2 xHigh Effort) shows identical scores between the two dates, i.e. this release's underlying numbers did not change, only the model roster grew by one. Release string unchanged at LiveBench-2026-06-25; no newer release is offered by the site's release selector."
+}

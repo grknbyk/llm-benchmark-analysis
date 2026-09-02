@@ -1,0 +1,107 @@
+{
+  "source_url": "https://www.tbench.ai/",
+  "scraped_at": "2026-09-06T15:34:00.000Z",
+  "benchmarks_captured": [
+    {
+      "version": "4.0",
+      "title": "Terminal-Bench 4.0",
+      "package": "terminal-bench/terminal-bench",
+      "leaderboard_name": "4-0-0",
+      "rows": 18,
+      "source_url": "https://www.tbench.ai/"
+    },
+    {
+      "version": "3.0",
+      "title": "Terminal-Bench 3.0",
+      "package": "terminal-bench/terminal-bench",
+      "leaderboard_name": "3-0-0",
+      "rows": 12,
+      "source_url": "https://www.tbench.ai/?version=3.0"
+    },
+    {
+      "version": "2.1",
+      "title": "Terminal-Bench 2.1",
+      "package": "terminal-bench/terminal-bench-2-1",
+      "leaderboard_name": "main",
+      "rows": 22,
+      "source_url": "https://www.tbench.ai/?version=2.1"
+    },
+    {
+      "version": "2.0",
+      "title": "Terminal-Bench 2.0",
+      "package": "terminal-bench/terminal-bench-2",
+      "leaderboard_name": "2-0",
+      "rows": 142,
+      "source_url": "https://www.tbench.ai/?version=2.0"
+    }
+  ],
+  "row_count": 194,
+  "extraction_method": "chrome-devtools MCP. Opened https://www.tbench.ai/ in an isolated browser context (terminal-bench-rescrape-20260906) and re-issued the four package/name POST bodies recorded in the 20260904 meta.json against the Supabase edge function https://ofhuhcpkvzjlejydnvyd.supabase.co/functions/v1/leaderboard-read using the page's own fetch(). Every select_page + evaluate_script pair re-checked location.href === 'https://www.tbench.ai/' and threw on a mismatch, so no wrong-page data could reach disk; concurrent agents sharing the browser made the selected page flip on roughly 60 consecutive attempts before a clean run landed. Payloads saved verbatim to raw.json (194,550 bytes on disk, verified after saving); normalized.json derived from raw.json locally with the same field mapping as 20260904 plus the additions listed under new_fields_vs_20260904.",
+  "version_discovery": {
+    "method": "The DOM has no <select> version picker (document.querySelectorAll('select').length === 0); version switching is client-side. The version list is therefore confirmed by probing the edge function: a valid package/name pair returns 200 with a leaderboard object, an invalid one returns 404.",
+    "confirmed_200": [
+      "terminal-bench/terminal-bench + 4-0-0",
+      "terminal-bench/terminal-bench + 3-0-0",
+      "terminal-bench/terminal-bench-2-1 + main",
+      "terminal-bench/terminal-bench-2 + 2-0"
+    ],
+    "probed_404": [
+      "terminal-bench/terminal-bench + 5-0-0",
+      "terminal-bench/terminal-bench + 4-1-0",
+      "terminal-bench/terminal-bench + 4-2-0",
+      "terminal-bench/terminal-bench + 3-1-0",
+      "terminal-bench/terminal-bench + main",
+      "terminal-bench/terminal-bench-2-2 + main",
+      "terminal-bench/terminal-bench-3 + main",
+      "terminal-bench/terminal-bench-4 + main",
+      "terminal-bench/terminal-bench-5 + main",
+      "terminal-bench/terminal-bench-4-1 + main"
+    ],
+    "conclusion": "No version newer than 4.0 exists as of 2026-09-06. The four versions are unchanged from 20260904. All ten speculative probes, including the six new ones added this run (4-2-0, terminal-bench/main, terminal-bench-3, terminal-bench-4, terminal-bench-5, terminal-bench-4-1), returned HTTP 404. Their statuses and response bodies are saved in raw.json under negative_probes."
+  },
+  "new_fields_vs_20260904": {
+    "note": "No field from the 20260904 normalization was dropped. These record-level fields were added, each taken verbatim from the source payload and omitted on rows where the source does not publish it.",
+    "added": [
+      "score_stderr - metrics.accuracy_stderr, published for 3.0 and 2.1 only",
+      "output_tokens - metrics.output_tokens, 4.0 and 2.1 only",
+      "cached_input_tokens - metrics.cached_input_tokens, 4.0 and 2.1 only",
+      "uncached_input_tokens - metrics.uncached_input_tokens, 4.0 and 2.1 only",
+      "successes - metrics.successes, 4.0 only; count of solved trials",
+      "pass_at_2 / pass_at_3 / pass_at_4 / pass_at_5 - metrics.pass_at_N, 4.0 and 2.1 only, fractions 0-1 (not percent)",
+      "reward_hacks - metrics.reward_hacks, 2.1 only; count of runs flagged as reward hacking",
+      "avg_trial_duration_sec - metrics.avg_trial_duration_sec, 4.0 and 2.1 only",
+      "release_date - metadata.release_date, 3.0 only; model release date, distinct from the submission date",
+      "agent_version - metadata.agent_version, 2.0 only",
+      "integration_method - metadata.integration_method, 2.0 only (API / CLI / etc.)",
+      "model_names - metadata.model_names, 2.0 only; array of raw model ids behind the display name",
+      "model_providers - metadata.model_providers, 2.0 only; array of provider slugs",
+      "model_url / agent_url / provider_url / agent_org_url - the url half of the metadata link objects, previously discarded",
+      "run_url - metadata.pr_url.url, 2.1 only; link to the Harbor job for that run",
+      "row_id - the source row uuid, stable across snapshots and the key used for diffing",
+      "submitted_at / updated_at - row created_at / updated_at timestamps from the leaderboard database"
+    ]
+  },
+  "notes": [
+    "No CSV/JSON static asset exists; all leaderboard data comes from the leaderboard-read edge function. Payloads were saved verbatim, not DOM-scraped.",
+    "Same-origin-style fetch from the page context required no auth headers, only Content-Type: application/json.",
+    "Agent/harness is a first-class field (metadata.agent_display) and is kept separate from the model name. reasoning_effort is also kept separate. Both are omitted for Terminal-Bench 2.0 rows, which use a flatter metadata schema with plain-string model_display/model_org.",
+    "Metric is the leaderboard 'accuracy' field, displayed on the site as RESOLUTION RATE, in percent (0-100). score_ci95_half_width is the +/- 95% CI half width in percentage points; score_stderr is the standard error in the same units.",
+    "context_window is not published by this site, so the field is omitted from every record.",
+    "cost_usd / total_tokens are totals across all trials for that run, as published. Terminal-Bench 2.0 rows publish accuracy only, so cost, tokens and trial counts are omitted for them.",
+    "Rank values come from the source payload and contain ties (for example three rows share rank 2 on 4.0).",
+    "Versions are not comparable to one another. Terminal-Bench 4.0 is far harder than 2.1: GPT-6 Astra / Codex scores 87.42% on 2.1 and 58.18% on 4.0. Never quote a Terminal-Bench number without naming the version.",
+    "Verified via the browser only; no curl fallback needed (curl/Node network access is blocked in this environment).",
+    "Claude Opus 5 appears as 'Opus 5' and Claude Fable 5.1 as 'Fable 5.1' - the site drops the 'Claude' prefix for these Anthropic models.",
+    "GLM-5.3-Flash is absent from all four versions. The non-Flash GLM-5.3 is present on 4.0 (rank 9, 41.82%) and, spelled 'GLM 5.3', on 3.0 (rank 4, 32.43%).",
+    "Heavy concurrent-agent contention on the shared browser's page-selection pointer made nearly every select_page + evaluate_script pair land on another agent's page; the href guard threw on each mismatch and the pair was retried, so no mismatched data was saved despite roughly 60 retries."
+  ],
+  "changes_vs_20260904": {
+    "method": "Diffed raw leaderboard rows per version by the source payload's stable row id (uuid). 'changed' counts rows present in both snapshots whose accuracy score or rank differ. A second pass compared the full row objects, including created_at/updated_at timestamps and every metric, as sorted JSON.",
+    "4.0": { "old_rows": 18, "new_rows": 18, "added": 0, "removed": 0, "changed": 0 },
+    "3.0": { "old_rows": 12, "new_rows": 12, "added": 0, "removed": 0, "changed": 0 },
+    "2.1": { "old_rows": 22, "new_rows": 22, "added": 0, "removed": 0, "changed": 0 },
+    "2.0": { "old_rows": 142, "new_rows": 142, "added": 0, "removed": 0, "changed": 0 },
+    "summary": "Nothing changed. All 194 rows across all four versions are byte-for-byte identical to the 20260904 snapshot, including row timestamps, so no run was submitted, withdrawn or re-scored in the two days between the scrapes. Leaders are unchanged: Terminal-Bench 4.0 GPT-6 Astra / Codex at 58.18% (rank 1), Terminal-Bench 3.0 Opus 5 / mini-SWE-agent at 42.7%, Terminal-Bench 2.1 GPT-6 Astra / Codex at 87.42%, Terminal-Bench 2.0 GPT-5.5 / NexAU-AHE at 84.72%. The version list is also unchanged and no newer version has shipped.",
+    "normalization_diff": "normalized.json this run carries 21 more fields per record than the 20260904 file (see new_fields_vs_20260904); the values shared with the previous normalization are identical."
+  }
+}

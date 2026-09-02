@@ -1,0 +1,148 @@
+{
+  "source_url": "https://lmarena.ai/leaderboard",
+  "scraped_at": "2026-09-02T22:07:46.436Z",
+  "arenas_captured": [
+    "text",
+    "code",
+    "vision",
+    "document",
+    "search",
+    "text-to-image",
+    "image-edit",
+    "image-to-code",
+    "text-to-video",
+    "image-to-video",
+    "video-to-video",
+    "agent"
+  ],
+  "categories_captured": {
+    "text": [
+      "expert",
+      "overall",
+      "industry-software-and-it-services",
+      "industry-writing-and-literature-and-language",
+      "industry-life-and-physical-and-social-science",
+      "industry-entertainment-and-sports-and-media",
+      "industry-business-and-management-and-financial-operations",
+      "industry-mathematical",
+      "industry-legal-and-government",
+      "industry-medicine-and-healthcare",
+      "math",
+      "instruction-following",
+      "multi-turn",
+      "creative-writing",
+      "coding",
+      "hard-prompts",
+      "hard-prompts-english",
+      "longer-query",
+      "english",
+      "non-english",
+      "chinese",
+      "french",
+      "german",
+      "spanish",
+      "russian",
+      "japanese",
+      "korean",
+      "polish",
+      "exclude-ties"
+    ],
+    "code": [
+      "fullstack",
+      "html",
+      "frontend",
+      "react",
+      "overall",
+      "reference-based-design",
+      "brand-marketing",
+      "consumer-product",
+      "gaming",
+      "simulations",
+      "content-creation-tools",
+      "data-analytics"
+    ],
+    "vision": [
+      "overall",
+      "chinese",
+      "english",
+      "captioning",
+      "creative-writing",
+      "diagram",
+      "entity-recognition",
+      "homework",
+      "humor",
+      "ocr"
+    ],
+    "document": [
+      "overall"
+    ],
+    "search": [
+      "overall"
+    ],
+    "text-to-image": [
+      "commercial-design",
+      "overall",
+      "cartoon",
+      "3d-modeling",
+      "photorealistic",
+      "text-rendering",
+      "art",
+      "portraits"
+    ],
+    "image-edit": [
+      "commercial-design",
+      "cartoon",
+      "3d-modeling",
+      "photorealistic",
+      "overall",
+      "art",
+      "text-rendering",
+      "portraits",
+      "multi-image-edit",
+      "multi-image-edit-3d-modeling",
+      "multi-image-edit-commercial-design",
+      "multi-image-edit-cartoon",
+      "multi-image-edit-photorealistic",
+      "multi-image-edit-art",
+      "multi-image-edit-portraits",
+      "multi-image-edit-text-rendering"
+    ],
+    "image-to-code": [
+      "overall"
+    ],
+    "text-to-video": [
+      "overall"
+    ],
+    "image-to-video": [
+      "overall"
+    ],
+    "video-to-video": [
+      "overall"
+    ],
+    "agent": [
+      "overall",
+      "code",
+      "chat",
+      "work"
+    ]
+  },
+  "leaderboard_variants_captured": [
+    "style_control",
+    "raw"
+  ],
+  "leaderboard_count": 124,
+  "row_count": 25959,
+  "extraction_method": "Chrome DevTools MCP. Opened https://lmarena.ai/leaderboard, which redirects to https://arena.ai/leaderboard (same product). Re-attempted the 2026-09-02 method first (fetch(url, {headers:{RSC:\"1\"}}) against /leaderboard/{arena}/{category}) but every such request now returns HTTP 404 with a generic Cloudflare/GitHub-Pages-style not-found body, even though the same paths load fine as normal navigations — the RSC-only fetch appears to require a matching next-router-state-tree header that a bare fetch cannot supply. Switched to fetching the plain document (ordinary fetch(path), no special headers) for each /leaderboard/{arena}/{category}[-no-style-control] route; Next.js embeds the full RSC flight payload in the HTML as a series of <script>self.__next_f.push([id,\"...\"])</script> chunks. Those chunks were extracted with a bracket-depth-aware scanner (string-literal aware, since the flight text sits inside a JS string literal), concatenated in document order, evaluated as JS array literals via `new Function` to recover the real (unescaped) flight text, then the object following the first \"leaderboard\":{ (or \"snapshot\":{ for the agent arena) marker was brace-matched out and JSON.parsed. Because the page is server-streamed, an early fetch can race a still-loading Suspense boundary and yield a truncated document with no leaderboard marker; each route was retried up to 5 times (cache: 'no-store') until the marker was found — in practice every route succeeded on the first attempt. Each leaderboard payload's own \"id\" field (a path like leaderboard-sets/public/leaderboards/{slug}/leaderboard-snapshots/latest) was used to derive the per-record \"benchmark\" slug, exactly reproducing the internal slugs from 2026-09-02 (e.g. image_edit, image_to_webdev) even though they differ from the human-facing arena names used elsewhere in this file. The agent arena payload shape is {lastUpdated,totalSessions,totalObservations,modelCount,rows,signals} and was extracted the same way. Factuality ratings came from GET /nextjs-api/factuality/ratings?arenaSlug=text&category={cat}, a plain JSON endpoint (unchanged from 2026-09-02, fetched directly with no RSC parsing needed).",
+  "notes": [
+    "lmarena.ai now redirects to arena.ai. source_url is kept as the requested lmarena.ai URL; per-record source_url points at the live arena.ai page.",
+    "No login, CAPTCHA or Cloudflare interstitial was encountered. The leaderboard is fully public.",
+    "Verification that the extracted payload matches what the browser rendered: for text|overall|style_control the fetched payload gives claude-fable-5 rating 1507.5857493966353 (rounds to 1508), ratingLower/Upper 1502.61/1512.56, votes 27013, inputPricePerMillion 10, outputPricePerMillion 50, contextLength 1000000 — same shape and same top model/organization as the 2026-09-02 capture, consistent with a live, continuously-updating leaderboard rather than a stale snapshot.",
+    "The ranking-mode control has three options: Style Control, Factuality, None. URL suffix \"-no-style-control\" returns the raw (styleControl:false) leaderboard. Both style_control and raw variants were captured for the text and vision arenas. The document and search arenas declare hasStyleControl:true but their pages already serve styleControl:false and expose no style-control URL, so only the raw variant exists for them. All remaining arenas have hasStyleControl:false, so their single variant is labelled \"raw\".",
+    "Factuality is not a leaderboard but a penalty-weight sweep (weights 0/25/50/75/100) giving rating/ratingLower/ratingUpper/rankLower/rankUpper per model key. It is stored verbatim in raw.json under factuality_text_ratings for all 29 text categories, but is NOT expanded into normalized.json because it has no single canonical score per model. It is only served for the text arena.",
+    "Every value in normalized.json is copied verbatim from the site payload. Fields the site does not provide (votes for the agent arena, context_window and pricing for many image/video models, dates for arenas without voteCutoffISOString) are omitted, never estimated.",
+    "Arena route slugs differ from arena slugs: image-to-code -> /leaderboard/code/image-to-webdev, video-to-video -> /leaderboard/video-edit. The code arena (WebDev) uses internal leaderboard ids prefixed \"webdev\".",
+    "ci for standard arenas is the absolute rating interval {lower, upper} from ratingLower/ratingUpper. The agent arena only publishes a symmetric half-width, stored as {half_width}.",
+    "Non-spec fields kept because the task asked for the underlying data: model_key, rank_upper, rank_lower, style_control, model_url, and (agent only) sessions / observations.",
+    "changes_vs_20260902: (1) The 2026-09-02 extraction method (RSC-header fetch against the App Router route) no longer works — it now 404s; today's scrape instead parses the self.__next_f flight chunks out of the plain server-rendered HTML for the same routes, recovering an identical payload shape (verified against the one field-level cross-check quoted above). This is a mechanism change only, not a data-source change: same routes, same JSON shape, same fields. (2) row_count increased from 25958 to 25959 (+1), leaderboard_count unchanged at 124. (3) 'Muse Spark 1.3' does not exist in today's data — the muse-spark family present is muse-spark, muse-spark-1.1, and 'muse-spark-1.2 (xHigh)', same as 2026-09-02; no 1.3 release has appeared on the leaderboard. (4) 'Gemini 3.8 Flash' (site name 'gemini-3.8-flash-high', model_key skimaki-kwc6) is present today in the same arenas/categories as 2026-09-02, with updated scores/ranks (see report)."
+  ]
+}

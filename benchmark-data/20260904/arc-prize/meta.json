@@ -1,0 +1,42 @@
+{
+  "source_url": "https://arcprize.org/leaderboard",
+  "scraped_at": "2026-09-04T07:54:28Z",
+  "extraction_method": "network-json",
+  "row_count": 927,
+  "benchmarks_captured": [
+    "ARC-AGI-1 / Semi-Private (verified) - 223 rows",
+    "ARC-AGI-1 / Public Eval (verified) - 202 rows",
+    "ARC-AGI-2 / Semi-Private (verified) - 225 rows",
+    "ARC-AGI-2 / Public Eval (verified) - 213 rows",
+    "ARC-AGI-2 / Private Eval (verified) - 3 rows",
+    "ARC-AGI-3 / Semi-Private (verified) - 39 rows",
+    "ARC-AGI-1 / Semi-Private (community) - 2 rows",
+    "ARC-AGI-1 / Public Train (community) - 1 row",
+    "ARC-AGI-2 / Semi-Private (community) - 3 rows",
+    "ARC-AGI-2 / Public Train (community) - 2 rows",
+    "ARC-AGI-3 / Public Demo (community) - 14 rows"
+  ],
+  "notes": [
+    "Primary data came from the site's own JSON endpoints, not the DOM: /media/data/datasets.json, models.json, providers.json, evaluations.json, and the per-version rollups /media/data/leaderboard/v1.json, v2.json, v3.json. evaluations.json (925 rows) is the superset; the v1/v2/v3 files are pre-joined subsets of it and were saved for completeness.",
+    "The Community Leaderboard tab (https://arcprize.org/leaderboard/community) has no JSON endpoint. Its 22 rows were taken from the server-rendered React Server Component flight payload (self.__next_f), which carries unrounded numbers, rather than from the rendered table.",
+    "Do not read community costs off the rendered page: the site formats them with locale separators, so a cost of 2986.04 renders as '$2.986' and 18000 renders as '$18.000'. The values in raw.json / normalized.json are the underlying numbers.",
+    "cost_usd carries ARC's costPerTask field and is present for ARC-AGI-1 and ARC-AGI-2 rows. ARC-AGI-3 rows and all community rows have no per-task cost in the source; they carry a total run cost under the separate field cost_usd_total. The two are not interchangeable and were kept apart rather than merged.",
+    "score is expressed as a percentage (0-100). Verified rows come from ARC as 0-1 fractions and were multiplied by 100; community rows are already percentages in the source. metric is set to accuracy_pct throughout.",
+    "rank is computed, not published: rows are ordered by score descending within each (leaderboard, benchmark, benchmark_set) group, with ties sharing a rank.",
+    "20 evaluation rows carry display:false in evaluations.json and are hidden on the site. They are excluded from normalized.json but retained verbatim in raw.json.",
+    "context_window is not published anywhere on the ARC Prize leaderboard, so the field is omitted from every record rather than filled in.",
+    "datasets.json also declares v1_Private_Eval and v3_Public_Demo. v1_Private_Eval has zero evaluations in the source; v3_Public_Demo appears only via community submissions.",
+    "System type is preserved as model_type (Base LLM, CoT, CoT + Synthesis, Refinement, Custom). Kaggle/competition entries are identifiable by provider 'ARC Prize 2024' / 'ARC Prize 2025'.",
+    "results_url is relative to https://arcprize.org as published by the site."
+  ],
+  "changes_vs_20260903": [
+    "Row count up: 891 -> 927 (+36). All growth is verified rows: 869 -> 905. Community unchanged at 22.",
+    "New model added: 'GPT-6 Astra' (OpenAI, model_type CoT, date 2026-09-02) with 6 effort variants (None/Low/Medium/High/XHigh/Max), each scored on ARC-AGI-1 Semi-Private, ARC-AGI-1 Public Eval, ARC-AGI-2 Semi-Private, ARC-AGI-2 Public Eval, and ARC-AGI-3 Semi-Private -- 30 rows. GPT-6 Astra (XHigh) leads ARC-AGI-1 Public Eval at 99.0% and ties rank 1 on ARC-AGI-1 Semi-Private (98.5%) with GPT-6 Astra (High).",
+    "New model added: 'GPT-6 Astra - Provider Adapter' (OpenAI, same date), 6 more variants scored only on ARC-AGI-3 Semi-Private -- 6 rows. GPT-6 Astra - Provider Adapter (High) tops ARC-AGI-3 Semi-Private outright at 99.9457% (cost_usd_total 18816.63), ahead of every other model on that benchmark.",
+    "No models were removed from the leaderboard since 20260903; every one of the 891 prior (model, leaderboard, benchmark, benchmark_set) rows still exists with an unchanged score.",
+    "No score deltas beyond floating-point rounding (<=0.01) on any pre-existing row. The 855 rank changes seen across pre-existing rows are entirely a consequence of the 36 new higher/interspersed GPT-6 Astra rows shifting ranks down within their groups, not real leaderboard movement of those models' own scores.",
+    "The Anthropic model=true boolean-name bug fixed on 20260903 (-> 'Claude Opus 4.6 (120K, Max)') remains fixed; no boolean model names found in this scrape.",
+    "'Tiny Recursion Model (TRM)' (Bespoke, verified) still has model_type='' (empty string, not null) across its 4 rows -- same cosmetic state as 20260903, no functional change.",
+    "Muse Spark 1.3, Muse Spark 1.2, and Gemini 3.8 Flash: absent from both the verified and community leaderboards under any name variant searched (checked 'muse spark' and 'gemini 3.8' substrings, case-insensitive). Not found on 20260902, 20260903, or 20260904 scrapes."
+  ]
+}

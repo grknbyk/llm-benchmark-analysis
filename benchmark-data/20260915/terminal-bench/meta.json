@@ -1,0 +1,94 @@
+{
+  "source_url": "https://www.tbench.ai/",
+  "scraped_at": "2026-09-15T19:22:01.785Z",
+  "benchmarks_captured": [
+    {
+      "version": "4.0",
+      "title": "Terminal-Bench 4.0",
+      "package": "terminal-bench/terminal-bench",
+      "leaderboard_name": "4-0-0",
+      "rows": 18,
+      "source_url": "https://www.tbench.ai/"
+    },
+    {
+      "version": "3.0",
+      "title": "Terminal-Bench 3.0",
+      "package": "terminal-bench/terminal-bench",
+      "leaderboard_name": "3-0-0",
+      "rows": 12,
+      "source_url": "https://www.tbench.ai/?version=3.0"
+    },
+    {
+      "version": "2.1",
+      "title": "Terminal-Bench 2.1",
+      "package": "terminal-bench/terminal-bench-2-1",
+      "leaderboard_name": "main",
+      "rows": 22,
+      "source_url": "https://www.tbench.ai/?version=2.1"
+    },
+    {
+      "version": "2.0",
+      "title": "Terminal-Bench 2.0",
+      "package": "terminal-bench/terminal-bench-2",
+      "leaderboard_name": "2-0",
+      "rows": 142,
+      "source_url": "https://www.tbench.ai/?version=2.0"
+    }
+  ],
+  "row_count": 194,
+  "extraction_method": "chrome-devtools MCP. Opened https://www.tbench.ai/ in an isolated browser context (terminal-bench-rescrape-20260915) and re-issued the four package/name POST bodies recorded in the 20260906 meta.json, plus ten speculative version probes, against the Supabase edge function https://ofhuhcpkvzjlejydnvyd.supabase.co/functions/v1/leaderboard-read using the page's own fetch(). Every select_page + evaluate_script pair re-checked location.hostname === 'www.tbench.ai' and threw on a mismatch, so no wrong-page data could reach disk. The shared browser's page-selection pointer flipped to another agent's page on 27 consecutive attempts (once landing on a page whose URL had actually been navigated away from tbench.ai by another agent under the same isolatedContext name, which was recovered with an explicit navigate_page back to https://www.tbench.ai/ before resuming retries) before a clean run landed on attempt 28. Payloads saved verbatim via the evaluate_script filePath option to raw.json (194,105 bytes on disk, verified after saving); normalized.json derived from raw.json locally with a Python script reading only raw.json, using the same field mapping as 20260906.",
+  "version_discovery": {
+    "method": "The DOM has no <select> version picker; version switching is client-side. The version list is confirmed by probing the edge function: a valid package/name pair returns 200 with a leaderboard object, an invalid one returns 404.",
+    "confirmed_200": [
+      "terminal-bench/terminal-bench + 4-0-0",
+      "terminal-bench/terminal-bench + 3-0-0",
+      "terminal-bench/terminal-bench-2-1 + main",
+      "terminal-bench/terminal-bench-2 + 2-0"
+    ],
+    "probed_404": [
+      "terminal-bench/terminal-bench + 5-0-0",
+      "terminal-bench/terminal-bench + 4-1-0",
+      "terminal-bench/terminal-bench + 4-2-0",
+      "terminal-bench/terminal-bench + 3-1-0",
+      "terminal-bench/terminal-bench + main",
+      "terminal-bench/terminal-bench-2-2 + main",
+      "terminal-bench/terminal-bench-3 + main",
+      "terminal-bench/terminal-bench-4 + main",
+      "terminal-bench/terminal-bench-5 + main",
+      "terminal-bench/terminal-bench-5-0 + main"
+    ],
+    "conclusion": "No version newer than 4.0 exists as of 2026-09-15. The four versions are unchanged from 20260906. A fifth speculative probe beyond the 20260906 set (terminal-bench/terminal-bench-5-0 + main) was added this run to re-check for a possible new version; it also 404'd. All ten probes returned HTTP 404, confirming the version list is still exactly {4.0, 3.0, 2.1, 2.0}."
+  },
+  "notes": [
+    "No CSV/JSON static asset exists; all leaderboard data comes from the leaderboard-read edge function. Payloads were saved verbatim, not DOM-scraped.",
+    "Same-origin-style fetch from the page context required no auth headers, only Content-Type: application/json.",
+    "Agent/harness is a first-class field (metadata.agent_display) and is kept separate from the model name. reasoning_effort is also kept separate. Both are omitted for Terminal-Bench 2.0 rows, which use a flatter metadata schema with plain-string model_display/model_org.",
+    "Metric is the leaderboard 'accuracy' field, displayed on the site as RESOLUTION RATE, in percent (0-100). score_ci95_half_width is the +/- 95% CI half width in percentage points; score_stderr is the standard error in the same units.",
+    "context_window is not published by this site, so the field is omitted from every record.",
+    "cost_usd / total_tokens are totals across all trials for that run, as published. Terminal-Bench 2.0 rows publish accuracy only, so cost, tokens and trial counts are omitted for them.",
+    "Rank values come from the source payload and contain ties.",
+    "Versions are not comparable to one another. Terminal-Bench 4.0 is far harder than 2.1: GPT-6 Astra / Codex scores 87.42% on 2.1 and 58.18% on 4.0. Never quote a Terminal-Bench number without naming the version.",
+    "Verified via the browser only; no curl fallback needed (curl/Node network access is blocked in this environment, consistent with 20260906).",
+    "Claude Opus 5 appears as 'Opus 5' and Claude Fable 5.1 as 'Fable 5.1' - the site drops the 'Claude' prefix for these Anthropic models.",
+    "GLM-5.3-Flash is absent from all four versions, same as 20260906. The non-Flash GLM-5.3 is present on 4.0 (rank 9, 41.82%) and, spelled 'GLM 5.3', on 3.0 (rank 4, 32.43%).",
+    "Heavy concurrent-agent contention on the shared browser's page-selection pointer made most select_page + evaluate_script pairs land on another agent's page; the hostname guard threw on each mismatch and the pair was retried, so no mismatched data was saved despite 27 retries plus one page-recovery navigation."
+  ],
+  "changes_vs_20260906": {
+    "method": "Diffed raw leaderboard rows per version by the source payload's stable row id (uuid), comparing full sorted-JSON row objects including every metric and timestamp.",
+    "4.0": { "old_rows": 18, "new_rows": 18, "added": 0, "removed": 0, "changed": 5 },
+    "3.0": { "old_rows": 12, "new_rows": 12, "added": 0, "removed": 0, "changed": 0 },
+    "2.1": { "old_rows": 22, "new_rows": 22, "added": 0, "removed": 0, "changed": 1 },
+    "2.0": { "old_rows": 142, "new_rows": 142, "added": 0, "removed": 0, "changed": 0 },
+    "summary": "No models were added or removed on any version between 20260906 and 20260915; the row_id set is identical (194 rows on both dates). Six rows changed: the five GPT-6 Astra / Codex rows on Terminal-Bench 4.0 (all reasoning-effort tiers: max, xhigh, high, medium, low) had their updated_at timestamp bumped from 2026-09-03 to 2026-09-10 with no change to score, rank or any metric - a re-verification touch, not a rescoring. One Terminal-Bench 2.1 row, Opus 4.7 (row_id fdb8393b-5b29-4645-b784-84f52cf31722), had n_trials corrected from 447 to 445 with score and rank unchanged. Leaders are unchanged: Terminal-Bench 4.0 GPT-6 Astra / Codex at 58.18% (rank 1), Terminal-Bench 3.0 Opus 5 / mini-SWE-agent at 42.7%, Terminal-Bench 2.1 GPT-6 Astra / Codex at 87.42%, Terminal-Bench 2.0 GPT-5.5 / NexAU-AHE at 84.72%.",
+    "version_probe_result": "All 10 speculative version probes 404'd this run (same 9 as 20260906 plus one new: terminal-bench/terminal-bench-5-0 + main). Confirmed version list unchanged: {4.0, 3.0, 2.1, 2.0}. No fifth version has shipped.",
+    "schema_drift": "None. normalized.json this run uses the identical field set and mapping as 20260906 (verified by diffing a 4.0, 3.0, 2.1 and 2.0 record's key set against the 20260906 file before normalizing).",
+    "requested_models_status": {
+      "Claude Fable 5.1": "Present as 'Fable 5.1' on Terminal-Bench 4.0 only (rank 2, 57.88%, agent Claude Code, reasoning_effort max). Absent from 3.0, 2.1 and 2.0 (those show 'Fable 5' instead, a different model).",
+      "Grok 4.6": "Present on Terminal-Bench 4.0 (rank 13, 20.3%, agent Grok Build, high) and 3.0 (rank 5, 26.49%, agent Grok Build, high). Absent from 2.1 and 2.0 (those show Grok 4.5 or Grok 4 / Grok 4.20 Reasoning instead).",
+      "GLM-5.3-Flash": "Absent from all four versions. No 'Flash' variant of GLM-5.3 exists on this site.",
+      "GPT-6 Astra": "Present on Terminal-Bench 4.0 (rank 1, 58.18%, agent Codex, max) and 2.1 (rank 1, 87.42%, agent Codex, high). Absent from 3.0 and 2.0.",
+      "Claude Opus 5": "Present as 'Opus 5' on Terminal-Bench 4.0 (rank 6, 51.82%, agent Claude Code, max) and 3.0 (rank 1, 42.7%, agent mini-SWE-agent, max). Absent from 2.1 (has Opus 4.7 / 4.8) and 2.0 (has Claude Opus 4.5 / 4.6 / 4.7, no 5).",
+      "Muse Spark 1.3": "Absent from all four versions. Only 'Muse Spark 1.1' is present, on Terminal-Bench 2.1 (rank 13, 76.18%)."
+    }
+  }
+}
