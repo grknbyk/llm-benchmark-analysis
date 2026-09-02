@@ -1,0 +1,11 @@
+.claude/*
+!.claude/skills/
+
+# Scrapes and reports live on a data branch, not on main. See README, Branches.
+benchmark-data/
+reports/
+
+__pycache__/
+
+# The report index belongs to a data branch.
+index.html
