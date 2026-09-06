@@ -176,6 +176,33 @@ def human(v, unit):
     return f"{v:.2f}" + (f" {u}" if u else "")
 
 
+def label_spots(xs, ys, labels, log_x):
+    """One text position per point, chosen so labels do not land on each other.
+
+    Plotly has no collision handling for scatter text, so this does the two
+    things a person would do by hand: lean a label inward at the edge of the
+    plot, and drop it under the marker when the label above is already taken.
+    """
+    v = np.log10(np.asarray(xs, float)) if log_x else np.asarray(xs, float)
+    y = np.asarray(ys, float)
+    sx = (v - v.min()) / ((v.max() - v.min()) or 1)
+    sy = (y - y.min()) / ((y.max() - y.min()) or 1)
+    out, taken = [], []
+    for i, text in enumerate(labels):
+        if not text:
+            out.append("top center")
+            continue
+        side = "right" if sx[i] < .12 else "left" if sx[i] > .88 else "center"
+        # the width of a label is roughly its length, and a label is only a
+        # problem when the other one sits at the same height
+        near = [t for t in taken
+                if abs(sx[i] - t[0]) < .015 * max(len(text), 8) and abs(sy[i] - t[1]) < .06]
+        vert = "bottom" if any(t[2] == "top" for t in near) else "top"
+        taken.append((sx[i], sy[i], vert))
+        out.append(f"{vert} {side}")
+    return out
+
+
 def bubbles(v, lo=10, hi=26):
     """Marker areas scaled between two readable diameters. A raw metric mapped
     straight onto radius makes a 3x difference look like 9x."""
@@ -202,16 +229,13 @@ def plotly_xy(d, x, y, ux, uy, log_x, size=None, us="", note="", names=None, log
                     [human(v, uy) for v in d[y]],
                     [human(v, us) for v in (d[size] if size else d[x])]))
     marks = bubbles(d[size]) if size else np.full(len(d), 15.0)
-    # A label at the edge of the plot collides with the axis, so lean it inward.
-    xs = np.log10(d[x]) if log_x else d[x].astype(float)
-    span = xs.max() - xs.min() or 1
-    where = ["top right" if (v - xs.min()) / span < .12 else
-             "top left" if (xs.max() - v) / span < .12 else "top center" for v in xs]
+    tags = [short(m) if m in front else "" for m in d.index]
+    where = label_spots(d[x], d[y], tags, log_x)
     on = [m in front for m in d.index]
     extra = f"<br>{zname} %{{customdata[3]}}" if size else ""
     fig.add_trace(go.Scatter(
         x=d[x], y=d[y], mode="markers+text",
-        text=[short(m) if m in front else "" for m in d.index],
+        text=tags,
         textposition=where, textfont=dict(family=MONO, size=9, color="#555"),
         cliponaxis=False,
         marker=dict(size=marks, sizemode="diameter",
@@ -256,7 +280,8 @@ def frontier(d, score, price):
     return keep
 
 
-def plotly_price_tabs(S, price, unit, indexes, log_label="log scale", note_of=None):
+def plotly_price_tabs(S, price, unit, indexes, log_label="log scale", note_of=None,
+                      breakdown=None):
     """Price against a chosen index, one tab per index.
 
     Each tab is two traces, the frontier line and the markers, so switching a
@@ -270,18 +295,22 @@ def plotly_price_tabs(S, price, unit, indexes, log_label="log scale", note_of=No
         d = S[[price, slug]].dropna()
         front = frontier(d, slug, price)
         f = d.loc[front].sort_values(price)
+        tags = [short(m) if m in front else "" for m in d.index]
         fig.add_trace(go.Scatter(x=f[price], y=f[slug], mode="lines", hoverinfo="skip",
                                  line=dict(color=PAL[0], width=1.4, dash="dot")))
         fig.add_trace(go.Scatter(
             x=d[price], y=d[slug], mode="markers+text",
-            text=[short(m) if m in front else "" for m in d.index],
-            textposition="top center", textfont=dict(family=MONO, size=9, color="#555"),
+            text=tags,
+            textposition=label_spots(d[price], d[slug], tags, True),
+            textfont=dict(family=MONO, size=9, color="#555"),
             cliponaxis=False,
             marker=dict(size=15, color=[PAL[0] if m in front else "#B8BCC4" for m in d.index],
                         line=dict(color=INK, width=1.1)),
-            customdata=list(zip(d.index, [human(v, unit) for v in d[price]])),
+            customdata=list(zip(d.index, [human(v, unit) for v in d[price]],
+                               [(breakdown or {}).get(slug, {}).get(m, "") for m in d.index])),
             hovertemplate=f"%{{customdata[0]}}<br>price %{{customdata[1]}}"
-                          f"<br>{name} %{{y:.2f}}<extra></extra>"))
+                          f"<br><b>{name} %{{y:.2f}}</b>"
+                          f"<br>%{{customdata[2]}}<extra></extra>"))
         spans.append((len(d), len(front)))
         notes.append(note_of(len(d), len(front)) if note_of else "")
 
@@ -538,6 +567,19 @@ def main(profile_path):
         g.append(f"| {label[slug]} | {formula[slug]} | {best} | {cheap} |")
     (out / "glance-table.md").write_text("\n".join(g) + "\n", encoding="utf-8")
 
+    # the same breakdown the bar charts show, so a reader can check an index
+    # value against its terms wherever they meet it
+    unit_of = {m: P["metrics"][m].get("unit", "") for m in P["metrics"]}
+    breakdown = {}
+    for slug_, w_, tr_ in [("overall", ow, {})] + \
+            [(r["slug"], r["weights"], r.get("transforms", {})) for r in P["roles"]]:
+        breakdown[slug_] = {
+            m_: " &middot; ".join(
+                f"{wt_:g}&times;{k_} {human(S.loc[m_, k_], unit_of.get(k_, ''))}"
+                + (" [rel]" if k_ in tr_ else "")
+                for k_, wt_ in w_.items())
+            for m_ in S.index}
+
     # price against score. The master table carries both columns already; only
     # this view shows which models nothing else beats on both at once, which is
     # the question the whole report exists to answer.
@@ -567,6 +609,7 @@ def main(profile_path):
             [("overall", "Overall")] + [(r["slug"], r["name"]) for r in P["roles"]],
             T["log scale"],
             lambda a, b: f'{a} {T["models with a price"]}  ·  {b} {T["on the frontier"]}',
+            breakdown,
         ).write_html(
             out / "00_price_vs_overall.html", include_plotlyjs="cdn", full_html=False,
             config={"responsive": True, "displayModeBar": False})
