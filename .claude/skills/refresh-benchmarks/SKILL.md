@@ -17,7 +17,7 @@ This pipeline spawns up to fifteen agents and can take half an hour. Ask first,
 every time, argument or no argument. Spawning an agent before the user has
 confirmed is the one failure mode that wastes their money instead of yours.
 
-Gather the two facts, then ask in a single question:
+Gather the three facts, then ask in a single question:
 
 ```bash
 python -c "import glob,json;[print(f, json.load(open(f))['stack']) for f in glob.glob('reports/*/profile.json')]"
@@ -35,17 +35,30 @@ newest folder that does exist with its date. Reusing two day old leaderboard
 numbers is often the right call and always the user's call. Never fall back to
 an older folder silently, and never start a scrape without being asked to.
 
-Only after the answer lands do you spawn anything.
+**Which language.** The whole report, prose and labels. Offer the language the
+user is writing to you in first, then English. It is not a formatting detail:
+the sentence explaining why a model missing Code Migration has no batch score
+has to land, and it lands in the reader's own language. Never infer it from the
+stack or the repo.
+
+Only after the answers land do you spawn anything.
 
 Read `references/sites.md` before spawning scrape agents. It holds the
 per-site extraction method and the trap each site sets, which is the
 difference between a clean run and four hours of retries.
 
-Three skills are load bearing here and none is a suggestion. `adhd` derives the
-roles in step 0. `last30days` researches the stack tooling in step 3.
-`report-prose` is the editorial pass in step 4. A run
-that skips them produces a generic report that could have been written without
-the data.
+`report-prose` is the editorial pass in step 4 and it ships with this repo, so
+it is always there. Two more come from outside and neither is bundled:
+
+- **`adhd`** derives the indexes in step 0. Absent, you judge directly: derive
+  the roles and the weights yourself, and say in the report that no adhd run
+  stands behind them.
+- **`last30days`** researches the stack tooling in step 3. Absent, use whatever
+  search you have, hold the same 30 day window, and say in the section which
+  method produced it.
+
+A run that skips the *work* those skills do, rather than the skills themselves,
+produces a generic report that could have been written without the data.
 
 ## Shape of the pipeline
 
@@ -126,15 +139,55 @@ Then write `reports/<today>-<slug>/profile.json`:
   "roles": [
     {"name": "Component authoring", "weights": {"coding": 0.40, "webdev": 0.30, "nh": 0.30}}
   ],
-  "cheap_alternative": {"max_points_behind": 5.0, "min_price_ratio": 3.0}
+  "cheap_alternative": {"max_points_behind": 5.0, "min_price_ratio": 3.0},
+  "language": "tr",
+  "strings": {"model": "model", "index": "endeks", "weights": "agirliklar",
+              "best model": "en iyi model", "cheap alternative": "ucuz alternatif"}
 }
 ```
 
-Do not pick the roles off the top of your head. Run the `adhd` skill on the
-question "what distinct jobs does this stack actually involve, and what would
-each one need from a model", then converge its output into two to four roles.
-Roles are the one decision the whole report rests on, and the first three that
-come to mind are always the same three. This step is not optional.
+`language` sets `<html lang>`. `strings` overrides the labels the engine writes
+on its own: table headers, the fill control, an empty cell, a chart annotation.
+The keys are the English strings themselves, listed in `pipeline/strings.py`;
+anything you leave out stays English, so a half translated profile still builds
+and the gap is visible in the output rather than hidden.
+
+Each metric also carries `label` and `plain`, and both belong in the report's
+language. `label` is the benchmark's name as its source publishes it, `plain`
+is one sentence a reader who has never seen that benchmark can act on. They
+become the second and third line of the column's hover, under the short code.
+
+An index is the whole thing: the role, the metrics that feed it, and the weight
+on each. Roles are the one decision the whole report rests on, and the first
+three that come to mind are always the same three, which is why this step has a
+process rather than a paragraph.
+
+**With `adhd` installed**, the indexes come out of it. You cannot call it
+yourself, so stop here, hand the user the prompt, and wait:
+
+> /adhd Given the stack "<stack>" and these available metrics <paste the
+> catalogue output>, define two to four indexes. For each one give a name, the
+> metrics it uses, and a weight per metric summing to 1.00. Say what job the
+> index is for in one line.
+
+**Without `adhd`**, you judge. Do not stop and do not ask the user for weights
+they have no way to pick. Derive the roles and the weights from the stack and
+the catalogue, then earn the process the skill would have given you: write down
+the two roles you did not choose and why, and check every weight against the
+coverage numbers before you commit to it. Record the fallback in the report's
+Caveats, one line, naming that no adhd run stands behind the weights.
+
+Either way the rules below apply, and either way the weights are the user's to
+overrule. Show them the derived roles in five lines while the agents run. A
+wrong weight caught at minute two costs nothing.
+
+Pick a benchmark for a role because it measures that role's work, not because
+it covers more models. A metric that drops one model from an index is a real
+cost; naming a role after work the index does not measure is a larger one.
+
+`overall` is not an adhd output. It stays fixed and stack independent so two
+reports can be read against each other: 0.30 coding + 0.25 agentic + 0.15 long
+context + 0.15 non-hallucination + 0.15 accuracy.
 
 Rules that keep a derived profile honest:
 
@@ -157,9 +210,7 @@ Rules that keep a derived profile honest:
   comparable: 0.30 coding + 0.25 agentic + 0.15 long context + 0.15
   non-hallucination + 0.15 accuracy.
 
-Show the derived roles to the user in five lines while the agents run. A wrong
-weight caught at minute two costs nothing. Caught after the report is written,
-it costs a rebuild.
+A weight caught after the report is written costs a rebuild.
 
 ## Step 1: scrape
 
@@ -250,8 +301,30 @@ oldest supply chain trick there is. And do not tell the user to install anything
 an MCP server is code that runs on their machine. Report what exists, how
 maintained it looks, and let them decide.
 
-If a technology returns nothing solid, write that it returned nothing. An empty
-window is a finding.
+### The window filters news, not tools
+
+`last30days` answers "what moved". The section answers "what exists". Those are
+different questions, and collapsing them deletes the answer a reader came for.
+
+Every entry carries a date, and the date is the **last update**: the last
+commit, the last release, whichever the source publishes. Not the first
+release, not the star count's age.
+
+- **Updated inside the window**: the update is itself the finding. Say what
+  changed.
+- **Updated before the window, still the leading option**: keep it, and put the
+  date on the line. `avhrst/apex-component-modifier · community, 36 stars ·
+  last commit 2026-03-29` tells a reader both that it is the one people use and
+  that nobody has touched it in five months. Dropping it because the window was
+  quiet leaves them with a gap where the real answer was.
+- **No update date anywhere**: that is the finding. Write that the project
+  publishes no date, which is worse than a stale one.
+- **Stale and superseded**: one line naming what replaced it, then move on.
+
+A quiet window is a finding about the window. It is never a reason to report an
+empty section when the tools exist.
+
+If a technology returns nothing at all, write that it returned nothing.
 
 ## Step 2: build the indexes
 
@@ -394,6 +467,11 @@ python pipeline/query.py benchmark-data/<today>/vals-ai/normalized.json --benchm
 Filters are case-insensitive substrings and combine with AND. Use this rather
 than jq: it needs nothing beyond Python, it skips the stray non-object entries
 some normalized files carry, and it does not care which shell you are in.
+
+Every sentence you write goes in the profile's `language`. That includes the
+picks, the caveats, the tooling entries and the chart headings. Benchmark names,
+model names, metric codes, units and file paths keep their original form: they
+are identifiers, and translating one breaks the match against the table.
 
 Then run the `report-prose` skill on it. That is the editorial pass for this
 repo: every number traceable to `results.json`, every empty cell explained, every

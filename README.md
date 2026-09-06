@@ -16,13 +16,36 @@ with charts.
 - **Claude Code**, with three skills from this repo: `refresh-benchmarks` is
   the pipeline, `report-prose` is the editorial pass, `report-visuals` is the
   presentation pass. They load from `.claude/skills/` on clone, nothing to
-  install. Two more come from outside and the pipeline treats both as required:
-  `adhd` derives the roles, `last30days` researches the stack tooling.
+  install.
 - **The `chrome-devtools` MCP server**, for the scrape step. Ten agents drive it
   in parallel in isolated browser contexts.
 
 Nothing else is machine specific. There are no absolute paths, no jq, no shell
 assumptions beyond what Python gives you.
+
+## Recommended, not bundled
+
+Two outside skills make the report better. Neither ships in this repo, both are
+public, and the pipeline runs without either. Install them yourself if you want
+what they add:
+
+- **[`adhd`](https://github.com/UditAkhourii/adhd)** derives the indexes in
+  step 0: the role, the metrics that feed it, and the weight on each. It runs
+  five isolated branches, then three blind judges, so the weights come out of a
+  process rather than out of the first three ideas anyone has.
+  **Without it:** the driver model judges directly. Same output shape, one
+  point of view instead of eight, and the first three roles that come to mind
+  are always the same three.
+- **[`last30days`](https://github.com/mvanhorn/last30days-skill)** researches
+  the stack tooling in step 3, over a fixed 30 day window, across sources a web
+  search does not reach.
+  **Without it:** the model falls back to whatever search it has. The section
+  still gets written; expect the same three blog posts every run, and dates
+  that are harder to trust.
+
+`remove-ai-slop` is the one prose skill this repo asks *you* to run, not the
+model: `/remove-ai-slop` on the finished report. It is yours to trigger, which
+is why the pipeline never calls it.
 
 ## Example run
 

@@ -13,6 +13,8 @@ import re
 import sys
 from pathlib import Path
 
+from strings import strings
+
 try:
     import matplotlib as mpl
     import matplotlib.pyplot as plt
@@ -141,7 +143,7 @@ def bars(ax, labels, values):
     ax.set_xticklabels(labels, rotation=35, ha="right", fontsize=9)
 
 
-def plotly_bars(labels, values, hover, title, subtitle, ytitle):
+def plotly_bars(labels, values, hover, ytitle):
     import plotly.graph_objects as go
     fig = go.Figure(go.Bar(
         x=labels, y=values,
@@ -150,9 +152,7 @@ def plotly_bars(labels, values, hover, title, subtitle, ytitle):
         textfont=dict(family=MONO, size=11), customdata=hover,
         hovertemplate="%{x}<br>%{customdata}<extra></extra>"))
     fig.update_layout(
-        title=dict(text=f"{title}<br><span style='font-size:12px;color:#555'>{subtitle}</span>",
-                   font=dict(family=SERIF, size=20, color=INK), x=0.01, xanchor="left"),
-        paper_bgcolor=BG, plot_bgcolor=BG, height=520, margin=dict(l=50, r=20, t=90, b=40),
+        paper_bgcolor=BG, plot_bgcolor=BG, height=460, margin=dict(l=50, r=20, t=20, b=40),
         font=dict(family=MONO, size=11, color=INK),
         hoverlabel=dict(font=dict(family=MONO, size=12), bgcolor="white"))
     fig.update_xaxes(tickangle=-35, tickfont=dict(size=10), showgrid=True, gridcolor="#c8c8c8", griddash="dot")
@@ -160,23 +160,86 @@ def plotly_bars(labels, values, hover, title, subtitle, ytitle):
     return fig
 
 
-def plotly_xy(d, x, y, ux, uy, title, subtitle, log_x):
+def human(v, unit):
+    """One value, formatted for a person. Seconds become h/m/s, because nobody
+    reads 3972.86 s as "just over an hour"."""
+    if v is None or (isinstance(v, float) and np.isnan(v)):
+        return "n/a"
+    u = unit.strip()
+    if u == "s":
+        t = int(round(float(v)))
+        h, r = divmod(t, 3600)
+        m, sec = divmod(r, 60)
+        if h:
+            return f"{h}h {m}m {sec}s"
+        return f"{m}m {sec}s" if m else f"{sec}s"
+    return f"{v:.2f}" + (f" {u}" if u else "")
+
+
+def bubbles(v, lo=10, hi=26):
+    """Marker areas scaled between two readable diameters. A raw metric mapped
+    straight onto radius makes a 3x difference look like 9x."""
+    a, b = float(np.nanmin(v)), float(np.nanmax(v))
+    if not np.isfinite(a) or b == a:
+        return np.full(len(v), (lo + hi) / 2)
+    return lo + (np.asarray(v, dtype=float) - a) / (b - a) * (hi - lo)
+
+
+def plotly_xy(d, x, y, ux, uy, log_x, size=None, us="", note="", names=None, log_label="log scale"):
+    """One scatter, three readings: the axes, the bubble size, and the line
+    through the models nothing beats on both axes at once."""
     import plotly.graph_objects as go
-    fig = go.Figure(go.Scatter(
-        x=d[x], y=d[y], mode="markers+text", text=[short(m) for m in d.index],
-        textposition="top center", textfont=dict(family=MONO, size=9, color="#555"),
-        marker=dict(size=13, color=PAL[0], line=dict(color=INK, width=1.1)),
-        customdata=list(d.index),
-        hovertemplate=f"%{{customdata}}<br>{x} %{{x}}{ux}<br>{y} %{{y}}{uy}<extra></extra>"))
+    front = frontier(d, y, x)
+    f = d.loc[front].sort_values(x)
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=f[x], y=f[y], mode="lines", line=dict(color=PAL[0], width=1.4, dash="dot"),
+        hoverinfo="skip"))
+    nx_, ny_ = (names or {}).get(x, x), (names or {}).get(y, y)
+    zname = (names or {}).get(size, size) if size else ""
+    rows = list(zip(d.index,
+                    [human(v, ux) for v in d[x]],
+                    [human(v, uy) for v in d[y]],
+                    [human(v, us) for v in (d[size] if size else d[x])]))
+    marks = bubbles(d[size]) if size else np.full(len(d), 15.0)
+    # A label at the edge of the plot collides with the axis, so lean it inward.
+    xs = np.log10(d[x]) if log_x else d[x].astype(float)
+    span = xs.max() - xs.min() or 1
+    where = ["top right" if (v - xs.min()) / span < .12 else
+             "top left" if (xs.max() - v) / span < .12 else "top center" for v in xs]
+    on = [m in front for m in d.index]
+    extra = f"<br>{zname} %{{customdata[3]}}" if size else ""
+    fig.add_trace(go.Scatter(
+        x=d[x], y=d[y], mode="markers+text",
+        text=[short(m) if m in front else "" for m in d.index],
+        textposition=where, textfont=dict(family=MONO, size=9, color="#555"),
+        cliponaxis=False,
+        marker=dict(size=marks, sizemode="diameter",
+                    color=[PAL[0] if o else "#B8BCC4" for o in on],
+                    line=dict(color=INK, width=1.1)),
+        customdata=rows,
+        hovertemplate=f"%{{customdata[0]}}<br>{nx_} %{{customdata[1]}}"
+                      f"<br>{ny_} %{{customdata[2]}}{extra}<extra></extra>"))
     fig.update_layout(
-        title=dict(text=f"{title}<br><span style='font-size:12px;color:#555'>{subtitle}</span>",
-                   font=dict(family=SERIF, size=20, color=INK), x=0.01, xanchor="left"),
-        paper_bgcolor=BG, plot_bgcolor=BG, height=520, margin=dict(l=60, r=20, t=90, b=50),
+        paper_bgcolor=BG, plot_bgcolor=BG, height=460, margin=dict(l=64, r=64, t=26, b=50),
         font=dict(family=MONO, size=11, color=INK), showlegend=False,
         hoverlabel=dict(font=dict(family=MONO, size=12), bgcolor="white"))
-    fig.update_xaxes(type="log" if log_x else "linear", title=f"{x} ({ux})" if ux else x,
+    if note:
+        fig.add_annotation(text=note, xref="paper", yref="paper", x=0, y=1.02,
+                           showarrow=False, xanchor="left", yanchor="bottom",
+                           font=dict(family=MONO, size=10, color="#6a6a6a"))
+    nx, ny = nx_, ny_
+    ux, uy = ux.strip(), uy.strip()
+    fig.update_xaxes(type="log" if log_x else "linear",
+                     title=f"{nx} ({ux}), {log_label}" if log_x and ux else (f"{nx} ({ux})" if ux else nx),
                      showgrid=True, gridcolor="#c8c8c8", griddash="dot")
-    fig.update_yaxes(title=f"{y} ({uy})" if uy else y, showgrid=True,
+    if log_x:
+        # A log axis labels its minor ticks with the mantissa alone, so 0.2 and 2
+        # both read "2". Spell the values out instead.
+        lo, hi = float(d[x].min()), float(d[x].max())
+        t = [v * 10 ** k for k in range(-4, 5) for v in (1, 2, 5) if lo * 0.9 <= v * 10 ** k <= hi * 1.1]
+        fig.update_xaxes(tickmode="array", tickvals=t, ticktext=[f"{v:g}" for v in t])
+    fig.update_yaxes(title=f"{ny} ({uy})" if uy else ny, showgrid=True,
                      gridcolor="#c8c8c8", griddash="dot")
     return fig
 
@@ -193,27 +256,69 @@ def frontier(d, score, price):
     return keep
 
 
-def plotly_scatter(d, price, unit, on, title, subtitle):
+def plotly_price_tabs(S, price, unit, indexes, log_label="log scale", note_of=None):
+    """Price against a chosen index, one tab per index.
+
+    Each tab is two traces, the frontier line and the markers, so switching a
+    tab is a visibility flip rather than a redraw. The frontier is recomputed
+    per index: the models nothing beats on both price and that index.
+    """
     import plotly.graph_objects as go
     fig = go.Figure()
-    for name, idx, colour, size in (("frontier", on, PAL[0], 15), ("rest", [m for m in d.index if m not in on], "#B8BCC4", 11)):
-        s = d.loc[idx]
+    spans, notes = [], []
+    for slug, name in indexes:
+        d = S[[price, slug]].dropna()
+        front = frontier(d, slug, price)
+        f = d.loc[front].sort_values(price)
+        fig.add_trace(go.Scatter(x=f[price], y=f[slug], mode="lines", hoverinfo="skip",
+                                 line=dict(color=PAL[0], width=1.4, dash="dot")))
         fig.add_trace(go.Scatter(
-            x=s[price], y=s["overall"], mode="markers+text", name=name,
-            text=[short(m) for m in s.index], textposition="top center",
-            textfont=dict(family=MONO, size=9, color="#555"),
-            marker=dict(size=size, color=colour, line=dict(color=INK, width=1.1)),
-            hovertemplate="%{customdata}<br>" + f"price %{{x}}{unit}<br>overall %{{y:.2f}}<extra></extra>",
-            customdata=list(s.index)))
+            x=d[price], y=d[slug], mode="markers+text",
+            text=[short(m) if m in front else "" for m in d.index],
+            textposition="top center", textfont=dict(family=MONO, size=9, color="#555"),
+            cliponaxis=False,
+            marker=dict(size=15, color=[PAL[0] if m in front else "#B8BCC4" for m in d.index],
+                        line=dict(color=INK, width=1.1)),
+            customdata=list(zip(d.index, [human(v, unit) for v in d[price]])),
+            hovertemplate=f"%{{customdata[0]}}<br>price %{{customdata[1]}}"
+                          f"<br>{name} %{{y:.2f}}<extra></extra>"))
+        spans.append((len(d), len(front)))
+        notes.append(note_of(len(d), len(front)) if note_of else "")
+
+    n = len(indexes)
+    buttons = []
+    for k, (slug, name) in enumerate(indexes):
+        vis = [False] * (2 * n)
+        vis[2 * k] = vis[2 * k + 1] = True
+        buttons.append(dict(label=name, method="update",
+                            args=[{"visible": vis},
+                                  {"yaxis.title.text": f"{name} (0-100)",
+                                   "annotations": [dict(text=notes[k], xref="paper", yref="paper",
+                                                        x=0, y=1.02, showarrow=False,
+                                                        xanchor="left", yanchor="bottom",
+                                                        font=dict(family=MONO, size=10, color="#6a6a6a"))]}]))
+    for k in range(2, 2 * n):
+        fig.data[k].visible = False
+
     fig.update_layout(
-        title=dict(text=f"{title}<br><span style='font-size:12px;color:#555'>{subtitle}</span>",
-                   font=dict(family=SERIF, size=20, color=INK), x=0.01, xanchor="left"),
-        paper_bgcolor=BG, plot_bgcolor=BG, height=560, margin=dict(l=60, r=20, t=90, b=50),
+        paper_bgcolor=BG, plot_bgcolor=BG, height=520,
+        margin=dict(l=64, r=64, t=74, b=50),
         font=dict(family=MONO, size=11, color=INK), showlegend=False,
-        hoverlabel=dict(font=dict(family=MONO, size=12), bgcolor="white"))
-    fig.update_xaxes(type="log", title=f"blended price ({unit}), log scale",
+        hoverlabel=dict(font=dict(family=MONO, size=12), bgcolor="white"),
+        annotations=[dict(text=notes[0], xref="paper", yref="paper", x=0, y=1.02,
+                          showarrow=False, xanchor="left", yanchor="bottom",
+                          font=dict(family=MONO, size=10, color="#6a6a6a"))],
+        updatemenus=[dict(type="buttons", direction="right", showactive=True,
+                          x=0, xanchor="left", y=1.20, yanchor="top",
+                          pad=dict(l=0, t=0), bgcolor=BG, bordercolor="#d3cfc0",
+                          font=dict(family=MONO, size=11, color=INK), buttons=buttons)])
+    lo, hi = float(S[price].min()), float(S[price].max())
+    t = [v * 10 ** k for k in range(-4, 5) for v in (1, 2, 5) if lo * 0.9 <= v * 10 ** k <= hi * 1.1]
+    fig.update_xaxes(type="log", title=f"blended price ({unit}), {log_label}",
+                     tickmode="array", tickvals=t, ticktext=[f"{v:g}" for v in t],
                      showgrid=True, gridcolor="#c8c8c8", griddash="dot")
-    fig.update_yaxes(title="overall index (0-100)", showgrid=True, gridcolor="#c8c8c8", griddash="dot")
+    fig.update_yaxes(title=f"{indexes[0][1]} (0-100)", showgrid=True,
+                     gridcolor="#c8c8c8", griddash="dot")
     return fig
 
 
@@ -225,6 +330,7 @@ def main(profile_path):
     out = Path(P.get("out") or Path(profile_path).parent)
     out.mkdir(parents=True, exist_ok=True)
     stamp = P.get("stamp", P["slug"].upper())
+    T = strings(P)
 
     frames = {s: load(base, s) for s in P["scoring_sources"]}
     primary = P["scoring_sources"][0]
@@ -315,16 +421,25 @@ def main(profile_path):
     role_label = {r["slug"]: r["name"] for r in P["roles"]} | {"overall": "Overall weighted index"}
     low = {m for m in metric_cols if P["metrics"][m].get("better") == "low"
            or any(r.get("transforms", {}).get(m) == "inverse_log_minmax" for r in P["roles"])}
+    def calc(w, tr):
+        return " + ".join(f"{wt:g}*{m}" + (f" [{tr[m]}]" if m in tr else "")
+                          for m, wt in w.items())
+
+    sums = {"overall": calc(ow, {}),
+            **{r["slug"]: calc(r["weights"], r.get("transforms", {})) for r in P["roles"]}}
+
     columns = [{"name": m, "site": P["metrics"][m]["site"], "unit": P["metrics"][m].get("unit", ""),
                 "better": "low" if m in low else "high",
-                "label": P["metrics"][m].get("benchmark") or P["metrics"][m].get("metric")
+                "plain": P["metrics"][m].get("plain", ""),
+                "label": P["metrics"][m].get("label") or P["metrics"][m].get("benchmark") or P["metrics"][m].get("metric")
                          or P["metrics"][m].get("field", m)}
                for m in metric_cols] + \
               [{"name": c, "site": "index", "unit": "0-100", "better": "high",
+                "plain": f'{T["weighted score"]}: {sums[c]}',
                 "label": role_label[c]} for c in role_cols]
     master = S[order].sort_values("overall", ascending=False).round(2)
     print("\n" + master.to_string())
-    head = ["model"] + [c["name"] + (f' ({c["unit"]})' if c["unit"] else "") for c in columns]
+    head = [T["model"]] + [c["name"] + (f' ({c["unit"]})' if c["unit"] else "") for c in columns]
     md = ["| " + " | ".join(head) + " |", "|" + "---|" * len(head)]
     for m, row in master.iterrows():
         md.append(f"| {m} | " + " | ".join("" if pd.isna(v) else f"{v:g}" for v in row) + " |")
@@ -357,7 +472,7 @@ def main(profile_path):
     # every role, the resulting scores and the picks. Whoever reads the report
     # can re-derive any number from this file without touching the scrapes.
     def fmt(w, tr):
-        return " + ".join(f"{wt:g}*{m}" + (f" [{tr[m]}]" if m in tr else "") for m, wt in w.items())
+        return "`" + " + ".join(f"{wt:g}*{m}" + (f" [{tr[m]}]" if m in tr else "") for m, wt in w.items()) + "`"
 
     def origin(site):
         d = frames.get(site)
@@ -411,13 +526,15 @@ def main(profile_path):
     label = {"overall": "Overall", **{r["slug"]: r["name"] for r in P["roles"]}}
     formula = {"overall": fmt(ow, {}),
                **{r["slug"]: fmt(r["weights"], r.get("transforms", {})) for r in P["roles"]}}
-    g = ["| index | weights | best model | cheap alternative |", "|---|---|---|---|"]
+    g = [f'| {T["index"]} | {T["weights"]} | {T["best model"]} | {T["cheap alternative"]} |',
+         "|---|---|---|---|"]
     for slug, p in picks.items():
-        best = "no model has every input" if not p["best"] else \
+        best = T["no model has every input"] if not p["best"] else \
             f'{p["best"]["model"]} ({p["best"]["score"]:g})'
-        cheap = "none qualifies" if not p["cheap"] else \
-            f'{p["cheap"]["model"]} ({p["cheap"]["score"]:g}, {p["cheap"]["points_behind"]:g} behind, ' \
-            f'{p["cheap"]["times_cheaper"]:g}x cheaper)'
+        cheap = T["none qualifies"] if not p["cheap"] else \
+            f'{p["cheap"]["model"]} ({p["cheap"]["score"]:g}, ' \
+            f'{p["cheap"]["points_behind"]:g} {T["behind"]}, ' \
+            f'{p["cheap"]["times_cheaper"]:g}x {T["cheaper"]})'
         g.append(f"| {label[slug]} | {formula[slug]} | {best} | {cheap} |")
     (out / "glance-table.md").write_text("\n".join(g) + "\n", encoding="utf-8")
 
@@ -426,7 +543,7 @@ def main(profile_path):
     # the question the whole report exists to answer.
     if on:
         d, unit_p = pareto, P["metrics"][pm].get("unit", "")
-        sub = f"{len(d)} models with a price, {len(on)} of them on the frontier"
+        sub = f'{len(d)} {T["models with a price"]}, {len(on)} {T["on the frontier"]}'
         fig, ax = figure("Price against the overall index", sub, "PARETO", tabs_, stamp)
         ax.set_xscale("log")
         rest = [m for m in d.index if m not in on]
@@ -444,7 +561,13 @@ def main(profile_path):
         ax.grid(True, which="both", axis="x", linestyle=(0, (1, 5)), color="#B5B5B5", linewidth=0.7)
         fig.savefig(out / "00_price_vs_overall.png", dpi=170)
         plt.close(fig)
-        plotly_scatter(d, pm, unit_p, on, "Price against the overall index", sub).write_html(
+        plotly_price_tabs(
+            S[[pm] + ["overall"] + [r["slug"] for r in P["roles"]]].dropna(subset=[pm]),
+            pm, unit_p,
+            [("overall", "Overall")] + [(r["slug"], r["name"]) for r in P["roles"]],
+            T["log scale"],
+            lambda a, b: f'{a} {T["models with a price"]}  ·  {b} {T["on the frontier"]}',
+        ).write_html(
             out / "00_price_vs_overall.html", include_plotlyjs="cdn", full_html=False,
             config={"responsive": True, "displayModeBar": False})
         print("\nfrontier: " + ", ".join(f"{m} ({d.loc[m, pm]:g}{unit_p}, {d.loc[m, 'overall']:.2f})" for m in on))
@@ -464,34 +587,46 @@ def main(profile_path):
         fig.savefig(out / f"{n:02d}_index_{slug}.png", dpi=170)
         plt.close(fig)
         unit = {m: P["metrics"][m].get("unit", "") for m in w}
-        hover = [" | ".join(f"{m} {S.loc[i, m]:.1f}{unit[m]}" for m in w) + f"<br><b>{slug} {v:.1f}</b>"
-                 for i, v in d.items()]
-        plotly_bars(d.index.tolist(), d.tolist(), hover, title, sub, f"{slug} index (0-100)").write_html(
+        hover = [" | ".join(f"{m} {human(S.loc[i, m], unit[m])}" for m in w)
+                 + f"<br><b>{slug} {v:.2f}</b>" for i, v in d.items()]
+        plotly_bars(d.index.tolist(), d.tolist(), hover, f"{slug} index (0-100)").write_html(
             out / f"{n:02d}_index_{slug}.html", include_plotlyjs="cdn", full_html=False,
             config={"responsive": True, "displayModeBar": False})
 
     for n, sc in enumerate(P.get("scatters", []), start=len(charts) + 1):
-        x, y = sc["x"], sc["y"]
-        d = S[[x, y]].dropna()
+        x, y, z = sc["x"], sc["y"], sc.get("size")
+        cols = [c for c in (x, y, z) if c]
+        d = S[cols].dropna()
         if len(d) < 4:
-            print(f"skipped scatter {x} vs {y}: {len(d)} models have both")
+            print(f"skipped scatter {x} vs {y}: {len(d)} models have all of {cols}")
             continue
         ux = P["metrics"][x].get("unit", "")
         uy = P["metrics"][y].get("unit", "")
-        fig, ax = figure(sc["title"], f"{len(d)} models carry both", "CROSS", tabs_, stamp)
+        uz = P["metrics"][z].get("unit", "") if z else ""
+        names = {k: sc.get(k + "_label", k) for k in (x, y, z) if k}
+        zname = names.get(z, z) if z else ""
+        note = f'{len(d)} {T["models"]}  ·  {P["metrics"][x]["site"]}'
+        if z:
+            note += f'  ·  {T["bubble size"]}: {zname}' + (f" ({uz.strip()})" if uz else "")
+        fig, ax = figure(sc["title"], note, "CROSS", tabs_, stamp)
         if sc.get("log_x"):
             ax.set_xscale("log")
-        ax.scatter(d[x], d[y], s=90, color=PAL[0], edgecolor=INK, linewidth=1.1, zorder=3)
+        front = frontier(d, y, x)
+        f = d.loc[front].sort_values(x)
+        ax.plot(f[x], f[y], color=PAL[0], linewidth=1.2, linestyle=(0, (2, 3)), zorder=2)
+        area = (bubbles(d[z]) if z else np.full(len(d), 15.0)) ** 2
+        ax.scatter(d[x], d[y], s=area, zorder=3, linewidth=1.1, edgecolor=INK,
+                   color=[PAL[0] if m in front else "#B8BCC4" for m in d.index])
         for m, r in d.iterrows():
             ax.annotate(short(m), (r[x], r[y]), textcoords="offset points",
                         xytext=(0, 9), ha="center", fontsize=8, color="#555")
-        ax.set_xlabel(f"{x} ({ux})" if ux else x)
-        ax.set_ylabel(f"{y} ({uy})" if uy else y)
+        ax.set_xlabel(f"{names[x]} ({ux.strip()})" if ux.strip() else names[x])
+        ax.set_ylabel(f"{names[y]} ({uy.strip()})" if uy.strip() else names[y])
         ax.grid(True, which="both", axis="x", linestyle=(0, (1, 5)), color="#B5B5B5", linewidth=0.7)
         fig.savefig(out / f"{n:02d}_{x}_vs_{y}.png", dpi=170)
         plt.close(fig)
-        plotly_xy(d, x, y, ux, uy, sc["title"], f"{len(d)} models carry both",
-                  bool(sc.get("log_x"))).write_html(
+        plotly_xy(d, x, y, ux, uy, bool(sc.get("log_x")), z, uz, note, names,
+                  T["log scale"]).write_html(
             out / f"{n:02d}_{x}_vs_{y}.html", include_plotlyjs="cdn", full_html=False,
             config={"responsive": True, "displayModeBar": False})
 

@@ -176,7 +176,7 @@ def sections():
 RULES = [
     "Every number comes from results.json, master-table.md or glance-table.md. "
     "None is worked out in prose or in the browser.",
-    "A missing input is never filled in silently. It is marked, explained, and "
+    "A missing benchmark is never filled in silently. It is marked, explained, and "
     "the model is left out of the indexes that need it.",
     "Every claim names its source and its date.",
     "A chart earns its place by showing what the table cannot.",

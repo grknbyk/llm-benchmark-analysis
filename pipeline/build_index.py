@@ -120,7 +120,7 @@ def main():
         f"&middot; NEWEST DATA {Path(newest).name}</p>"
         + "".join(card(p) for p in profiles)
         + "<footer><b>Sources.</b> " + ", ".join(SITES) + ".<br>"
-        "<b>Method.</b> A model missing an input is excluded from that index, never imputed, "
+        "<b>Method.</b> A model missing a benchmark is excluded from that index, never imputed, "
         "so an empty cell means the leaderboard has no row for it. Price and latency are "
         "scored relative to the candidate set, not on an absolute scale.<br>"
         "<b>Rebuild.</b> python pipeline/build_index.py</footer></main></html>")
