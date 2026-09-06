@@ -61,6 +61,17 @@ Do not fill the remaining space with anything else. White space under a short
 card costs nothing; a chart or a note added to balance a column is filler, and
 filler is what a reader learns to skip.
 
+## Two sections on one row
+
+Two short sections that answer the same question belong side by side. The
+glance table and the index weights are one example: a reader checks the pick,
+then checks what produced it.
+
+Name the pair in `profile.json` under `pair_sections`, because which sections
+are short enough is a property of the report and not of the builder. Both keep
+their own heading. A merged section with one heading hides what the second
+table is.
+
 ## The interactive charts
 
 No toolbar. Hovering a bar shows that model's metric breakdown with units, which
@@ -74,9 +85,14 @@ neighbours and nothing more.
 
 Sixteen columns of numbers is only readable with help:
 
-- **Rotate the header 45 degrees** past eight columns. The label anchors at the
-  middle of its own column, not at the left edge, or it drifts further off with
-  every column.
+- **Turn the header vertical** past eight columns, not diagonal. A 45 degree
+  label starts over a column it does not belong to, which is the misalignment
+  complaint in another form. `writing-mode: vertical-rl` plus a 180 degree
+  rotation reads bottom to top and stays inside its own column whatever the
+  column width is.
+- **Cap the header length** and let the overflow truncate. A header band deep
+  enough for the longest label pushes the first row of data off the screen. The
+  full text is on hover, so nothing is lost.
 - **Keep the model column flat and sticky.** It is the row label; a reader
   scrolling right must keep it.
 - **Group the columns by source site** with a spanning row above the headers, so
@@ -92,8 +108,16 @@ Sixteen columns of numbers is only readable with help:
   into `results.json` as `columns[].label`, so the HTML never invents it.
 - **Units in the header**, `$/1M`, `s`, `%`, `$/task`. A column of bare numbers
   that turn out to be seconds costs more than it gives.
-- **Leave missing cells empty.** Not a dash, not a zero. Empty reads as absent,
-  which is what it is.
+- **Mark missing cells, do not leave them blank.** A blank reads as an
+  oversight. `n/a` in a warning colour reads as a finding, and the cell says on
+  hover which site publishes no row for that model, or which input the role
+  lacked. The value is still never imputed.
+- **Offer the zero-fill switch above the table.** An empty cell provokes one
+  question, what would the ranking look like if absence counted as zero, and a
+  control answers it better than a paragraph. Off is the published ranking. The
+  engine computes both variants and writes the second as `roles[].scores_zero`;
+  the page swaps precomputed numbers and re-sorts. Nothing is calculated in the
+  browser, for the same reason nothing is calculated in prose.
 
 ## Tooltips
 

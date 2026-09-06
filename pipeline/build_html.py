@@ -70,18 +70,24 @@ CSS = (
     ".scroll{overflow-x:auto;margin:20px 0}"
     ".cols{display:grid;grid-template-columns:minmax(0,max-content) minmax(0,1fr);gap:28px;align-items:start;margin:16px 0}"
     ".cols>div:first-child{max-width:540px}.card{overflow-wrap:anywhere}"
+    ".cols.even{grid-template-columns:1fr 1fr}.cols.even>div:first-child{max-width:none}"
+    ".cols.even h2{margin-top:0}.cols.even table{width:100%}"
     ".cols>div>table{margin-top:0}.cols>div>p:first-child{margin-top:0}"
     ".card{border:1px solid #d3cfc0;background:#F5F3EB;padding:10px 12px;margin-top:14px;font:12px monospace;color:#3a3a3a;line-height:1.55}"
     ".card b{display:block;font:11px monospace;color:#6a6a6a;letter-spacing:.04em;text-transform:uppercase;margin-bottom:3px}"
     ".card b~b{margin-top:9px}"
+    "table.wide td.na{color:#A8452F;background:#FBEFEA;text-align:center;font-size:11px}"
+    ".switch{display:inline-flex;align-items:center;gap:8px;font:12px monospace;color:#4a4a4a;"
+    "border:1px solid #d3cfc0;background:#F5F3EB;padding:7px 11px;border-radius:2px;margin:18px 0 6px;cursor:pointer;user-select:none}"
+    ".switch input{margin:0;cursor:pointer}"
     "@media(max-width:900px){.cols{grid-template-columns:1fr;gap:0}}"
-    "table.wide th{background:none;border:none;height:96px;vertical-align:bottom;padding:0;"
-    "position:relative}"
-    "table.wide th>span{position:absolute;bottom:6px;left:50%;transform-origin:left bottom;"
-    "transform:rotate(-45deg);white-space:nowrap;font:12px monospace;"
-    "border:1px solid #d3cfc0;background:#F2F0E7;padding:2px 7px;border-radius:2px}"
+    "table.wide th{background:none;border:none;height:150px;vertical-align:bottom;padding:0 0 4px}"
+    "table.wide th>span{display:inline-block;writing-mode:vertical-rl;transform:rotate(180deg);"
+    "max-height:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+    "font:12px monospace;border:1px solid #d3cfc0;background:#F2F0E7;padding:6px 3px;border-radius:2px}"
     "table.wide th[title]{cursor:help}"
-    "table.wide th:first-child>span{position:static;transform:none;border:none;background:none;padding:0}"  # the row label reads flat
+    "table.wide th:first-child{vertical-align:bottom;text-align:left}"
+    "table.wide th:first-child>span{writing-mode:horizontal-tb;transform:none;max-height:none;border:none;background:none;padding:0 0 6px}"  # the row label reads flat
 
     "table.wide td{white-space:nowrap;text-align:right}table.wide td:first-child{text-align:left}"
     "table.wide th:first-child,table.wide td:first-child{position:sticky;left:0;background:#fbfaf6}"
@@ -159,6 +165,31 @@ TABLE = re.compile(r"<table>\s*<thead>.*?</table>", re.S)
 TH = re.compile(r"<th(?:\s[^>]*)?>(.*?)</th>", re.S)  # (?:\s...) so <thead> is not a match
 
 
+JS = """<script>
+(() => {
+  const box = document.getElementById('zerofill');
+  const table = document.querySelector('table.grouped');
+  if (!box || !table) return;
+  const body = table.tBodies[0];
+  const rows = [...body.rows];
+  rows.forEach((r, i) => r.dataset.rank = i);
+  const last = rows[0].cells.length - 1;
+  box.addEventListener('change', () => {
+    const on = box.checked;
+    table.querySelectorAll('td[data-zero]').forEach(td => {
+      if (td.dataset.orig === undefined) td.dataset.orig = td.textContent;
+      td.textContent = on ? td.dataset.zero : td.dataset.orig;
+    });
+    const order = on
+      ? [...rows].sort((a, b) =>
+          parseFloat(b.cells[last].textContent) - parseFloat(a.cells[last].textContent))
+      : [...rows].sort((a, b) => a.dataset.rank - b.dataset.rank);
+    order.forEach(r => body.appendChild(r));
+  });
+})();
+</script>"""
+
+
 def group_row(columns):
     """One header cell per run of columns from the same source, so a reader can
     see at a glance which site a number came from. Columns arrive already sorted
@@ -174,26 +205,67 @@ def group_row(columns):
     return '<tr class="grp">' + "".join(cells) + "</tr>"
 
 
-def mark_groups(block, columns):
+def mark_cells(block, columns, roles=None):
     """Tag the first cell of each site run so the CSS can draw one rule down the
-    whole table. A colspan label alone leaves a reader counting columns to work
-    out where artificial-analysis stops and vals-ai starts."""
+    whole table, and give every empty cell a reason. A colspan label alone
+    leaves a reader counting columns, and a blank cell alone reads as an
+    oversight rather than as the finding it is.
+
+    Index cells also carry the zero-filled score from `results.json`, which is
+    what the switch above the table swaps in. The number is precomputed by the
+    engine; nothing here works one out."""
     starts, site = set(), None
     for i, c in enumerate(columns, start=1):   # 0 is the model column
         if c["site"] != site:
             starts.add(i)
             site = c["site"]
 
+    by_slug = {r["slug"]: r for r in (roles or [])}
+    gaps = {sl: {g["model"]: g["missing"] for g in r.get("not_scored", [])}
+            for sl, r in by_slug.items()}
+
+    def cell(i, c, model):
+        """i is the data column index, c the raw `<td>...` fragment."""
+        col = columns[i]
+        empty = re.fullmatch(r"<td[^>]*>\s*</td>\s*", c) is not None
+        attrs = ' class="gs"' if i + 1 in starts else ""
+        if col["site"] == "index":
+            zero = (by_slug.get(col["name"], {}).get("scores_zero") or {}).get(model)
+            zattr = f' data-zero="{zero:.2f}"' if isinstance(zero, (int, float)) else ""
+            if empty:
+                miss = " or ".join(gaps.get(col["name"], {}).get(model, [])) or "an input"
+                title = (f"{model} is not scored on {col['label']}: no {miss}. "
+                         f"A missing input is never filled in, so the model is left out.")
+                return f'<td class="na"{zattr} title="{title}">n/a</td>'
+            return re.sub(r"^<td", f"<td{attrs}{zattr}", c, count=1)
+        if empty:
+            title = (f"{col['label']}: {col['site']} publishes no row for {model}. "
+                     f"Nothing is assumed in its place.")
+            return f'<td class="na{" gs" if i + 1 in starts else ""}" data-zero="0" title="{title}">n/a</td>'
+        return re.sub(r"^<td", f"<td{attrs}", c, count=1) if attrs else c
+
     def row(m):
         cells = re.split(r"(?=<t[dh])", m.group(0))
-        out = [c if i - 1 not in starts else re.sub(r"^<(t[dh])", r'<\1 class="gs"', c, count=1)
-               for i, c in enumerate(cells)]
+        if "<th" in m.group(0):        # header rows only need the group rule
+            return "".join(c if i - 1 not in starts else
+                           re.sub(r"^<(t[dh])", r'<\1 class="gs"', c, count=1)
+                           for i, c in enumerate(cells))
+        model = re.sub(r"<[^>]+>", "", cells[1]).strip() if len(cells) > 1 else ""
+        out = [cells[0]] + [cells[1]] + [cell(i, c, model)
+                                         for i, c in enumerate(cells[2:])]
         return "".join(out)
 
     return re.sub(r"<tr>.*?</tr>", row, block, flags=re.S)
 
 
-def rotate_wide(html, columns=None):
+def switch():
+    """The question an empty cell provokes, offered as a control rather than a
+    paragraph. Off is the published ranking."""
+    return ('<label class="switch"><input type="checkbox" id="zerofill">'
+            "<span>treat a missing input as 0 and re-rank</span></label>")
+
+
+def rotate_wide(html, columns=None, roles=None):
     """A table past WIDE_AT columns is unreadable with flat headers, so rotate
     them. The header text moves into a span because a rotated th collapses the
     row height otherwise."""
@@ -213,9 +285,14 @@ def rotate_wide(html, columns=None):
 
         def head_cell(t):
             i = next(seq)
+            inner = t.group(1).strip()
+            # a header cell can already carry an <abbr>, whose own title
+            # attribute would end this one early
+            plain = re.sub(r"<[^>]+>", "", inner).strip()
             label = columns[i - 1].get("label") if aligned and i else None
-            title = f' title="{label}"' if label and label != t.group(1).strip() else ""
-            return f"<th{title}><span>{t.group(1).strip()}</span></th>"
+            full = f"{plain}\n{label}" if label and label != plain else plain
+            title = "" if i == 0 else f' title="{full.replace(chr(34), chr(39))}"'
+            return f"<th{title}><span>{inner}</span></th>"
 
         head_new = TH.sub(head_cell, new.split("</thead>")[0])
         # only when the column count lines up, so a second wide table in the
@@ -224,7 +301,8 @@ def rotate_wide(html, columns=None):
             head_new = head_new.replace("<thead>", "<thead>\n" + group_row(columns), 1)
         new = head_new + "</thead>" + new.split("</thead>", 1)[1]
         if aligned:
-            new = mark_groups(new, columns)
+            new = mark_cells(new, columns, roles)
+            return f'{switch()}<div class="scroll">{new}</div>'
         return f'<div class="scroll">{new}</div>'
     return TABLE.sub(fix, html)
 
@@ -241,7 +319,24 @@ def role_card(role):
     return '<div class="card">' + "".join(out) + "</div>"
 
 
-def side_by_side(html, roles=None):
+def pair_sections(html, pairs):
+    """Put the second named section beside the first, in that order, and take it
+    out of its old place. Both keep their own heading, so a reader still has two
+    labelled tables rather than one merged mystery."""
+    chunks = re.findall(r"<h2>.*?(?=<h2>|$)", html, flags=re.S)
+    head = html[:html.index(chunks[0])] if chunks else html
+    named = {re.search(r"<h2>(.*?)</h2>", c).group(1): c for c in chunks}
+    order = [c for c in chunks]
+    for a_, b_ in pairs or []:
+        if a_ not in named or b_ not in named:
+            continue
+        merged = f'<div class="cols even"><div>{named[a_]}</div><div>{named[b_]}</div></div>'
+        order[order.index(named[a_])] = merged
+        order.remove(named[b_])
+    return head + "".join(order)
+
+
+def side_by_side(html, roles=None, skip=()):
     """A role section is a small table and three short paragraphs about it. Read
     down the page they are two thirds white space, so pair them: the table on
     the left at its natural width, the reasoning filling the rest.
@@ -257,7 +352,10 @@ def side_by_side(html, roles=None):
         if "<p>" not in rest:            # nothing to put beside it
             return chunk
         name = re.search(r"<h2>(.*?)</h2>", chunk)
-        role = next((r for r in (roles or []) if r["name"] == (name.group(1) if name else None)), None)
+        title = name.group(1) if name else None
+        if title in skip:            # it is going into a half width column
+            return chunk
+        role = next((r for r in (roles or []) if r["name"] == title), None)
         left = t.group(0) + (role_card(role) if role else "")
         return (chunk[:t.start()] + '<div class="cols"><div>' + left
                 + "</div><div>" + rest + "</div></div>")
@@ -278,9 +376,13 @@ def main(profile_path):
 
     md_text = swap_charts(add_tooltips(src.read_text(encoding="utf-8")), here)
     body = markdown.markdown(md_text, extensions=["tables", "fenced_code", "md_in_html"])
-    body = side_by_side(rotate_wide(body, columns), roles)
+    pairs = P.get("pair_sections") or []
+    body = side_by_side(rotate_wide(body, columns, roles), roles,
+                        skip={n for pair in pairs for n in pair})
+    body = pair_sections(body, pairs)
+    script = JS if 'id="zerofill"' in body else ""
     dst.write_text(f'<!doctype html><meta charset=utf-8><title>{P["title"]}</title>'
-                   f"<style>{CSS}</style>{body}", encoding="utf-8")
+                   f"<style>{CSS}</style>{body}{script}", encoding="utf-8")
     print("wrote", dst.name, "tooltips:", body.count("<abbr"), "wide tables:", body.count('class="wide'))
 
 

@@ -237,6 +237,7 @@ def main(profile_path):
     # candidates: the deepest slice that still has a price and the overall inputs
     ow = P["overall"]
     S["overall"] = sum(S[m] * w for m, w in ow.items())
+    S["overall_zero"] = sum((S[m] * w).fillna(0) for m, w in ow.items())
     S = S.dropna(subset=["overall"])
     if "price" in S:
         S = S[S.price.notna()]
@@ -260,6 +261,12 @@ def main(profile_path):
                 v = minmax(v, invert=True, log=True)
             parts.append(v * wt)
         S[role["slug"]] = sum(parts)
+        # The same index with a missing term contributing nothing. It is not the
+        # published score: a model is excluded from a role it lacks an input for.
+        # It exists so the report can show what the ranking would look like if
+        # absence were read as zero, which is the question a reader asks the
+        # moment they see an empty cell.
+        S[role["slug"] + "_zero"] = sum(p.fillna(0) for p in parts)
 
     # grouped by source site so the HTML can span a header over each run,
     # then the role columns, then overall
@@ -334,10 +341,12 @@ def main(profile_path):
                               "unit": sp.get("unit", ""), "scale": sp.get("scale", 1), "values": vals(name)}
                        for name, sp in P["metrics"].items() if name in S},
         "roles": [{"name": "Overall", "slug": "overall", "formula": fmt(ow, {}),
-                   "weights": ow, "scores": vals("overall"), "not_scored": missing("overall", ow)}]
+                   "weights": ow, "scores": vals("overall"), "not_scored": missing("overall", ow),
+                   "scores_zero": vals("overall_zero")}]
                  + [{"name": r["name"], "slug": r["slug"], "formula": fmt(r["weights"], r.get("transforms", {})),
                      "weights": r["weights"], "transforms": r.get("transforms", {}),
-                     "scores": vals(r["slug"]), "not_scored": missing(r["slug"], r["weights"])}
+                     "scores": vals(r["slug"]), "not_scored": missing(r["slug"], r["weights"]),
+                     "scores_zero": vals(r["slug"] + "_zero")}
                     for r in P["roles"]],
         "picks": picks,
         "frontier": [{"model": m, "price": round(float(pareto.loc[m, pm]), 4),
