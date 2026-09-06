@@ -116,7 +116,12 @@ Sixteen columns of numbers is only readable with help:
   oversight. `n/a` in a warning colour reads as a finding, and the cell says on
   hover which site publishes no row for that model, or which input the role
   lacked. The value is still never imputed.
-- **Offer the zero-fill switch above the table.** An empty cell provokes one
+- **Offer the zero-fill switch in the table's own dead space.** The top left
+  corner of a wide table is empty by construction, because the row label column
+  has no header band to fill. A control placed above the table instead adds a
+  band of white space to a page that already has one. Make it a toggle rather
+  than a checkbox: a checkbox says tick me, a toggle says this changes the
+  table. An empty cell provokes one
   question, what would the ranking look like if absence counted as zero, and a
   control answers it better than a paragraph. Off is the published ranking. The
   engine computes both variants and writes the second as `roles[].scores_zero`;

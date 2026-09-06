@@ -77,9 +77,17 @@ CSS = (
     ".card b{display:block;font:11px monospace;color:#6a6a6a;letter-spacing:.04em;text-transform:uppercase;margin-bottom:3px}"
     ".card b~b{margin-top:9px}"
     "table.wide td.na{color:#A8452F;background:#FBEFEA;text-align:center;font-size:11px}"
-    ".switch{display:inline-flex;align-items:center;gap:8px;font:12px monospace;color:#4a4a4a;"
-    "border:1px solid #d3cfc0;background:#F5F3EB;padding:7px 11px;border-radius:2px;margin:18px 0 6px;cursor:pointer;user-select:none}"
-    ".switch input{margin:0;cursor:pointer}"
+    ".tablewrap{position:relative}"
+    ".tablewrap>.switch{position:absolute;left:0;top:108px;z-index:3;max-width:300px}"
+    ".switch{display:inline-flex;align-items:center;gap:9px;font:12px monospace;color:#4a4a4a;"
+    "border:1px solid #d3cfc0;background:#F5F3EB;padding:7px 11px;border-radius:3px;cursor:pointer;user-select:none;line-height:1.35}"
+    ".switch input{appearance:none;-webkit-appearance:none;flex:none;width:34px;height:18px;"
+    "border-radius:9px;background:#cfcabb;position:relative;margin:0;cursor:pointer;transition:background .15s}"
+    ".switch input::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;"
+    "border-radius:50%;background:#fff;transition:left .15s}"
+    ".switch input:checked{background:#A8452F}"
+    ".switch input:checked::after{left:18px}"
+    "@media(max-width:900px){.tablewrap>.switch{position:static;margin:12px 0;max-width:none}}"
     "@media(max-width:900px){.cols{grid-template-columns:1fr;gap:0}}"
     "table.wide th{background:none;border:none;height:150px;vertical-align:bottom;padding:0 0 4px}"
     "table.wide th>span{display:inline-block;writing-mode:vertical-rl;transform:rotate(180deg);"
@@ -262,7 +270,7 @@ def switch():
     """The question an empty cell provokes, offered as a control rather than a
     paragraph. Off is the published ranking."""
     return ('<label class="switch"><input type="checkbox" id="zerofill">'
-            "<span>treat a missing input as 0 and re-rank</span></label>")
+            "<span>missing input = 0, re-rank</span></label>")
 
 
 def rotate_wide(html, columns=None, roles=None):
@@ -302,7 +310,7 @@ def rotate_wide(html, columns=None, roles=None):
         new = head_new + "</thead>" + new.split("</thead>", 1)[1]
         if aligned:
             new = mark_cells(new, columns, roles)
-            return f'{switch()}<div class="scroll">{new}</div>'
+            return f'<div class="tablewrap">{switch()}<div class="scroll">{new}</div></div>'
         return f'<div class="scroll">{new}</div>'
     return TABLE.sub(fix, html)
 
