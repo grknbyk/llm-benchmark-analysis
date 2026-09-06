@@ -1,159 +1,203 @@
-# Blueprint
+# Report blueprint
 
-What this system is and why each part is shaped the way it is. `README.md`
-says how to run it, `PIPELINE.md` lists the stages in order, and this file says
-what must stay true whatever changes.
+The page, block by block, top to bottom. Move a block here and the builder
+follows. Widths are proportions, not pixels; the page is 1400px wide at most.
 
-Revise a section here and the code follows. If a rule below is not visible in
-the output, the code is wrong, not the rule.
+Boxes marked `[engine]` are pasted from what `make_charts.py` wrote. Boxes
+marked `[written]` are prose. Nothing in a `[engine]` box is retyped by hand.
 
-## 1. The problem
+---
 
-A team has a stack and a budget. They want to know which model to buy for it.
-Vendor marketing answers that badly, and a single leaderboard answers it for
-one benchmark instead of for their work.
+## 1. Title
 
-So: read ten public leaderboards, weight the benchmarks that match the jobs the
-stack actually involves, and produce a shortlist a reader can check line by
-line.
+```
++--------------------------------------------------------------------------+
+|  # ERP / Oracle APEX model shortlist                             serif h1 |
++--------------------------------------------------------------------------+
+```
 
-## 2. What must stay true
+## 2. Read first
 
-These are the invariants. Everything else is negotiable.
+Full width. The opening block and the orientation prose are one section, not
+two.
 
-1. **The engine calculates, nobody else.** Every number in the report comes
-   from `results.json`, `master-table.md` or `glance-table.md`. Not from prose,
-   not from a browser, not from a subagent's summary. A number typed twice is a
-   number that eventually disagrees with itself.
-2. **A missing input is missing.** Never imputed, never median-filled, never
-   quietly zero. A model lacking an input is excluded from any index that uses
-   it, and the report says which model lacks what.
-3. **Every claim carries its source and its date.** Latency moves 20% between
-   days, so a bare number is not a fact.
-4. **A wrong join looks exactly like data.** Cross-source model matching is
-   exact first, prefix only when unique, long enough, and not split by a
-   version digit. Anything below that is dropped rather than guessed.
-5. **Scope stays as wide as the evidence.** "Only the models carrying a price"
-   never becomes "all models".
-6. **Nothing publishes itself.** The pipeline writes files. Where they go is
-   the user's decision.
+```
++--------------------------------------------------------------------------+
+|  ## Read first                                                            |
+|                                                                           |
+|  Stack: ...            Data: benchmark-data/<date>/            [written]  |
+|  Scores from <sites>. The others are provenance, not inputs.              |
+|                                                                           |
+|  **Three things moved since the <date> run.**                             |
+|  para 1   what changed on a leaderboard, with both dates                  |
+|  para 2   what changed for one model, with both readings                  |
+|  para 3   what changed in the pipeline itself, if anything                |
+|                                                                           |
+|  the lead, and why it is or is not a lead                                 |
+|  the price and score frontier, named model by model                       |
+|  what this data cannot measure                                            |
++--------------------------------------------------------------------------+
+```
 
-## 3. Data model
+## 3. Picks and weights, one row
 
-Ten sites, one shape. Every scrape normalises to rows of
-`{model, benchmark, metric, score}` in
-`benchmark-data/<YYYYMMDD>/<site>/normalized.json`, beside the raw payload and
-a `meta.json` recording the extraction method and what changed since the last
-scrape.
+Two tables side by side. Trailing prose drops below both at full width, so a
+short table never leaves a hole.
 
-That single shape is the reason any site can feed any role index. Which sites
-actually score is a property of the profile, not of the pipeline.
+```
++---------------------------------+----------------------------------------+
+|  ## Best option at a glance     |  ## The four indexes                   |
+|                                 |                                        |
+|  role | best | cheap  [engine]  |  index | weights            [engine]   |
+|  ------------------------       |  ---------------------------           |
+|  Overall     ...   ...          |  Overall      0.30 coding + ...        |
+|  Role A      ...   ...          |  Role A       0.30 ... + ...           |
+|  Role B      ...   ...          |  Role B       ...                      |
+|  Role C      ...   ...          |  Role C       ...                      |
++---------------------------------+----------------------------------------+
+|  how price and latency are scaled, and against what        [written]      |
+|  a model missing an input is excluded, never imputed                      |
++--------------------------------------------------------------------------+
+```
 
-Scrape data is stack independent. Two stacks on the same day share one data
-folder, and the second run skips the scrape entirely.
+## 4. Every model, every metric
 
-## 4. The profile is the contract
+The master table. Header vertical, columns grouped by source site, the control
+in the table's own empty corner.
 
-`reports/<date>-<slug>/profile.json` holds everything stack specific:
+```
++--------------------------------------------------------------------------+
+|  ## Every model, every metric                                             |
+|                                                                           |
+|                    +-------------------+--------+--------+-------------+  |
+|                    |artificial-analysis| vals-ai|deepswe |    index    |  |
+|                    +-------------------+--------+--------+-------------+  |
+|                    | v  v  v  v  v  v  |  v  v  |  v  v  | v  v  v  v  |  |
+|  (o--) missing=0   | e  e  e  e  e  e  |  e  e  |  e  e  | e  e  e  e  |  |
+|                    | r  r  r  r  r  r  |  r  r  |  r  r  | r  r  r  r  |  |
+|  model             | t  t  t  t  t  t  |  t  t  |  t  t  | t  t  t  t  |  |
+|  ----------------- +-------------------+--------+--------+-------------+  |
+|  Model A           | 81.6 58.2 ...     |  54.6  |  n/a   | 63.9 ... 66 |  |
+|  Model B           | 75.9 53.0 ...     |  44.6  |  67.5  | 62.7 ... 66 |  |
+|  Model C           | ...               |  n/a   |  n/a   | n/a  ...    |  |
+|  ...                                                          [engine]    |
++--------------------------------------------------------------------------+
+```
 
-- `stack`, `slug`, `data`, `title`
-- `scoring_sources`: which sites produce numbers rather than provenance
-- `metrics`: each with site, benchmark, metric, and a `unit` when it has one
-- `roles`: two to four, each with weights summing to 1.00
-- `overall`: stack independent, so reports stay comparable
-- `cheap_alternative`: how far behind and how much cheaper still counts
-- `gaps`: what the data could not answer
-- `pair_sections`: which two report sections share a row
+- Header labels turn 90 degrees, capped in length, full name on hover.
+- A rule runs down the first column of every site group, through the body.
+- `n/a` in a warning colour, hover says which site publishes no row.
+- The toggle sits above the `model` label, in space the table already wastes.
+  On: missing counts as 0, indexes swap to the zero-filled variant, rows
+  re-rank. Off: the published ranking.
 
-The engine reads only this. Changing a weight means editing the profile and
-rerunning, never adjusting a number in the report.
+## 5. Charts
 
-## 5. Roles
+Odd count, so the lead takes a full row and the rest pair up. No toolbar,
+hover only.
 
-A role is a job the stack involves, named after the work: "Batch migration",
-"Interactive edit loop". Two to four of them. They are the one decision the
-whole report rests on, and the first three that come to mind are always the
-same three, which is why the `adhd` skill derives them rather than the model
-guessing.
+```
++--------------------------------------------------------------------------+
+|  price against the overall index, frontier marked            [engine]     |
+|                                                                           |
++--------------------------------+-----------------------------------------+
+|  overall index          [engine]|  role A index                 [engine] |
++--------------------------------+-----------------------------------------+
+|  role B index           [engine]|  role C index                 [engine] |
++--------------------------------+-----------------------------------------+
+```
 
-Rules that keep a role honest:
+## 6. One section per role
 
-- Weights sum to 1.00. Never renormalise to paper over a missing input.
-- Every metric must exist in the catalogue for that scrape day.
-- No invented proxy. Code Migration stands in for ERP legacy work because that
-  benchmark literally migrates code. When nothing matches, say so and build the
-  role from what exists.
-- Price and latency enter as inverse log min-max across the candidate set, so
-  they are relative to the models compared, not absolute. Adding a model changes
-  everyone else's score, and the report says that.
+Repeats for each role. Table left at its natural width, reasoning right, and
+under the table a card with the formula and the models the role could not
+score.
 
-## 6. What the engine produces
+```
++--------------------------------------------------------------------------+
+|  ## <Role name>                                                           |
+|  one line: what this job is, in the reader's terms          [written]     |
++---------------------------------+----------------------------------------+
+|  model | index | inputs [engine] |  **Pick <model>.** why, with the       |
+|  -----------------------------   |  number that decided it, and whether   |
+|  ...    ...     ...              |  the lead survives its stderr          |
+|  ...    ...     ...              |                                        |
+|                                  |  **If the price does not survive       |
+|  +----------------------------+  |  review, take <model>.** what it       |
+|  | HOW THIS INDEX IS BUILT    |  |  costs in points and what it saves     |
+|  | 0.30*a + 0.25*b + ...      |  |                                        |
+|  | NOT SCORED         [engine]|  |  which models are absent from this     |
+|  | Model X, no <input>        |  |  index and why                         |
+|  +----------------------------+  |                                        |
++---------------------------------+----------------------------------------+
+```
 
-`pipeline/make_charts.py` writes, next to the profile:
+## 7. Models that moved
 
-- `results.json`: every raw value, every role formula, the scores, the picks,
-  the price and score frontier, and per role the candidates it could not score
-  with the input each one lacked.
-- `master-table.md` and `glance-table.md`, ready to paste.
-- One chart per index plus the price against score scatter, each as a PNG for
-  GitHub and an interactive HTML for the page.
+Full width prose, one short block per model that is new or that changed
+materially since the last run. A vendor's own table is labelled as the
+vendor's and stays out of every index.
 
-It also writes a zero-filled variant of every index. That is not the published
-score; it exists so the report can answer, on demand, what the ranking would
-look like if absence counted as zero.
+```
++--------------------------------------------------------------------------+
+|  ## Models that moved                                                     |
+|  **<Model>** what it did, on which board, with the date     [written]     |
+|  **<Model>** ...                                                          |
++--------------------------------------------------------------------------+
+```
 
-## 7. Report structure
+## 8. Stack tooling
 
-In order:
+One subsection per technology named in the stack, plus one for agent tooling
+in general. Each separates official from community and dates every claim.
 
-1. Read first: stack, data path, what moved since the last run, the frontier,
-   and what this data cannot measure.
-2. The glance table and the index weights, side by side.
-3. The master table: every candidate against every metric that has data.
-4. One section per role: table on the left, reasoning on the right, and under
-   the table a card with the formula and the models the role could not score.
-5. A section per newly released model, saying plainly when it has no research
-   behind it.
-6. Stack tooling from the `last30days` research.
-7. Caveats and references.
+```
++--------------------------------------------------------------------------+
+|  ## Stack tooling                                                         |
+|  how it was researched, and the window                      [written]     |
+|                                                                           |
+|  ### <Technology A>                                                       |
+|  official: what the vendor ships, or plainly that it ships nothing        |
+|  community: name, repo, last commit, signal of use                        |
+|  what changed in the window, each item with its date                      |
+|                                                                           |
+|  ### <Technology B>   ...                                                 |
+|  ### Agent tooling practice                                               |
+|  what shipped / what practitioners changed their minds about /            |
+|  security and supply chain                                                |
++--------------------------------------------------------------------------+
+```
 
-## 8. Presentation
+## 9. Caveats and references
 
-The rules live in the `report-visuals` skill. The two that decide the rest:
+```
++--------------------------------------------------------------------------+
+|  ## Caveats                                                               |
+|  numbered, one per limitation a reader would otherwise discover late      |
+|                                                                           |
+|  ## References                                                            |
+|  scoring sites, provenance sites, tooling sources, and the line that      |
+|  every number is reproducible from results.json                           |
++--------------------------------------------------------------------------+
+```
 
-- **A chart earns its place** by showing what the table cannot: a ranking with
-  visible gaps, a tradeoff on two axes, a shape. Otherwise the table already
-  said it.
-- **An empty cell is a finding**, so it is marked and explained rather than
-  left blank.
+---
 
-## 9. Branches
+## Rules that survive any rearrangement
 
-`main` is the toolkit and ignores scrapes and reports, so a clone is small.
-Each set of reports lives on its own data branch keeping one squashed commit,
-because there is no reason to keep every day of scrapes in the object store.
+1. Every number comes from `results.json`, `master-table.md` or
+   `glance-table.md`. None is worked out in prose or in the browser.
+2. A missing input is never filled in. It is marked, explained, and the model
+   is left out of the indexes that need it.
+3. Every claim names its source and its date.
+4. A chart earns its place by showing what the table cannot.
+5. Nothing publishes itself. The pipeline writes files.
 
-Fix the pipeline on `main`, then cherry-pick. Never force push a data branch
-over `main`.
+## Open questions
 
-Visibility is a property of the repository, not of a branch.
-
-## 10. Skills
-
-- `refresh-benchmarks`: the pipeline.
-- `report-prose`: the editorial pass. Claims, units, scope, gaps.
-- `report-visuals`: the presentation pass. Charts, tables, tooltips.
-- `adhd`: derives the roles. The user triggers it; the model cannot.
-- `last30days`: researches the stack tooling.
-- `remove-ai-slop`: the broad prose sweep. The user triggers it.
-
-## 11. Open questions
-
-Written down rather than decided, because guessing here costs more than asking.
-
-- Should a role be allowed to score a model on partial inputs when the missing
-  weight is small, say under 0.10, instead of excluding it outright?
-- Should the overall index stay fixed across stacks, or should a stack be
-  allowed to reweight it and lose comparability?
-- How old may a scrape be before the report refuses to use it?
-- What belongs in the tooling section when the 30 day window returns nothing?
+- Should a role score a model on partial inputs when the missing weight is
+  small, say under 0.10, instead of excluding it?
+- Should the overall index stay fixed across stacks, or may a stack reweight it
+  and lose comparability?
+- How old may a scrape be before the report refuses it?
+- What goes in the tooling section when the window returns nothing?
