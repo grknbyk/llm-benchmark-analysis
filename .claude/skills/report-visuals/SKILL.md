@@ -41,6 +41,26 @@ Every chart ships twice, a PNG for GitHub and an interactive HTML for the site.
 The build swaps in the HTML when it exists and falls back to the PNG when it
 does not.
 
+## Role sections
+
+A role section is a four row table and three short paragraphs about it. Stacked,
+they leave two thirds of the line empty next to the table, so pair them: the
+table on the left at its natural width, the reasoning on the right. The heading
+and the one line description of the role stay full width above both.
+
+Cap the left column. A long index formula will otherwise take the width the
+reasoning needs, and prose in a 350 pixel column is worse than prose under a
+table.
+
+Under the table goes a card with the two facts a reader wants at exactly that
+moment: the formula that produced the column they are looking at, and the
+candidates the role could not score with the input each one lacked. Both come
+from `results.json`, so the card cannot disagree with the table above it.
+
+Do not fill the remaining space with anything else. White space under a short
+card costs nothing; a chart or a note added to balance a column is filler, and
+filler is what a reader learns to skip.
+
 ## The interactive charts
 
 No toolbar. Hovering a bar shows that model's metric breakdown with units, which

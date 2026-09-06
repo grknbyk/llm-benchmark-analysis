@@ -319,6 +319,13 @@ def main(profile_path):
     pareto = S[["overall", pm]].dropna() if pm in S.columns and "overall" in S else pd.DataFrame()
     on = frontier(pareto, "overall", pm) if len(pareto) >= 5 else []
 
+    def missing(slug, weights):
+        """Candidates the role could not score, and the input each one lacked.
+        A reader seeing an empty cell should not have to work out which of five
+        weighted terms was the one that went absent."""
+        return [{"model": m, "missing": [w for w in weights if pd.isna(S.loc[m, w])]}
+                for m in S.index[S[slug].isna()]]
+
     results = {
         "stack": P["stack"], "data": P["data"], "generated_from": str(profile_path),
         "join": {m: {s: joins.get((m, s)) for s in P["scoring_sources"][1:]} for m in S.index},
@@ -327,10 +334,11 @@ def main(profile_path):
                               "unit": sp.get("unit", ""), "scale": sp.get("scale", 1), "values": vals(name)}
                        for name, sp in P["metrics"].items() if name in S},
         "roles": [{"name": "Overall", "slug": "overall", "formula": fmt(ow, {}),
-                   "weights": ow, "scores": vals("overall")}]
+                   "weights": ow, "scores": vals("overall"), "not_scored": missing("overall", ow)}]
                  + [{"name": r["name"], "slug": r["slug"], "formula": fmt(r["weights"], r.get("transforms", {})),
                      "weights": r["weights"], "transforms": r.get("transforms", {}),
-                     "scores": vals(r["slug"])} for r in P["roles"]],
+                     "scores": vals(r["slug"]), "not_scored": missing(r["slug"], r["weights"])}
+                    for r in P["roles"]],
         "picks": picks,
         "frontier": [{"model": m, "price": round(float(pareto.loc[m, pm]), 4),
                       "overall": round(float(pareto.loc[m, "overall"]), 2)} for m in on],

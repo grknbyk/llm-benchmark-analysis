@@ -68,6 +68,13 @@ CSS = (
     ".charts figcaption{font:12px monospace;color:#555;margin-top:4px}"
     "@media(max-width:900px){.charts.n2{grid-template-columns:1fr}}"
     ".scroll{overflow-x:auto;margin:20px 0}"
+    ".cols{display:grid;grid-template-columns:minmax(0,max-content) minmax(0,1fr);gap:28px;align-items:start;margin:16px 0}"
+    ".cols>div:first-child{max-width:540px}.card{overflow-wrap:anywhere}"
+    ".cols>div>table{margin-top:0}.cols>div>p:first-child{margin-top:0}"
+    ".card{border:1px solid #d3cfc0;background:#F5F3EB;padding:10px 12px;margin-top:14px;font:12px monospace;color:#3a3a3a;line-height:1.55}"
+    ".card b{display:block;font:11px monospace;color:#6a6a6a;letter-spacing:.04em;text-transform:uppercase;margin-bottom:3px}"
+    ".card b~b{margin-top:9px}"
+    "@media(max-width:900px){.cols{grid-template-columns:1fr;gap:0}}"
     "table.wide th{background:none;border:none;height:96px;vertical-align:bottom;padding:0;"
     "position:relative}"
     "table.wide th>span{position:absolute;bottom:6px;left:50%;transform-origin:left bottom;"
@@ -222,6 +229,42 @@ def rotate_wide(html, columns=None):
     return TABLE.sub(fix, html)
 
 
+def role_card(role):
+    """Formula first, because it explains the column the reader just looked at.
+    Then the candidates the role could not score, named with the input each one
+    lacked. An empty cell is a fact, and this is where it gets said."""
+    out = [f'<b>How this index is built</b>{role["formula"]}']
+    gaps = role.get("not_scored") or []
+    if gaps:
+        out.append("<b>Not scored</b>" + "<br>".join(
+            f'{g["model"]}, no {" or ".join(g["missing"])}' for g in gaps))
+    return '<div class="card">' + "".join(out) + "</div>"
+
+
+def side_by_side(html, roles=None):
+    """A role section is a small table and three short paragraphs about it. Read
+    down the page they are two thirds white space, so pair them: the table on
+    the left at its natural width, the reasoning filling the rest.
+
+    Only plain tables qualify. The master table is `<table class="wide">` inside
+    a scroll container and has to keep the full width it already needs."""
+    def fix(m):
+        chunk = m.group(0)
+        t = re.search(r"<table>.*?</table>", chunk, re.S)
+        if not t:
+            return chunk
+        rest = chunk[t.end():]
+        if "<p>" not in rest:            # nothing to put beside it
+            return chunk
+        name = re.search(r"<h2>(.*?)</h2>", chunk)
+        role = next((r for r in (roles or []) if r["name"] == (name.group(1) if name else None)), None)
+        left = t.group(0) + (role_card(role) if role else "")
+        return (chunk[:t.start()] + '<div class="cols"><div>' + left
+                + "</div><div>" + rest + "</div></div>")
+
+    return re.sub(r"<h2>.*?(?=<h2>|$)", fix, html, flags=re.S)
+
+
 def main(profile_path):
     P = json.loads(Path(profile_path).read_text(encoding="utf-8"))
     here = Path(P.get("out") or Path(profile_path).parent)
@@ -230,11 +273,12 @@ def main(profile_path):
     GLOSSARY.update(P.get("glossary", {}))
 
     results = here / "results.json"
-    columns = json.loads(results.read_text(encoding="utf-8")).get("columns") if results.exists() else None
+    data = json.loads(results.read_text(encoding="utf-8")) if results.exists() else {}
+    columns, roles = data.get("columns"), data.get("roles")
 
     md_text = swap_charts(add_tooltips(src.read_text(encoding="utf-8")), here)
     body = markdown.markdown(md_text, extensions=["tables", "fenced_code", "md_in_html"])
-    body = rotate_wide(body, columns)
+    body = side_by_side(rotate_wide(body, columns), roles)
     dst.write_text(f'<!doctype html><meta charset=utf-8><title>{P["title"]}</title>'
                    f"<style>{CSS}</style>{body}", encoding="utf-8")
     print("wrote", dst.name, "tooltips:", body.count("<abbr"), "wide tables:", body.count('class="wide'))
