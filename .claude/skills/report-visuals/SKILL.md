@@ -71,9 +71,13 @@ Sixteen columns of numbers is only readable with help:
 The HTML puts hover definitions on benchmark jargon from a glossary in
 `build_html.py`. Add an entry for any term the report introduces.
 
-The build prints the tooltip count. Compare it to the previous run: a drop means
-the alternation regex stopped matching a term, usually because the term was
-reworded in the markdown. A rise is fine.
+Only the first mention of a term is marked. Underlining every one of the
+twenty-five mentions of MCP in a section turns a definition into decoration, and
+a reader who wants it scrolls up once.
+
+So the printed tooltip count is the number of distinct glossary terms the report
+actually uses. Compare it to the previous run: a drop means a term was reworded
+out of the text or the alternation regex stopped matching it.
 
 ## The landing page
 

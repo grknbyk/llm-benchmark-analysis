@@ -89,8 +89,15 @@ def add_tooltips(md_text):
     terms = sorted(GLOSSARY, key=len, reverse=True)
     pattern = re.compile(r"(?<![\w\[/-])(" + "|".join(re.escape(t) for t in terms) + r")(?![\w\]/-])")
 
+    # Only the first hit per term. Underlining all 25 mentions of MCP turns a
+    # definition into decoration, and a reader who wants it scrolls up once.
+    seen = set()
+
     def wrap(m):
         term = m.group(1)
+        if term in seen:
+            return term
+        seen.add(term)
         return f'<abbr title="{GLOSSARY[term].replace(chr(34), "&quot;")}">{term}</abbr>'
 
     # skip image lines and headings: paths and titles must stay clean
