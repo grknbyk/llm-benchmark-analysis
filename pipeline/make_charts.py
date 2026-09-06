@@ -13,10 +13,13 @@ import re
 import sys
 from pathlib import Path
 
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
+try:
+    import matplotlib as mpl
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import pandas as pd
+except ImportError:
+    raise SystemExit("make_charts.py needs matplotlib, pandas and plotly. Either pip install -r requirements.txt,\nor let uv fetch them per run:\n  uv run --with matplotlib --with pandas --with plotly python pipeline/make_charts.py <profile>")
 
 BG, INK = "#FBFAF6", "#1A1A1A"
 PAL = ["#E8927C", "#3D3D3D", "#5BB381", "#B8BCC4", "#C084E8", "#5B9BF0", "#5A6B8C",
@@ -398,4 +401,6 @@ def main(profile_path):
 
 if __name__ == "__main__":
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    if len(sys.argv) < 2:
+        sys.exit("usage: make_charts.py reports/<date>-<slug>/profile.json\nrun it through uv so the plotting dependencies come with it:\n  uv run --with matplotlib --with pandas --with plotly python pipeline/make_charts.py <profile>")
     main(sys.argv[1])

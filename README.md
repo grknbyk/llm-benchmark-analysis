@@ -13,9 +13,11 @@ with charts.
 - **Python 3.11 or newer.** `pip install -r requirements.txt`, or nothing at all
   if you use [uv](https://docs.astral.sh/uv/), which fetches the dependencies per
   run.
-- **Claude Code**, with the `refresh-benchmarks` skill in this repo plus two it
-  depends on: `adhd` for deriving the roles and `last30days` for the tooling
-  research. The pipeline treats both as required.
+- **Claude Code**, with three skills from this repo: `refresh-benchmarks` is
+  the pipeline, `report-prose` is the editorial pass, `report-visuals` is the
+  presentation pass. They load from `.claude/skills/` on clone, nothing to
+  install. Two more come from outside and the pipeline treats both as required:
+  `adhd` derives the roles, `last30days` researches the stack tooling.
 - **The `chrome-devtools` MCP server**, for the scrape step. Ten agents drive it
   in parallel in isolated browser contexts.
 
@@ -50,7 +52,8 @@ What happens, in order:
 
    It prints the cross-source join table, writes `results.json` with every raw
    value and every role formula, and writes `master-table.md` and
-   `glance-table.md` ready to paste. One chart per role, PNG and interactive
+   `glance-table.md` ready to paste. One chart per role plus a price against
+   score scatter with the frontier marked, each as a PNG and an interactive
    HTML.
 4. **The report gets written** from those artifacts, never from arithmetic done
    by hand, then converted:
@@ -74,6 +77,8 @@ pipeline/build_html.py    markdown to HTML, hover tooltips, rotated wide headers
 pipeline/query.py         read rows out of a normalized.json without jq
 pipeline/build_index.py   rebuilds index.html from the reports that exist
 .claude/skills/refresh-benchmarks/   the pipeline itself, as a Claude Code skill
+.claude/skills/report-prose/         the editorial pass: claims, units, scope
+.claude/skills/report-visuals/       the presentation pass: charts, wide tables, tooltips
 ```
 
 On a data branch you also get:
@@ -126,4 +131,24 @@ clone is small and a pipeline run never pushes scrapes here. Each set of
 reports lives on its own data branch, which tracks those folders and is served
 by GitHub Pages.
 
-Fix the pipeline on `main`, then cherry-pick onto the data branch.
+That means a fresh clone has nowhere to keep its output yet. Make the data
+branch before the first run:
+
+```bash
+git checkout -b mystack
+printf '!benchmark-data/\n!reports/\n!index.html\n' >> .gitignore
+git add .gitignore && git commit -m "track scrapes and reports on this branch"
+```
+
+The data branch keeps one squashed commit, so a run ends with
+`git commit --amend` and a force push rather than a growing history. Scrapes
+are large and there is no reason to keep every day of them in the object store.
+To publish, point GitHub Pages at that branch and `/ (root)`; `index.html` at
+the root lists every report.
+
+Fix the pipeline on `main`, then cherry-pick onto the data branch. Never force
+push a data branch over `main`.
+
+Visibility is a property of the repository, not of a branch. A public repo
+publishes every branch, including the scrapes on the data branch. If that
+matters, keep the data in a separate private repo.

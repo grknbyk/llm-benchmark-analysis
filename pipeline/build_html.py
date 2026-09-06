@@ -12,7 +12,10 @@ import re
 import sys
 from pathlib import Path
 
-import markdown
+try:
+    import markdown
+except ImportError:
+    raise SystemExit("build_html.py needs the markdown package. Either pip install -r requirements.txt,\nor let uv fetch it per run:\n  uv run --with markdown python pipeline/build_html.py <profile>")
 
 WIDE_AT = 8
 
@@ -195,4 +198,6 @@ def main(profile_path):
 
 if __name__ == "__main__":
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    if len(sys.argv) < 2:
+        sys.exit("usage: build_html.py reports/<date>-<slug>/profile.json\nrun it through uv so markdown comes with it:\n  uv run --with markdown python pipeline/build_html.py <profile>")
     main(sys.argv[1])

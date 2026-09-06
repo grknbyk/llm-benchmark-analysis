@@ -48,4 +48,6 @@ if __name__ == "__main__":
         i = args.index("--min-models")
         floor = int(args[i + 1])
         del args[i:i + 2]
+    if not args:
+        sys.exit("usage: catalogue.py benchmark-data/<YYYYMMDD> [--min-models N]\nprints every site | benchmark | metric the scrape folder carries, with model counts.")
     main(args[0], floor)
