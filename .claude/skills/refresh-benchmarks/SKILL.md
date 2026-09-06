@@ -290,43 +290,77 @@ today is wrong next month.
 
 ## Step 4: write the report
 
-Two tables carry the report.
+`BLUEPRINT.md` holds the page section by section. Follow it. What is below is
+the short form plus the rules a writer gets wrong.
 
-**The glance table**, one row for overall and one per role:
+Sections in order, and the layout each one uses:
 
 ```
-                        best model        cheap alternative
-Overall                 ...               ...
-Component authoring     ...               ...
-Schema and migration    ...               ...
+# <title>
+
+## Read first                     full width, four blocks, nothing longer
+   stack and data                 one sentence
+   **the pick**                   two sentences, and why the leader may not be one
+   **the frontier**               model, price, score, each named
+   **what this cannot measure**   one sentence
+
+## Indexes and picks              glance-table.md verbatim, one merged table
+   index | weights | best model | cheap alternative
+   one short paragraph: what is relative, what is left out
+
+## Every model, every metric      master-table.md verbatim, full width
+   sorts by any column, fills a gap three ways, shows ten rows
+
+## <lead chart>                   full width, then the index chart beside it
+
+## <Role name>                    chart left, table right, prose below both
+   `0.30 a + 0.25 b + ...`        the formula, one line of monospace
+   **Pick <model>.**              why, with the number that decided it
+   **Cheaper: <model>**           what it costs in points, what it saves
+
+## <cross-metric charts>          odd count: lead full width, rest paired
+   what a task costs, how many turns, how long
+
+## What changed since <date>      three bold-led blocks, each with both readings
+
+## Stack tooling                  one subsection per technology, from step 3
+
+## Caveats                        numbered
+
+## References                     scoring sites, provenance, tooling sources
 ```
 
-**The master table**, every candidate model against every metric that has data,
-then one column per role, then overall, sorted by overall descending. An empty
-cell means no data, and empty is a fact worth seeing. Paste `master-table.md`
-as it is. It stays a plain markdown table in the `.md` because that is what
-GitHub renders, and `build_html.py` rotates the header row 45 degrees in the
-HTML version, where the column count needs it.
+Rules that hold whatever the stack is:
 
-Both tables come out of the engine. Paste them; do not retype them. The master
-table columns arrive grouped by source site, and the HTML build spans a header
-over each group so a reader sees which site a number came from.
+- **Both tables come out of the engine.** Paste `glance-table.md` and
+  `master-table.md`; never retype a cell. They stay plain markdown in the `.md`
+  because that is what GitHub renders, and `build_html.py` adds the vertical
+  headers, the site groups, the sorting and the fill control in the HTML.
+- **Charts go two per row at most.** An odd count puts the lead chart on a full
+  width row and pairs the rest. `build_html.py` reads that from the order the
+  images appear, so put the chart that matters first.
+- **A role section holds its own chart.** Put the image before the table and the
+  builder makes the two columns.
+- **Compression is the point.** Every block is a bold lead and two or three
+  sentences. A reader who stops after the first screen should already know what
+  to buy.
+- **The opening is not a changelog.** What moved since the last run goes near
+  the end, with both readings and both dates.
 
-Charts go two per row at most. When a section holds an odd number, the leading
-chart takes a full width row of its own and the rest pair up, so the important
-one reads as important and no row ends half empty. `build_html.py` does this
-from the order the images appear in the markdown, so put the chart that matters
-first.
+Verify before you write. Every number has to come from the new scrape:
 
-Then the rest, in order:
+```bash
+python pipeline/query.py benchmark-data/<today>/artificial-analysis/normalized.json --model "Grok 4.6"
+python pipeline/query.py benchmark-data/<today>/vals-ai/normalized.json --benchmark "Code Migration" --limit 20
+```
 
-1. Header: date, data path, and a short note on what moved since last time.
-2. `glance-table.md`, then `master-table.md`, both pasted verbatim.
-3. One section per role: the table, the pick, and why.
-4. A section per newly released model. State plainly when it has no 30 day web
-   sweep behind it, unlike the models that do.
-5. The stack tooling section from step 3.
-6. Summary, caveats, references.
+Filters are case-insensitive substrings and combine with AND. Use this rather
+than jq: it needs nothing beyond Python, it skips the stray non-object entries
+some normalized files carry, and it does not care which shell you are in.
+
+Then run `report-prose` for the editorial pass and `report-visuals` for the
+presentation pass. Ask the user to run `/remove-ai-slop` for the broader prose
+sweep, since that skill only they can trigger.
 
 Apply edits with a throwaway Python script at `reports/<...>/_rewriteN.py` using
 exact-string `replace` with an assert on the match count. Bash heredocs break on
