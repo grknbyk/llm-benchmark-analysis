@@ -212,8 +212,12 @@ Rules that keep a derived profile honest:
   An Elo runs 900 to 1900 and a 0.30 weight on it would drown four terms scored
   0 to 100. Either set `"normalize": "candidate_minmax"` on the profile, which
   puts every term on the same band, or give the metric a `transforms` entry.
-  The engine knows `inverse_log_minmax` for a lower-is-better metric such as
-  price or latency, and `log_minmax` for a higher-is-better one.
+  The engine knows `minmax` for a metric that only needs stretching to the
+  candidate band, `log_minmax` when the values span orders of magnitude, and
+  `inverse_log_minmax` for a lower-is-better one such as price or latency. Any
+  other string stops the run rather than being ignored, because an ignored
+  transform adds the raw value at full magnitude and nothing on the page says
+  so.
 - Every metric in `metrics` must appear in the catalogue output. If a role wants
   something the data does not have, drop that term, redistribute across the rest
   and record the gap in `profile.json` under `gaps`.
@@ -456,6 +460,22 @@ choose weights against the printed spreads.
 a number by hand, not even to sanity-check one, because a number typed twice
 is a number that eventually disagrees with itself. If a figure looks wrong,
 fix the profile or the engine and run it again.
+
+**After any change to `pipeline/`, cross-test two profiles.** The way this
+toolkit quietly stops being stack independent is module level state: a list or a
+dict one profile writes and the next one reads. It is invisible in a single run.
+
+```bash
+uv run --with matplotlib --with pandas --with plotly python   pipeline/crosstest.py charts reports/<a>/profile.json reports/<b>/profile.json
+uv run --with markdown python   pipeline/crosstest.py html reports/<a>/profile.json reports/<b>/profile.json
+```
+
+It builds each profile alone in its own process, then both orders in one shared
+process, and prints RESIDUE with the leaked terms when the second report changed
+because the first one ran. Pick two profiles from genuinely different stacks:
+two that share their sites and their glossary will pass while hiding the bug.
+This caught the glossary merge writing into the module dict, which handed an ERP
+report eleven of a React report's definitions.
 
 A model missing an input is excluded from that role, never imputed. That is why
 some models have no batch score, and the report says so plainly instead of hiding

@@ -159,15 +159,15 @@ def terms(S, weights, transforms, normalize):
     for m, wt in weights.items():
         v = S[m]
         t = transforms.get(m)
-        if t and t not in ("inverse_log_minmax", "log_minmax"):
+        if t and t not in ("inverse_log_minmax", "log_minmax", "minmax"):
             sys.exit(f"unknown transform {t!r} on metric {m!r}. Known transforms are "
-                     "inverse_log_minmax and log_minmax. Left unrecognised it would be "
-                     "ignored and the raw value added at full magnitude.")
-        if transforms.get(m) == "inverse_log_minmax":
+                     "minmax, log_minmax and inverse_log_minmax. Left unrecognised it "
+                     "would be ignored and the raw value added at full magnitude.")
+        if t == "inverse_log_minmax":
             v = minmax(v, invert=True, log=True)
-        elif transforms.get(m) == "log_minmax":
+        elif t == "log_minmax":
             v = minmax(v, log=True)
-        elif normalize == "candidate_minmax":
+        elif t == "minmax" or normalize == "candidate_minmax":
             v = minmax(v)
         parts.append(v * wt)
     return parts
@@ -283,10 +283,14 @@ def label_spots(xs, ys, labels, log_x):
     things a person would do by hand: lean a label inward at the edge of the
     plot, and drop it under the marker when the label above is already taken.
     """
-    v = np.log10(np.asarray(xs, float)) if log_x else np.asarray(xs, float)
+    x = np.asarray(xs, float)
+    # A free model prices at 0 and log10 of that is -inf, which would drag every
+    # other label's position to NaN. It is off the log axis anyway, so it keeps
+    # the default placement rather than poisoning the rest.
+    v = np.log10(np.where(x > 0, x, np.nan)) if log_x else x
     y = np.asarray(ys, float)
-    sx = (v - v.min()) / ((v.max() - v.min()) or 1)
-    sy = (y - y.min()) / ((y.max() - y.min()) or 1)
+    sx = np.nan_to_num((v - np.nanmin(v)) / ((np.nanmax(v) - np.nanmin(v)) or 1), nan=0.5)
+    sy = np.nan_to_num((y - np.nanmin(y)) / ((np.nanmax(y) - np.nanmin(y)) or 1), nan=0.5)
     out, taken = [], []
     for i, text in enumerate(labels):
         if not text:
