@@ -1,0 +1,103 @@
+---
+name: report-visuals
+description: The presentation rules for a shortlist report in this repo. Covers chart layout and how many charts a section gets, the wide master table with rotated headers and per-site column groups, hover tooltips and the glossary, the landing page cards, and whether a given chart earns its place at all. Use this whenever building or changing the HTML for a report under reports/, adding or removing a chart, editing pipeline/build_html.py or pipeline/build_index.py, or when the user says the report looks wrong, the columns are misaligned, the page is too plain, or asks how a chart should be laid out.
+---
+
+# The presentation pass
+
+`report-prose` decides whether a sentence is defensible. This decides whether a
+reader can see the answer without reading. Run it after the engine has written
+the charts and before the HTML build.
+
+Everything here is enforced by `pipeline/build_html.py` and
+`pipeline/build_index.py`. If a rule below is not visible in the output, the
+build script is what needs changing, not the markdown.
+
+## Does the chart earn its place
+
+A chart competes with the master table, which already carries every number.
+Keep it only when it does something the table cannot:
+
+- **A ranking with gaps you can see.** Bar heights show that first and second
+  are level while third is far back. A table makes you subtract.
+- **A tradeoff on two axes.** Score against price is the single most
+  decision-relevant view in this report, because the whole question is what to
+  buy.
+- **A shape.** A long tail, a cliff, a cluster.
+
+Cut it when it restates one column of the table in colour, or when it has fewer
+than five bars. Three bars are a sentence, not a chart.
+
+## Layout
+
+Two charts per row at most. A row of three is unreadable at report width.
+
+When a section holds an odd number of charts, the first takes a full width row
+of its own and the rest pair up. The lead chart is the one a reader should see
+first, so put it first in the markdown; `build_html.py` reads the order from
+there. An even count pairs all the way down, with no half-empty row.
+
+Every chart ships twice, a PNG for GitHub and an interactive HTML for the site.
+The build swaps in the HTML when it exists and falls back to the PNG when it
+does not.
+
+## The interactive charts
+
+No toolbar. Hovering a bar shows that model's metric breakdown with units, which
+is the only interaction the report needs. Zoom, pan and export are noise on a
+fourteen bar chart, and the toolbar covers the tallest bar.
+
+Bar colour carries no meaning here, so do not explain it. It separates
+neighbours and nothing more.
+
+## The master table
+
+Sixteen columns of numbers is only readable with help:
+
+- **Rotate the header 45 degrees** past eight columns. The label anchors at the
+  middle of its own column, not at the left edge, or it drifts further off with
+  every column.
+- **Keep the model column flat and sticky.** It is the row label; a reader
+  scrolling right must keep it.
+- **Group the columns by source site** with a spanning row above the headers, so
+  a reader can see which leaderboard a number came from.
+- **Units in the header**, `$/1M`, `s`, `%`, `$/task`. A column of bare numbers
+  that turn out to be seconds costs more than it gives.
+- **Leave missing cells empty.** Not a dash, not a zero. Empty reads as absent,
+  which is what it is.
+
+## Tooltips
+
+The HTML puts hover definitions on benchmark jargon from a glossary in
+`build_html.py`. Add an entry for any term the report introduces.
+
+The build prints the tooltip count. Compare it to the previous run: a drop means
+the alternation regex stopped matching a term, usually because the term was
+reworded in the markdown. A rise is fine.
+
+## The landing page
+
+`pipeline/build_index.py` generates `index.html` from every
+`reports/*/profile.json` and the `results.json` beside it. Never hand-edit it.
+
+Each report gets a card carrying the stack, the data date, how many models and
+metrics were compared, the best and cheap pick per role, and links to the
+report, the markdown, `results.json` and `profile.json`. A reader should be able
+to decide whether to open the report without opening it.
+
+## Visual language
+
+Warm paper background `#FBFAF6`, ink `#1A1A1A`, serif headings, monospace for
+anything a reader might compare digit by digit. The palette and the tab strip
+come from the Vals AI and DeepSWE leaderboards, which is deliberate: this report
+sits next to those pages in a reader's head.
+
+## Checking it
+
+Look at the result. A rotated header that overlaps its neighbour, a sticky
+column that stopped sticking, or a chart that lost its labels are all invisible
+in the markdown and obvious in a screenshot.
+
+Use the `chrome-devtools` MCP with your own isolated context. Never any
+`mcp__claude-in-chrome__*` tool: that drives the user's own browser and is off
+limits unless they ask for it.

@@ -157,6 +157,42 @@ def plotly_bars(labels, values, hover, title, subtitle, ytitle):
     return fig
 
 
+def frontier(d, score, price):
+    """Models that nothing else beats on both price and score at once. Walking
+    up the price axis and keeping the running best score gives exactly that
+    set, which is the shortlist a buyer can defend."""
+    keep, best = [], -np.inf
+    for m, r in d.sort_values(price).iterrows():
+        if r[score] > best:
+            best = r[score]
+            keep.append(m)
+    return keep
+
+
+def plotly_scatter(d, price, unit, on, title, subtitle):
+    import plotly.graph_objects as go
+    fig = go.Figure()
+    for name, idx, colour, size in (("frontier", on, PAL[0], 15), ("rest", [m for m in d.index if m not in on], "#B8BCC4", 11)):
+        s = d.loc[idx]
+        fig.add_trace(go.Scatter(
+            x=s[price], y=s["overall"], mode="markers+text", name=name,
+            text=[short(m) for m in s.index], textposition="top center",
+            textfont=dict(family=MONO, size=9, color="#555"),
+            marker=dict(size=size, color=colour, line=dict(color=INK, width=1.1)),
+            hovertemplate="%{customdata}<br>" + f"price %{{x}}{unit}<br>overall %{{y:.2f}}<extra></extra>",
+            customdata=list(s.index)))
+    fig.update_layout(
+        title=dict(text=f"{title}<br><span style='font-size:12px;color:#555'>{subtitle}</span>",
+                   font=dict(family=SERIF, size=20, color=INK), x=0.01, xanchor="left"),
+        paper_bgcolor=BG, plot_bgcolor=BG, height=560, margin=dict(l=60, r=20, t=90, b=50),
+        font=dict(family=MONO, size=11, color=INK), showlegend=False,
+        hoverlabel=dict(font=dict(family=MONO, size=12), bgcolor="white"))
+    fig.update_xaxes(type="log", title=f"blended price ({unit}), log scale",
+                     showgrid=True, gridcolor="#c8c8c8", griddash="dot")
+    fig.update_yaxes(title="overall index (0-100)", showgrid=True, gridcolor="#c8c8c8", griddash="dot")
+    return fig
+
+
 # ---------- main ----------
 
 def main(profile_path):
@@ -270,6 +306,12 @@ def main(profile_path):
     def vals(col):
         return {m: None if pd.isna(v) else round(float(v), 4) for m, v in S[col].items()}
 
+    # the models nothing else beats on both price and score, recorded here so
+    # the report can name the frontier without anyone working it out by hand.
+    pm = P.get("price_metric", "price")
+    pareto = S[["overall", pm]].dropna() if pm in S.columns and "overall" in S else pd.DataFrame()
+    on = frontier(pareto, "overall", pm) if len(pareto) >= 5 else []
+
     results = {
         "stack": P["stack"], "data": P["data"], "generated_from": str(profile_path),
         "join": {m: {s: joins.get((m, s)) for s in P["scoring_sources"][1:]} for m in S.index},
@@ -283,6 +325,8 @@ def main(profile_path):
                      "weights": r["weights"], "transforms": r.get("transforms", {}),
                      "scores": vals(r["slug"])} for r in P["roles"]],
         "picks": picks,
+        "frontier": [{"model": m, "price": round(float(pareto.loc[m, pm]), 4),
+                      "overall": round(float(pareto.loc[m, "overall"]), 2)} for m in on],
     }
     (out / "results.json").write_text(json.dumps(results, indent=2), encoding="utf-8")
 
@@ -299,6 +343,34 @@ def main(profile_path):
             f'{p["cheap"]["times_cheaper"]:g}x cheaper)'
         g.append(f"| {label[slug]} | {best} | {cheap} |")
     (out / "glance-table.md").write_text("\n".join(g) + "\n", encoding="utf-8")
+
+    # price against score. The master table carries both columns already; only
+    # this view shows which models nothing else beats on both at once, which is
+    # the question the whole report exists to answer.
+    if on:
+        d, unit_p = pareto, P["metrics"][pm].get("unit", "")
+        sub = f"{len(d)} models with a price, {len(on)} of them on the frontier"
+        fig, ax = figure("Price against the overall index", sub, "PARETO", tabs_, stamp)
+        ax.set_xscale("log")
+        rest = [m for m in d.index if m not in on]
+        ax.scatter(d.loc[rest, pm], d.loc[rest, "overall"], s=70, color="#B8BCC4",
+                   edgecolor=INK, linewidth=1.1, zorder=3)
+        ax.scatter(d.loc[on, pm], d.loc[on, "overall"], s=130, color=PAL[0],
+                   edgecolor=INK, linewidth=1.1, zorder=4)
+        ax.step(d.loc[on, pm], d.loc[on, "overall"], where="post", color=PAL[0],
+                linewidth=1.2, linestyle=(0, (4, 3)), zorder=2)
+        for m, r in d.iterrows():
+            ax.annotate(short(m), (r[pm], r["overall"]), textcoords="offset points",
+                        xytext=(0, 9), ha="center", fontsize=8, color="#555")
+        ax.set_xlabel(f"blended price ({unit_p}), log scale")
+        ax.set_ylabel("overall index (0-100)")
+        ax.grid(True, which="both", axis="x", linestyle=(0, (1, 5)), color="#B5B5B5", linewidth=0.7)
+        fig.savefig(out / "00_price_vs_overall.png", dpi=170)
+        plt.close(fig)
+        plotly_scatter(d, pm, unit_p, on, "Price against the overall index", sub).write_html(
+            out / "00_price_vs_overall.html", include_plotlyjs="cdn", full_html=False,
+            config={"responsive": True, "displayModeBar": False})
+        print("\nfrontier: " + ", ".join(f"{m} ({d.loc[m, pm]:g}{unit_p}, {d.loc[m, 'overall']:.2f})" for m in on))
 
     # one chart per index
     charts = [("overall", "Overall weighted index", ow, {})] + \

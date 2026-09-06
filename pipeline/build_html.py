@@ -36,6 +36,7 @@ GLOSSARY = {
     "$/1M": "Artificial Analysis blended price per 1M tokens at a 3:1 input:output ratio.",
     "$/task": "DeepSWE v1.1 mean USD per completed task, thinking tokens included.",
     "pass@1": "Share of tasks solved on the first attempt.",
+    "frontier": "Price and score frontier: the models nothing else in the candidate set beats on both price and overall index at the same time. Everything off it is beaten on both.",
     "stderr": "Standard error of the mean. A lead under two combined stderr is not significant.",
     "DeepSWE": "Datacurve's long-horizon software engineering benchmark: 113 tasks across 91 repositories, every "
                "model run under the mini-swe-agent scaffold.",
