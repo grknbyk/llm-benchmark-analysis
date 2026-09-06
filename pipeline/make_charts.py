@@ -160,6 +160,27 @@ def plotly_bars(labels, values, hover, title, subtitle, ytitle):
     return fig
 
 
+def plotly_xy(d, x, y, ux, uy, title, subtitle, log_x):
+    import plotly.graph_objects as go
+    fig = go.Figure(go.Scatter(
+        x=d[x], y=d[y], mode="markers+text", text=[short(m) for m in d.index],
+        textposition="top center", textfont=dict(family=MONO, size=9, color="#555"),
+        marker=dict(size=13, color=PAL[0], line=dict(color=INK, width=1.1)),
+        customdata=list(d.index),
+        hovertemplate=f"%{{customdata}}<br>{x} %{{x}}{ux}<br>{y} %{{y}}{uy}<extra></extra>"))
+    fig.update_layout(
+        title=dict(text=f"{title}<br><span style='font-size:12px;color:#555'>{subtitle}</span>",
+                   font=dict(family=SERIF, size=20, color=INK), x=0.01, xanchor="left"),
+        paper_bgcolor=BG, plot_bgcolor=BG, height=520, margin=dict(l=60, r=20, t=90, b=50),
+        font=dict(family=MONO, size=11, color=INK), showlegend=False,
+        hoverlabel=dict(font=dict(family=MONO, size=12), bgcolor="white"))
+    fig.update_xaxes(type="log" if log_x else "linear", title=f"{x} ({ux})" if ux else x,
+                     showgrid=True, gridcolor="#c8c8c8", griddash="dot")
+    fig.update_yaxes(title=f"{y} ({uy})" if uy else y, showgrid=True,
+                     gridcolor="#c8c8c8", griddash="dot")
+    return fig
+
+
 def frontier(d, score, price):
     """Models that nothing else beats on both price and score at once. Walking
     up the price axis and keeping the running best score gives exactly that
@@ -286,7 +307,8 @@ def main(profile_path):
 
     # grouped by source site so the HTML can span a header over each run,
     # then the role columns, then overall
-    metric_cols = sorted([m for m in P["metrics"] if S[m].notna().any()],
+    metric_cols = sorted([m for m in P["metrics"]
+                          if S[m].notna().any() and P["metrics"][m].get("in_table", True)],
                          key=lambda m: P["scoring_sources"].index(P["metrics"][m]["site"]))
     role_cols = [r["slug"] for r in P["roles"]] + ["overall"]
     order = metric_cols + role_cols
@@ -446,6 +468,31 @@ def main(profile_path):
                  for i, v in d.items()]
         plotly_bars(d.index.tolist(), d.tolist(), hover, title, sub, f"{slug} index (0-100)").write_html(
             out / f"{n:02d}_index_{slug}.html", include_plotlyjs="cdn", full_html=False,
+            config={"responsive": True, "displayModeBar": False})
+
+    for n, sc in enumerate(P.get("scatters", []), start=len(charts) + 1):
+        x, y = sc["x"], sc["y"]
+        d = S[[x, y]].dropna()
+        if len(d) < 4:
+            print(f"skipped scatter {x} vs {y}: {len(d)} models have both")
+            continue
+        ux = P["metrics"][x].get("unit", "")
+        uy = P["metrics"][y].get("unit", "")
+        fig, ax = figure(sc["title"], f"{len(d)} models carry both", "CROSS", tabs_, stamp)
+        if sc.get("log_x"):
+            ax.set_xscale("log")
+        ax.scatter(d[x], d[y], s=90, color=PAL[0], edgecolor=INK, linewidth=1.1, zorder=3)
+        for m, r in d.iterrows():
+            ax.annotate(short(m), (r[x], r[y]), textcoords="offset points",
+                        xytext=(0, 9), ha="center", fontsize=8, color="#555")
+        ax.set_xlabel(f"{x} ({ux})" if ux else x)
+        ax.set_ylabel(f"{y} ({uy})" if uy else y)
+        ax.grid(True, which="both", axis="x", linestyle=(0, (1, 5)), color="#B5B5B5", linewidth=0.7)
+        fig.savefig(out / f"{n:02d}_{x}_vs_{y}.png", dpi=170)
+        plt.close(fig)
+        plotly_xy(d, x, y, ux, uy, sc["title"], f"{len(d)} models carry both",
+                  bool(sc.get("log_x"))).write_html(
+            out / f"{n:02d}_{x}_vs_{y}.html", include_plotlyjs="cdn", full_html=False,
             config={"responsive": True, "displayModeBar": False})
 
     print(f"\nwrote {len(charts)} indexes, master-table.md, glance-table.md and results.json to {out}")

@@ -43,10 +43,10 @@ does not.
 
 ## Role sections
 
-A role section is a four row table and three short paragraphs about it. Stacked,
-they leave two thirds of the line empty next to the table, so pair them: the
-table on the left at its natural width, the reasoning on the right. The heading
-and the one line description of the role stay full width above both.
+A role section carries its own chart: chart left, table right, reasoning below
+both at full width. The formula sits under the heading as one line of monospace,
+not as a card, because a reader wants it before the numbers rather than after
+them.
 
 Cap the left column. A long index formula will otherwise take the width the
 reasoning needs, and prose in a 350 pixel column is worse than prose under a
@@ -60,6 +60,19 @@ from `results.json`, so the card cannot disagree with the table above it.
 Do not fill the remaining space with anything else. White space under a short
 card costs nothing; a chart or a note added to balance a column is filler, and
 filler is what a reader learns to skip.
+
+## Sorting and how many rows
+
+A wide table is a lookup, so every column sorts. The first click shows the best
+models, which means a column where lower wins starts ascending: the engine
+records the direction on the column and the page reads it. Absent rows sink
+whichever way the sort runs.
+
+Ten rows show. The rest stay in the document and surface when the order changes,
+with a line under the table saying how many are hidden.
+
+Site group headers link to the leaderboard, using the address the scrape
+recorded rather than one written into the code.
 
 ## Two sections on one row
 
