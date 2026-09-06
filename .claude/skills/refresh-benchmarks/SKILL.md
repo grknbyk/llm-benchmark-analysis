@@ -305,7 +305,9 @@ today is wrong next month.
 
 ## Step 4: write the report
 
-`BLUEPRINT.md` holds the page section by section. Follow it. What is below is
+`BLUEPRINT.html` holds the page section by section, as a wireframe at the proportions
+the stylesheet produces. Rebuild it with `python pipeline/build_blueprint.py`
+when the layout changes. Follow it. What is below is
 the short form plus the rules a writer gets wrong.
 
 Sections in order, and the layout each one uses:

@@ -12,10 +12,17 @@ import re
 import sys
 from pathlib import Path
 
-try:
-    import markdown
-except ImportError:
-    raise SystemExit("build_html.py needs the markdown package. Either pip install -r requirements.txt,\nor let uv fetch it per run:\n  uv run --with markdown python pipeline/build_html.py <profile>")
+
+def _markdown():
+    """Imported on use, not on import: build_blueprint.py wants the stylesheet
+    from this module and has no business needing a markdown converter."""
+    try:
+        import markdown
+    except ImportError:
+        raise SystemExit("build_html.py needs the markdown package. Either pip install -r "
+                         "requirements.txt, or let uv fetch it per run:  "
+                         "uv run --with markdown python pipeline/build_html.py <profile>")
+    return markdown
 
 WIDE_AT = 8
 
@@ -462,7 +469,7 @@ def main(profile_path):
     columns, roles = data.get("columns"), data.get("roles")
 
     md_text = swap_charts(add_tooltips(src.read_text(encoding="utf-8")), here)
-    body = markdown.markdown(md_text, extensions=["tables", "fenced_code", "md_in_html"])
+    body = _markdown().markdown(md_text, extensions=["tables", "fenced_code", "md_in_html"])
     pairs = P.get("pair_sections") or []
     body = side_by_side(rotate_wide(body, columns, roles, data.get("medians"), data.get("sites")), roles,
                         skip={n for pair in pairs for n in pair})
