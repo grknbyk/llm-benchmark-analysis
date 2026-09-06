@@ -35,7 +35,8 @@ uv run --with matplotlib --with pandas --with plotly python \
 # 5. report and deploy
 uv run --with markdown python pipeline/build_html.py reports/20260906-erp-oracle-apex/profile.json
 python pipeline/build_index.py
-git add -A && git commit -q --amend -m "260902 llm analysis" && git push --force-with-lease origin erp
+git add -A && git commit -q --amend -m "<the data branch's fixed message>" \
+  && git push --force-with-lease origin <data-branch>
 ```
 
 ## Two skills only you can start

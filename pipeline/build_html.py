@@ -37,8 +37,6 @@ GLOSSARY = {
     "stderr": "Standard error of the mean. A lead under two combined stderr is not significant.",
     "Elo": "Rating from pairwise human votes. Differences under about 20 points are usually not meaningful.",
     "MCP": "Model Context Protocol: the interface a model uses to reach an external tool or data source. An MCP server is code that runs on your machine.",
-    "max effort": "Reasoning effort setting. Higher effort spends more thinking tokens; per-token price stays flat, cost per task does not.",
-    "xhigh": "Reasoning effort one step below max.",
 }
 
 CSS = (
@@ -126,11 +124,11 @@ CSS = (
 )
 
 
-def add_tooltips(md_text):
+def add_tooltips(md_text, gloss):
     # One pass with a single alternation: replaced text is never rescanned, so a
     # term inside another term's tooltip cannot be wrapped again. Longest first
     # so "Code Migration" wins over "Coding"-style partial hits.
-    terms = sorted(GLOSSARY, key=len, reverse=True)
+    terms = sorted(gloss, key=len, reverse=True)
     pattern = re.compile(r"(?<![\w\[/-])(" + "|".join(re.escape(t) for t in terms) + r")(?![\w\]/-])")
 
     # Only the first hit per term. Underlining all 25 mentions of MCP turns a
@@ -142,7 +140,7 @@ def add_tooltips(md_text):
         if term in seen:
             return term
         seen.add(term)
-        return f'<abbr title="{GLOSSARY[term].replace(chr(34), "&quot;")}">{term}</abbr>'
+        return f'<abbr title="{gloss[term].replace(chr(34), "&quot;")}">{term}</abbr>'
 
     def outside_code(line):
         # a term inside backticks is code, and an <abbr> opened there is
@@ -570,13 +568,15 @@ def main(profile_path):
     here = Path(P.get("out") or Path(profile_path).parent)
     src = here / P["report"]
     dst = src.with_suffix(".html")
-    GLOSSARY.update(P.get("glossary", {}))
 
     results = here / "results.json"
     data = json.loads(results.read_text(encoding="utf-8")) if results.exists() else {}
     columns, roles = data.get("columns"), data.get("roles")
 
-    md_text = swap_charts(add_tooltips(src.read_text(encoding="utf-8")), here)
+    # merged per call, never into the module dict: two profiles built in one
+    # process would otherwise hand each other their benchmark definitions.
+    gloss = {**GLOSSARY, **(P.get("glossary") or {})}
+    md_text = swap_charts(add_tooltips(src.read_text(encoding="utf-8"), gloss), here)
     body = _markdown().markdown(md_text, extensions=["tables", "fenced_code", "md_in_html"])
     pairs = P.get("pair_sections") or []
     T = strings(P)

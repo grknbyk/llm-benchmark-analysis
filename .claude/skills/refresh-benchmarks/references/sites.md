@@ -33,11 +33,14 @@ vanished by 09-04, while eight per-task cost and time metrics appeared on
 Nested breakdown objects (`gdpvalBreakdown`, `omniscienceBreakdown`,
 per-eval token counts) stay unflattened. Note that in `meta.json`.
 
-This is the usual primary source, because it is the only site publishing price
-and latency next to quality. Its coding index, agentic index, AA-LCR,
-Omniscience accuracy and non-hallucination rate, blended 3:1 price, end-to-end
-time and time to first token carry most role indexes. Which of them a given
-profile actually uses is the profile's business, not this file's.
+It is the only one of the ten publishing price and latency next to quality, so
+a profile that weights either usually names it `scoring_sources[0]`. That
+follows from what it publishes, not from any ranking of the ten: a stack scored
+on design Elo or on human preference has no reason to make it primary, and
+`scoring_sources[0]` only decides which site's model strings become the join
+keys. What it offers is a coding index, an agentic index, AA-LCR, Omniscience
+accuracy and non-hallucination rate, blended 3:1 price, end-to-end time and time
+to first token. Which of them a profile uses is the profile's business.
 
 ## vals-ai
 
@@ -61,9 +64,11 @@ Slugs get renamed rather than added: `reverse_eng` now 302-redirects to
 `srebench`. Some benchmarks drop off the `/benchmarks` nav while their pages
 still resolve, so fetch known slugs directly rather than trusting the nav.
 
-Vals supplies Code Migration and CorpFin v2, the two ERP proxies. Code
-Migration is the whole basis of the batch index, so a run that loses `stderr`
-here is a failed run.
+Code Migration ports code between languages and frameworks. CorpFin v2 answers
+questions over financial filings. Either can suit a stack or neither can; the
+ERP profile happens to use both. Vals is the only one of the ten publishing
+`stderr`, so a run that loses it costs every profile its noise floor, whatever
+the stack.
 
 ## deepswe
 

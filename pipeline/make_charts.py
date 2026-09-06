@@ -35,14 +35,24 @@ mpl.rcParams.update({"figure.facecolor": BG, "axes.facecolor": BG, "savefig.face
 
 # ---------- joining ----------
 
-def key(name):
+# Words a model name loses on its way to a join key. These are one vendor
+# generation's effort settings, not identity. They are also ordinary English
+# words, so a vendor that puts one inside a real product name gets collapsed
+# onto a different model. A profile replaces the list with its own
+# `join_strip`, exactly as it replaces `name_strip`.
+JOIN_STRIP = ["adaptive reasoning", "default fallback", "max effort", "effort",
+              "xhigh", "high", "medium", "low", "max"]
+_jstrip = list(JOIN_STRIP)
+
+
+def key(name, strip=True):
     """Collapse a model string to a join key. Provider prefixes, effort suffixes
     and punctuation differ across sites and carry no identity, so they go.
     Vals writes anthropic/claude-opus-5 where AA writes Claude Opus 5 (max)."""
     s = str(name).rsplit("/", 1)[-1]
     s = re.sub(r"\(.*?\)", " ", s)
-    s = re.sub(r"\b(adaptive reasoning|default fallback|max effort|effort|xhigh|high|medium|low|max)\b",
-               " ", s, flags=re.I)
+    if strip and _jstrip:
+        s = re.sub(r"\b(" + "|".join(_jstrip) + r")\b", " ", s, flags=re.I)
     return re.sub(r"[^a-z0-9]", "", s.lower())
 
 
@@ -93,7 +103,20 @@ def series(df, spec, by):
     if d.empty:
         return pd.Series(dtype=float), pd.Series(dtype=float)
     col = spec.get("field", "score")
-    d = d.sort_values("score", ascending=False).groupby(by, as_index=True).first()
+    # A site can publish several configs of one model under one benchmark. All
+    # fields have to come off the SAME row, or pass@1, cost, steps and duration
+    # end up describing four different runs of the same model. The row is the
+    # one that won on the benchmark's headline column, and the collapse is
+    # printed, because the honest way to pin a config is a `where` filter.
+    pick = spec.get("pick", "score")
+    if pick not in d:
+        pick = col
+    n_rows, n_models = len(d), d[by].nunique() if by in d else d.index.nunique()
+    d = d.sort_values(pick, ascending=spec.get("pick_lowest", False)).groupby(by, as_index=True).first()
+    if n_rows > n_models:
+        print(f"  note: {spec.get('benchmark') or spec.get('metric') or col}: {n_rows} rows over "
+              f"{n_models} models. Kept the best row per model by `{pick}`; add a `where` filter "
+              "to the metric to pin one config instead.")
     val = pd.to_numeric(d[col], errors="coerce") * spec.get("scale", 1)
     err = pd.to_numeric(d["stderr"], errors="coerce") if spec.get("stderr") and "stderr" in d else pd.Series(dtype=float)
     return val, err
@@ -103,8 +126,9 @@ def series(df, spec, by):
 # effort setting differently and it eats half the width of the master table
 # without adding identity. A profile replaces this with its own `name_strip`,
 # because next year's vendors will word it differently again.
-NAME_STRIP = [["(Adaptive Reasoning, ", "("], [", Default Fallback", ""],
-              [" Effort", ""], ["Artificial Analysis ", ""]]
+# Empty by default. Whatever a vendor pads its display names with is that
+# site's wording, so the profile that scores from the site declares it.
+NAME_STRIP = []
 _strip = [list(x) for x in NAME_STRIP]
 
 
@@ -113,6 +137,13 @@ def short(m):
     for old, new in _strip:
         out = out.replace(old, new)
     return out.strip()
+
+
+def index_unit(normalize):
+    """What an index column's unit really is. Only `candidate_minmax` puts every
+    term on the same 0-100 band. Left off, a role carries its metrics' own units
+    and can span several hundred, so printing `0-100` on the axis is a lie."""
+    return "0-100" if normalize == "candidate_minmax" else ""
 
 
 def terms(S, weights, transforms, normalize):
@@ -127,6 +158,11 @@ def terms(S, weights, transforms, normalize):
     parts = []
     for m, wt in weights.items():
         v = S[m]
+        t = transforms.get(m)
+        if t and t not in ("inverse_log_minmax", "log_minmax"):
+            sys.exit(f"unknown transform {t!r} on metric {m!r}. Known transforms are "
+                     "inverse_log_minmax and log_minmax. Left unrecognised it would be "
+                     "ignored and the raw value added at full magnitude.")
         if transforms.get(m) == "inverse_log_minmax":
             v = minmax(v, invert=True, log=True)
         elif transforms.get(m) == "log_minmax":
@@ -153,6 +189,13 @@ def influence(S, weights, transforms, normalize):
 
 
 def minmax(s, invert=False, log=False):
+    if log:
+        bad = s <= 0
+        if bad.any():
+            print(f"  note: {int(bad.sum())} candidate(s) carry a value of 0 or less on a "
+                  "log scaled term. log10 of those is undefined, so they are left out of "
+                  "that term rather than dragging the whole column to NaN.")
+        s = s.where(s > 0)
     v = np.log10(s) if log else s
     out = (v - v.min()) / (v.max() - v.min()) * 100
     return 100 - out if invert else out
@@ -338,7 +381,7 @@ def frontier(d, score, price):
 
 
 def plotly_price_tabs(S, price, unit, indexes, log_label="log scale", note_of=None,
-                      breakdown=None, price_label="price"):
+                      breakdown=None, price_label="price", iunit=""):
     """Price against a chosen index, one tab per index.
 
     Each tab is two traces, the frontier line and the markers, so switching a
@@ -382,7 +425,7 @@ def plotly_price_tabs(S, price, unit, indexes, log_label="log scale", note_of=No
         vis[2 * k] = vis[2 * k + 1] = True
         buttons.append(dict(label=name, method="update",
                             args=[{"visible": vis},
-                                  {"yaxis.title.text": f"{name} (0-100)",
+                                  {"yaxis.title.text": name + (f" ({iunit})" if iunit else ""),
                                    "annotations": [dict(text=notes[k], xref="paper", yref="paper",
                                                         x=0, y=1.02, showarrow=False,
                                                         xanchor="left", yanchor="bottom",
@@ -407,7 +450,7 @@ def plotly_price_tabs(S, price, unit, indexes, log_label="log scale", note_of=No
     fig.update_xaxes(type="log", title=f"{price_label} ({unit}), {log_label}",
                      tickmode="array", tickvals=t, ticktext=[f"{v:g}" for v in t],
                      showgrid=True, gridcolor="#c8c8c8", griddash="dot")
-    fig.update_yaxes(title=f"{indexes[0][1]} (0-100)", showgrid=True,
+    fig.update_yaxes(title=indexes[0][1] + (f" ({iunit})" if iunit else ""), showgrid=True,
                      gridcolor="#c8c8c8", griddash="dot")
     return fig
 
@@ -422,8 +465,18 @@ def main(profile_path):
     stamp = P.get("stamp", P["slug"].upper())
     T = strings(P)
     _strip[:] = [list(x) for x in P.get("name_strip", NAME_STRIP)]
+    _jstrip[:] = list(P.get("join_strip", JOIN_STRIP))
 
     frames = {s: load(base, s) for s in P["scoring_sources"]}
+    # A strip that leaves no version digit behind usually ate part of the
+    # product name rather than an effort setting. "Qwen Max" becoming "qwen"
+    # then joins onto plain Qwen and looks exactly like data.
+    for s_, f_ in frames.items():
+        for m_ in f_["model"].drop_duplicates():
+            k_ = key(m_)
+            if k_ != key(m_, strip=False) and not any(c.isdigit() for c in k_):
+                print(f"  warning: {s_} '{m_}' collapses to join key '{k_}' with no version "
+                      "left. Set `join_strip` in the profile if that word is part of the name.")
     primary = P["scoring_sources"][0]
     names = frames[primary].drop_duplicates("model").set_index("model").key  # model string -> join key
 
@@ -480,7 +533,8 @@ def main(profile_path):
         # Effort variants of one model would otherwise fill the table with the
         # same product four times. Keep the variant that scores best overall.
         S = S[~names.reindex(S.index).duplicated()]
-    S = S.head(cand.get("top_n", 14))
+    if cand.get("top_n"):
+        S = S.head(cand["top_n"])
     S.index = [short(m) for m in S.index]
 
     # Coverage over the candidate set, which is the only coverage deciding
@@ -539,9 +593,22 @@ def main(profile_path):
                          key=lambda m: P["scoring_sources"].index(P["metrics"][m]["site"]))
     role_cols = [r["slug"] for r in P["roles"]] + ["overall"]
     order = metric_cols + role_cols
-    role_label = {r["slug"]: r["name"] for r in P["roles"]} | {"overall": "Overall weighted index"}
-    low = {m for m in metric_cols if P["metrics"][m].get("better") == "low"
-           or any(r.get("transforms", {}).get(m) == "inverse_log_minmax" for r in P["roles"])}
+    role_label = {r["slug"]: r["name"] for r in P["roles"]} | {"overall": T["Overall weighted index"]}
+    iu = index_unit(norm)
+
+    def direction(m):
+        """An explicit `better` in the profile wins outright. Otherwise a price
+        is lower-is-better whether or not a role happens to transform it, and a
+        transform is the last hint left."""
+        d = P["metrics"][m].get("better")
+        if d:
+            return d
+        if m == pmetric or any(r.get("transforms", {}).get(m) == "inverse_log_minmax"
+                               for r in P["roles"]):
+            return "low"
+        return "high"
+
+    low = {m for m in metric_cols if direction(m) == "low"}
     def calc(w, tr):
         return " + ".join(f"{wt:g}*{m}" + (f" [{tr[m]}]" if m in tr else "")
                           for m, wt in w.items())
@@ -555,8 +622,8 @@ def main(profile_path):
                 "label": P["metrics"][m].get("label") or P["metrics"][m].get("benchmark") or P["metrics"][m].get("metric")
                          or P["metrics"][m].get("field", m)}
                for m in metric_cols] + \
-              [{"name": c, "site": "index", "unit": "0-100", "better": "high",
-                "plain": f'{T["weighted score"]}: {sums[c]}',
+              [{"name": c, "site": "index", "unit": iu, "better": "high",
+                "plain": f'{T["weighted score" if iu else "weighted score raw"]}: {sums[c]}',
                 "label": role_label[c]} for c in role_cols]
     master = S[order].sort_values("overall", ascending=False).round(2)
     print("\n" + master.to_string())
@@ -568,6 +635,14 @@ def main(profile_path):
 
     # picks: best and cheap alternative per index
     ca = P.get("cheap_alternative", {"max_points_behind": 5.0, "min_price_ratio": 3.0})
+    # Those points are in each index's own units. Without `candidate_minmax` an
+    # index is not on a 0-100 band, so the same constant is a wide tolerance in
+    # one profile and inside rounding error in the next. Print both.
+    spans = [(s_, float(S[s_].max() - S[s_].min())) for s_ in ["overall"] + [r["slug"] for r in P["roles"]]
+             if S[s_].notna().any()]
+    print(f'\ncheap alternative: within {ca["max_points_behind"]:g} points of the leader and '
+          f'{ca["min_price_ratio"]:g}x cheaper. Index spans across the candidates: '
+          + ", ".join(f"{s_} {v:.1f}" for s_, v in spans))
     picks = {}
     for slug in ["overall"] + [r["slug"] for r in P["roles"]]:
         d = S[slug].dropna().sort_values(ascending=False)
@@ -679,7 +754,8 @@ def main(profile_path):
     if on:
         d, unit_p = pareto, P["metrics"][pm].get("unit", "")
         sub = f'{len(d)} {T["models with a price"]}, {len(on)} {T["on the frontier"]}'
-        fig, ax = figure("Price against the overall index", sub, "PARETO", tabs_, stamp)
+        plabel = P["metrics"][pm].get("label") or pm
+        fig, ax = figure(f'{plabel} {T["against the overall index"]}', sub, "PARETO", tabs_, stamp)
         ax.set_xscale("log")
         rest = [m for m in d.index if m not in on]
         ax.scatter(d.loc[rest, pm], d.loc[rest, "overall"], s=70, color="#B8BCC4",
@@ -692,25 +768,25 @@ def main(profile_path):
             ax.annotate(short(m), (r[pm], r["overall"]), textcoords="offset points",
                         xytext=(0, 9), ha="center", fontsize=8, color="#555")
         ax.set_xlabel(f"{P['metrics'][pm].get('label') or pm} ({unit_p}), log scale")
-        ax.set_ylabel("overall index (0-100)")
+        ax.set_ylabel(f'{T["Overall"]} {T["index scale"]}' + (f" ({iu})" if iu else ""))
         ax.grid(True, which="both", axis="x", linestyle=(0, (1, 5)), color="#B5B5B5", linewidth=0.7)
-        fig.savefig(out / "00_price_vs_overall.png", dpi=170)
+        fig.savefig(out / f"00_{pm}_vs_overall.png", dpi=170)
         plt.close(fig)
         plotly_price_tabs(
             S[[pm] + ["overall"] + [r["slug"] for r in P["roles"]]].dropna(subset=[pm]),
             pm, unit_p,
-            [("overall", "Overall")] + [(r["slug"], r["name"]) for r in P["roles"]],
+            [("overall", T["Overall"])] + [(r["slug"], r["name"]) for r in P["roles"]],
             T["log scale"],
             lambda a, b: f'{a} {T["models with a price"]}  ·  {b} {T["on the frontier"]}',
             breakdown,
-            P["metrics"][pm].get("label") or pm,
+            plabel, iu,
         ).write_html(
-            out / "00_price_vs_overall.html", include_plotlyjs="cdn", full_html=False,
+            out / f"00_{pm}_vs_overall.html", include_plotlyjs="cdn", full_html=False,
             config={"responsive": True, "displayModeBar": False})
         print("\nfrontier: " + ", ".join(f"{m} ({d.loc[m, pm]:g}{unit_p}, {d.loc[m, 'overall']:.2f})" for m in on))
 
     # one chart per index
-    charts = [("overall", "Overall weighted index", ow, {})] + \
+    charts = [("overall", T["Overall weighted index"], ow, {})] + \
              [(r["slug"], r["name"], r["weights"], r.get("transforms", {})) for r in P["roles"]]
     for n, (slug, title, w, tr) in enumerate(charts, start=1):
         d = S[slug].dropna().sort_values(ascending=False)
@@ -720,13 +796,14 @@ def main(profile_path):
         sub = " + ".join(f"{wt:.2f} {m}" for m, wt in w.items())
         fig, ax = figure(title, sub, slug.upper(), tabs_, stamp)
         bars(ax, d.index.tolist(), d.tolist())
-        ax.set_ylabel(f"{slug} index (0-100)")
+        ax.set_ylabel(f'{slug} {T["index scale"]}' + (f" ({iu})" if iu else ""))
         fig.savefig(out / f"{n:02d}_index_{slug}.png", dpi=170)
         plt.close(fig)
         unit = {m: P["metrics"][m].get("unit", "") for m in w}
         hover = [" | ".join(f"{m} {human(S.loc[i, m], unit[m])}" for m in w)
                  + f"<br><b>{slug} {v:.2f}</b>" for i, v in d.items()]
-        plotly_bars(d.index.tolist(), d.tolist(), hover, f"{slug} index (0-100)").write_html(
+        plotly_bars(d.index.tolist(), d.tolist(), hover,
+                    f'{slug} {T["index scale"]}' + (f" ({iu})" if iu else "")).write_html(
             out / f"{n:02d}_index_{slug}.html", include_plotlyjs="cdn", full_html=False,
             config={"responsive": True, "displayModeBar": False})
 

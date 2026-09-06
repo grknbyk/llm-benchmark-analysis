@@ -219,11 +219,35 @@ Rules that keep a derived profile honest:
   and record the gap in `profile.json` under `gaps`.
 - Give every metric with a real unit a `unit` field, such as `$/1M`, `$/task`,
   `s` or `%`. It reaches the table headers and the chart tooltips. A column of
-  bare numbers that turn out to be seconds is worse than no column.
-- No invented proxy. Code Migration stands in for ERP legacy work because the
-  benchmark literally migrates code. When nothing on any of the ten sites
-  matches the stack's core task, say so and build the role from coding and
-  agentic alone.
+  bare numbers that turn out to be seconds is worse than no column. An index
+  column has no unit unless `normalize` is set, because only then is it on a
+  0-100 band.
+- Two lists in the engine hold one vendor generation's vocabulary and the
+  profile owns both. `name_strip` trims a display name for the table, and is
+  empty by default. `join_strip` drops effort words before two sites' model
+  names are matched, and defaults to a list containing `high`, `medium`, `low`
+  and `max`. Those are ordinary words: a vendor shipping "Qwen Max" or "Mistral
+  Medium" gets the product name eaten and can join onto a different model. The
+  engine warns when a strip leaves a key with no version digit in it. Take that
+  warning seriously and set `join_strip` rather than trusting the join.
+- No invented proxy. A benchmark stands in for a stack's work only when it
+  literally does that work: Code Migration suits legacy ERP porting because it
+  ports code. When nothing on any of the ten sites matches the stack's core
+  task, say so in `gaps` and build the role from coding and agentic alone. A
+  role built from two honest terms beats a role propped up by a benchmark whose
+  name merely rhymes with the stack.
+- Name the shortlist depth. `candidates.top_n` has no default, so without it
+  every model that clears the gate reaches the master table. Pick the number
+  from the market you are looking at, not from another report.
+- Say which way each metric runs. `"better": "low"` on a price, a latency or a
+  step count reaches the table sort and the header arrow. The engine only
+  guesses for `price_metric` and for terms a role transforms, and a guess on a
+  cost column puts the most expensive model at the top.
+- A site publishing several configs of one model needs a `where` filter to pin
+  the one you mean. Without it the engine keeps the row that won on the site's
+  headline column and prints how many rows it collapsed. Every field of that
+  metric comes off that one row, so pass@1, cost and duration always describe
+  the same run.
 - `overall` is a required block in the profile. Nothing adds it for you, and
   the engine exits if it is missing or names a metric you did not declare. Its
   weights are fixed so reports stay comparable: 0.30 coding + 0.25 agentic +
@@ -439,7 +463,12 @@ the gap.
 
 **Cheap alternative rule.** For each role, the cheap column holds the
 highest-scoring model that is within `max_points_behind` of the leader and at
-least `min_price_ratio` times cheaper. Defaults are 5 points and 3x. When nothing
+least `min_price_ratio` times cheaper. Defaults are 5 points and 3x. Those
+points are in the index's own units, which are not 0-100 unless `normalize` is
+set. The engine prints each index's span next to the tolerance on every run: an
+overall index spanning 6.0 points makes a 5.0 tolerance mean "almost anyone",
+and the same 5.0 against a `candidate_minmax` index spanning 100 means almost
+no one. Read the printed spans and set the number against them. When nothing
 qualifies, the cell says so. No fixed dollar threshold, because a threshold set
 today is wrong next month.
 

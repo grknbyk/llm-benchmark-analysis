@@ -101,9 +101,13 @@ def main():
     if not profiles:
         print("no reports/*/profile.json found; nothing to build")
         return
-    newest = max(json.loads(p.read_text(encoding="utf-8"))["data"] for p in profiles)
+    loaded = [json.loads(p.read_text(encoding="utf-8")) for p in profiles]
+    newest = max(d["data"] for d in loaded)
+    # The tab strip names the sites that actually scored the reports on this
+    # page. A fixed slice of SITES spotlights one stack's sources forever.
+    scoring = list(dict.fromkeys(s for d in loaded for s in d.get("scoring_sources", [])))
     tabs = "".join(f'<span class="{"" if i == 0 else "off"}">{s.upper()}</span>'
-                   for i, s in enumerate(["REPORTS"] + SITES[:4]))
+                   for i, s in enumerate(["REPORTS"] + scoring))
 
     html = (
         "<!doctype html><html lang=en><meta charset=utf-8>"

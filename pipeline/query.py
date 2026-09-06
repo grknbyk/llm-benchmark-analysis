@@ -1,8 +1,8 @@
 """Read rows out of a normalized.json without jq, so the pipeline needs nothing
 but Python on any machine.
 
-  python pipeline/query.py benchmark-data/20260904/artificial-analysis/normalized.json --model "Grok 4.6"
-  python pipeline/query.py benchmark-data/20260904/vals-ai/normalized.json --benchmark "Code Migration" --limit 20
+  python pipeline/query.py benchmark-data/<date>/<site>/normalized.json --model "<model>"
+  python pipeline/query.py benchmark-data/<date>/<site>/normalized.json --benchmark "<name>" --limit 20
 
 Filters are case-insensitive substring matches and combine with AND. Every
 filter is optional; with none, you get the first rows as they are stored.

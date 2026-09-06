@@ -37,6 +37,11 @@ DEFAULTS = {
     # index columns
     "computed in this report": "computed in this report",
     "weighted score": "Weighted score, 0 to 100, higher is better",
+    "weighted score raw": "Weighted score in the metrics' own units, higher is better",
+    "Overall": "Overall",
+    "Overall weighted index": "Overall weighted index",
+    "against the overall index": "against the overall index",
+    "index scale": "index",
     # the fill control and the empty cells it explains
     "missing benchmark": "missing benchmark",
     "exclude": "exclude",

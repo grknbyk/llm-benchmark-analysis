@@ -167,9 +167,10 @@ to decide whether to open the report without opening it.
 ## Visual language
 
 Warm paper background `#FBFAF6`, ink `#1A1A1A`, serif headings, monospace for
-anything a reader might compare digit by digit. The palette and the tab strip
-come from the Vals AI and DeepSWE leaderboards, which is deliberate: this report
-sits next to those pages in a reader's head.
+anything a reader might compare digit by digit. The palette reads as a
+leaderboard rather than a slide deck, which is the company a shortlist report
+keeps whatever the stack. It is not a tribute to any one site, so do not carry a
+particular leaderboard's colours into a report that never scored from it.
 
 ## Checking it
 
