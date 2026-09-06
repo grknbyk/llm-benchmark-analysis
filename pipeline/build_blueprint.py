@@ -108,10 +108,11 @@ def ph(label, cls=""):
 def sections():
     return [
         ("Read first",
-         "Full width. Four blocks, nothing longer. A reader who stops here should "
-         "already know what to buy: stack and data, the pick, the frontier, and "
-         "what this cannot measure.",
-         ph("stack and data") + ph("the pick") + ph("the frontier") + ph("limits")),
+         "Three blocks. The pick and the frontier are one thought, not two: the "
+         "frontier is the evidence behind the pick, so it reads as one block "
+         "that names the models and their prices.",
+         ph("stack and data") + ph("the pick, with the frontier behind it")
+         + ph("limits")),
 
         ("Indexes and picks",
          "One table, pasted from glance-table.md: index, weights, best model, "
@@ -137,26 +138,32 @@ def sections():
          '<div class="charts n1">' + ph("lead chart", "chart") + "</div>"
          + '<div class="charts n2">' + ph("chart", "chart") + ph("chart", "chart") + "</div>"),
 
-        ("One section per role",
-         "Repeats for each role. The formula sits under the heading as one line "
-         "of monospace. Chart left, table right, reasoning below both.",
-         ph("formula")
-         + '<div class="cols even"><div>' + ph("chart", "chart")
-         + "</div><div>" + ph("table", "tall") + "</div></div>"
-         + ph("pick, and the cheaper option", "text")),
+        ("&lt;Role name&gt; (0.30 a + 0.25 b + ...)",
+         "The formula is in the heading, so the section starts with the chart. "
+         "Bar chart left. Table right, and the pick sits under that table in the "
+         "same column, two or three lines. Repeats for each role.",
+         '<div class="cols even"><div>' + ph("bar chart", "chart")
+         + "</div><div>" + ph("table", "tall")
+         + ph("pick, and the cheaper option", "text") + "</div></div>"),
 
-        ("Cross-metric charts",
-         "What an index cannot answer: what a task costs, how many turns it "
-         "takes, how long it runs. Named in profile.json under scatters.",
-         '<div class="charts n1">' + ph("lead scatter", "chart") + "</div>"
-         + '<div class="charts n2">' + ph("scatter", "chart") + ph("scatter", "chart") + "</div>"),
+        ("Cost, turns and time against a benchmark",
+         "Built straight from the scrape, not from an index: cost against a "
+         "benchmark, turns against it, time against it. The benchmark is the "
+         "general one where a site has it, otherwise the one carrying the "
+         "highest weight in the profile. No such pair in the data means the "
+         "section does not appear at all. One chart takes a full row; two share "
+         "a row.",
+         '<div class="charts n2">' + ph("cost / benchmark", "chart")
+         + ph("turns / benchmark", "chart") + "</div>"
+         + '<div class="charts n1">' + ph("time / benchmark", "chart") + "</div>"),
 
         ("Stack tooling",
-         "One subsection per technology named in the stack, plus one for agent "
-         "tooling in general. Official and community stay separate, every claim "
-         "carries its date.",
-         ph("method and window") + ph("technology", "text")
-         + ph("technology", "text") + ph("agent tooling practice", "text")),
+         "No subsection per technology. One block per tool, tagged by what it "
+         "is and carrying its link, so the whole section is a short list rather "
+         "than four essays.",
+         ph("[MCP] name &middot; link &middot; official or community &middot; last commit")
+         + ph("[SKILL] name &middot; link &middot; official or community &middot; last commit")
+         + ph("[BEST PRACTICE] what changed in the window &middot; link &middot; date")),
 
         ("Caveats and references",
          "Caveats are numbered, one per limitation a reader would otherwise "
