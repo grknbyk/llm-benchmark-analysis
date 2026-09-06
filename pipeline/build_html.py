@@ -444,10 +444,12 @@ def side_by_side(html, roles=None, skip=()):
             return chunk
         c = re.search(r'<div class="charts[^"]*">.*?</figure>\s*</div>', chunk, re.S)
         if c and c.end() <= t.start():
+            # chart left, table right, and the pick under the table in the same
+            # column: it is about that table, not about the section
             head = chunk[:c.start()]
             tail = chunk[t.end():]
             return (head + '<div class="cols even"><div>' + c.group(0) + "</div><div>"
-                    + t.group(0) + "</div></div>" + tail)
+                    + t.group(0) + tail + "</div></div>")
         rest = chunk[t.end():]
         if "<p>" not in rest:
             return chunk
