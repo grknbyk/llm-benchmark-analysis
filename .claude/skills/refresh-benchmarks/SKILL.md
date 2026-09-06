@@ -51,15 +51,23 @@ the data.
 
 ```
 step 0  derive the profile          1 min
-step 1  scrape ten sites            20-30 min   |  ten agents, parallel
-step 3  research stack tooling      5-10 min    |  runs alongside step 1
-step 2  build indexes and charts    2 min
-step 4  write the report            5 min
-step 5  deploy                      1 min
+step 1  scrape ten sites            20-30 min   |  ten agents, parallel, sonnet
+step 3  research stack tooling      5-15 min    |  runs alongside step 1
+step 2  build indexes and charts    2 min       |  one engine run
+step 4  write the report            5-10 min    |  report-prose, report-visuals
+step 5  write files and commit      1 min       |  no publishing
 ```
 
 Steps 1 and 3 do not depend on the profile, so start them first and derive the
 profile while they run. The numbering follows the data, not the clock.
+
+A run with a saved profile and a populated data folder skips steps 0, 1 and 3
+and finishes in about ten minutes.
+
+Step 1 dominates the clock and the reason is contention, not model speed: ten
+agents share one browser and one selected-page pointer, so each one burns
+retries waiting for its turn. A site whose `meta.json` records a working Bash
+fetch finishes in minutes instead of an hour. Prefer that path where it exists.
 
 ## Layout
 
@@ -159,9 +167,16 @@ Only run this when the confirmation gate said to. The data is stack independent,
 so a populated folder for the chosen date means this step is already done.
 
 Otherwise create the folder and spawn ten agents in ONE message so they run in
-parallel, `subagent_type: "general-purpose"`, one site each. Do not pass a
-`model`: the agents inherit the session model, which is what the user wants
-unless they name one. Never Fable for scrape or search work.
+parallel, `subagent_type: "general-purpose"`, one site each, `model: "sonnet"`.
+
+Scraping is mechanical: read a `meta.json`, drive the browser, save three files,
+count the rows. It does not need the session model, and this is the step the
+whole run waits on. Never Fable for scrape or search work, and never Haiku here
+either: the retry loops around browser contention need judgement about whether a
+page is the right page.
+
+The step 3 research agents are different. They synthesise rather than extract,
+so they inherit the session model and take no `model` argument.
 
 Every agent prompt needs these parts, because leaving one out is what produces
 a folder that looks fine and is quietly wrong:
