@@ -86,6 +86,23 @@ are report columns; steps are what makes an efficient model visible.
 Seven models carry a client-side cost adjustment from an earlier run. Carry it
 forward while their underlying rows are unchanged, and note it.
 
+The site has a data view the artifact probe does not reach, because it is a
+page route rather than a file:
+
+```
+https://deepswe.datacurve.ai/data/v1.1?hm_stat=avg_duration_seconds&pivot=true
+```
+
+`hm_stat` selects which per-run statistic the page pivots. Read it each run and
+list the values it offers, because that list is the site's own statement of
+which numbers it considers publishable. Two things follow from it:
+
+- The artifact carries both `mean_` and `median_` variants of duration, steps,
+  cost and tokens. The page publishes the mean. A report that shows the median
+  and calls it the site's figure disagrees with the site.
+- A statistic that appears in `hm_stat` and not in the artifact is a gap. Probe
+  for it before assuming the artifact is complete.
+
 ## livebench
 
 `https://livebench.ai/`
@@ -137,6 +154,16 @@ folder without the guard firing.
 
 Scope trap: asking only for text, code and vision yields 90 of the 124
 leaderboards. Ask for every arena.
+
+The file uses two naming conventions at once. The text and webdev boards key on
+slugs, `claude-opus-5-max`. The agent boards key on display names, `Claude Opus
+5 (High)`. Both collapse to the same join key, so a de-duplicating join keeps
+one of them and silently drops every board the other one carried.
+
+That is why LMArena cannot be `scoring_sources[0]`. The first source defines the
+candidate universe, and here it would define it with 694 model strings including
+text-to-video and image-edit entries, then keep the alias with no webdev row.
+Use it as a second or third source, joined by name, and check the join table.
 
 ## terminal-bench
 

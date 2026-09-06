@@ -28,41 +28,17 @@ def _markdown():
 
 WIDE_AT = 8
 
+# Terms that mean the same thing in any report. Everything tied to one
+# site or one benchmark belongs in that profile's own `glossary` block,
+# which is merged over this at build time.
 GLOSSARY = {
-    "TTFT": "Time to first token: seconds from sending the request until the first output token arrives. "
-            "For Anthropic and OpenAI models this includes hidden reasoning time.",
-    "E2E": "End-to-end response time: median seconds from request to complete answer (Artificial Analysis).",
-    "AA-LCR": "Artificial Analysis Long Context Reasoning, 0-1. Proxy for handling large schemas and long packages.",
-    "Code Migration": "Vals AI benchmark: reimplement real programs in another language (CLI, COBOL, code quality "
-                      "subtasks). Private set, 0-100, published with stderr.",
-    "Code Mig.": "Vals AI Code Migration benchmark, 0-100.",
-    "CorpFin v2": "Vals AI benchmark: reasoning over long corporate credit agreements. 0-100, with stderr.",
-    "Non-halluc": "AA-Omniscience non-hallucination rate, 0-1: share of unknown questions where the model declines "
-                  "instead of inventing an answer.",
-    "non-hallucination": "AA-Omniscience non-hallucination rate, 0-1: share of unknown questions where the model "
-                         "declines instead of inventing an answer.",
-    "acc": "AA-Omniscience accuracy, 0-1: share of questions answered correctly. Read together with "
-           "non-hallucination: high refusal plus low accuracy means the model abstains rather than knows.",
-    "Coding": "Artificial Analysis Coding Index, 0-100.",
-    "Agentic": "Artificial Analysis Agentic Index, 0-100: multi-step, tool-using tasks.",
-    "$/1M": "Artificial Analysis blended price per 1M tokens at a 3:1 input:output ratio.",
-    "$/task": "DeepSWE v1.1 mean USD per completed task, thinking tokens included.",
     "pass@1": "Share of tasks solved on the first attempt.",
     "frontier": "Price and score frontier: the models nothing else in the candidate set beats on both price and overall index at the same time. Everything off it is beaten on both.",
     "stderr": "Standard error of the mean. A lead under two combined stderr is not significant.",
-    "DeepSWE": "Datacurve's long-horizon software engineering benchmark: 113 tasks across 91 repositories, every "
-               "model run under the mini-swe-agent scaffold.",
-    "mini-swe-agent": "The single agent scaffold DeepSWE uses for every model.",
-    "IFBench": "Instruction-following benchmark reported by Artificial Analysis, 0-1.",
     "Elo": "Rating from pairwise human votes. Differences under about 20 points are usually not meaningful.",
-    "MCP": "Model Context Protocol: the interface a model uses to reach an external tool or data source. "
-           "An MCP server is code that runs on your machine.",
-    "max effort": "Reasoning effort setting. Higher effort spends more thinking tokens; per-token price stays flat, "
-                  "cost per task does not.",
+    "MCP": "Model Context Protocol: the interface a model uses to reach an external tool or data source. An MCP server is code that runs on your machine.",
+    "max effort": "Reasoning effort setting. Higher effort spends more thinking tokens; per-token price stays flat, cost per task does not.",
     "xhigh": "Reasoning effort one step below max.",
-    "Intelligence Index": "Artificial Analysis composite of knowledge, reasoning, coding and agentic evals, 0-100.",
-    "Vals": "Vals AI, independent benchmark publisher (vals.ai).",
-    "Artificial Analysis": "Independent model benchmark and pricing tracker (artificialanalysis.ai).",
 }
 
 CSS = (

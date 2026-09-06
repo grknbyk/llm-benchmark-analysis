@@ -84,6 +84,12 @@ def series(df, spec, by):
         d = d[d.benchmark == spec["benchmark"]]
     if spec.get("metric"):
         d = d[d.metric == spec["metric"]]
+    # Some sites collapse many boards into one benchmark name and separate them
+    # with another column. Without this, "design-arena Elo" means the best of
+    # thirty-four boards, text-to-video included.
+    for col, want in (spec.get("where") or {}).items():
+        if col in d:
+            d = d[d[col].astype(str) == str(want)]
     if d.empty:
         return pd.Series(dtype=float), pd.Series(dtype=float)
     col = spec.get("field", "score")
@@ -93,11 +99,57 @@ def series(df, spec, by):
     return val, err
 
 
+# Substrings a display name loses before it reaches a chart. Vendors word the
+# effort setting differently and it eats half the width of the master table
+# without adding identity. A profile replaces this with its own `name_strip`,
+# because next year's vendors will word it differently again.
+NAME_STRIP = [["(Adaptive Reasoning, ", "("], [", Default Fallback", ""],
+              [" Effort", ""], ["Artificial Analysis ", ""]]
+_strip = [list(x) for x in NAME_STRIP]
+
+
 def short(m):
-    """Display label. The effort wording differs per vendor and eats half the
-    width of the master table without adding identity."""
-    return (str(m).replace("(Adaptive Reasoning, ", "(").replace(", Default Fallback", "")
-            .replace(" Effort", "").replace("Artificial Analysis ", "").strip())
+    out = str(m)
+    for old, new in _strip:
+        out = out.replace(old, new)
+    return out.strip()
+
+
+def terms(S, weights, transforms, normalize):
+    """One weighted part per metric, so every index is built the same way.
+
+    `normalize` decides what a weight means. Without it a weight is a share of
+    the metric's raw scale, and a metric spanning 48 points outvotes one
+    spanning 10 whatever the profile declared. With it, every term is stretched
+    to the same 0-100 band across the candidate set first, and a weight is a
+    share of influence.
+    """
+    parts = []
+    for m, wt in weights.items():
+        v = S[m]
+        if transforms.get(m) == "inverse_log_minmax":
+            v = minmax(v, invert=True, log=True)
+        elif transforms.get(m) == "log_minmax":
+            v = minmax(v, log=True)
+        elif normalize == "candidate_minmax":
+            v = minmax(v)
+        parts.append(v * wt)
+    return parts
+
+
+def influence(S, weights, transforms, normalize):
+    """What share of the spread each term actually drives. A profile declaring
+    0.40 on a term that drives 17% is not lying, it is unaware."""
+    out = {}
+    for m, wt in weights.items():
+        v = S[m].dropna()
+        if v.empty:
+            out[m] = 0.0
+            continue
+        wide = m in transforms or normalize == "candidate_minmax"
+        out[m] = wt * (100.0 if wide else float(v.max() - v.min()))
+    tot = sum(out.values()) or 1.0
+    return {m: 100 * v / tot for m, v in out.items()}
 
 
 def minmax(s, invert=False, log=False):
@@ -180,6 +232,8 @@ def human(v, unit):
 
 
 def label_spots(xs, ys, labels, log_x):
+    if len(xs) == 0:
+        return []
     """One text position per point, chosen so labels do not land on each other.
 
     Plotly has no collision handling for scatter text, so this does the two
@@ -284,7 +338,7 @@ def frontier(d, score, price):
 
 
 def plotly_price_tabs(S, price, unit, indexes, log_label="log scale", note_of=None,
-                      breakdown=None):
+                      breakdown=None, price_label="price"):
     """Price against a chosen index, one tab per index.
 
     Each tab is two traces, the frontier line and the markers, so switching a
@@ -294,8 +348,12 @@ def plotly_price_tabs(S, price, unit, indexes, log_label="log scale", note_of=No
     import plotly.graph_objects as go
     fig = go.Figure()
     spans, notes = [], []
-    for slug, name in indexes:
+    for slug, name in list(indexes):
         d = S[[price, slug]].dropna()
+        if d.empty:
+            indexes = [i for i in indexes if i[0] != slug]
+            print(f"  skipped tab {slug}: no model has both a price and a score")
+            continue
         front = frontier(d, slug, price)
         f = d.loc[front].sort_values(price)
         tags = [short(m) if m in front else "" for m in d.index]
@@ -311,7 +369,7 @@ def plotly_price_tabs(S, price, unit, indexes, log_label="log scale", note_of=No
                         line=dict(color=INK, width=1.1)),
             customdata=list(zip(d.index, [human(v, unit) for v in d[price]],
                                [(breakdown or {}).get(slug, {}).get(m, "") for m in d.index])),
-            hovertemplate=f"%{{customdata[0]}}<br>price %{{customdata[1]}}"
+            hovertemplate=f"%{{customdata[0]}}<br>{price_label} %{{customdata[1]}}"
                           f"<br><b>{name} %{{y:.2f}}</b>"
                           f"<br>%{{customdata[2]}}<extra></extra>"))
         spans.append((len(d), len(front)))
@@ -346,7 +404,7 @@ def plotly_price_tabs(S, price, unit, indexes, log_label="log scale", note_of=No
                           font=dict(family=MONO, size=11, color=INK), buttons=buttons)])
     lo, hi = float(S[price].min()), float(S[price].max())
     t = [v * 10 ** k for k in range(-4, 5) for v in (1, 2, 5) if lo * 0.9 <= v * 10 ** k <= hi * 1.1]
-    fig.update_xaxes(type="log", title=f"blended price ({unit}), {log_label}",
+    fig.update_xaxes(type="log", title=f"{price_label} ({unit}), {log_label}",
                      tickmode="array", tickvals=t, ticktext=[f"{v:g}" for v in t],
                      showgrid=True, gridcolor="#c8c8c8", griddash="dot")
     fig.update_yaxes(title=f"{indexes[0][1]} (0-100)", showgrid=True,
@@ -363,6 +421,7 @@ def main(profile_path):
     out.mkdir(parents=True, exist_ok=True)
     stamp = P.get("stamp", P["slug"].upper())
     T = strings(P)
+    _strip[:] = [list(x) for x in P.get("name_strip", NAME_STRIP)]
 
     frames = {s: load(base, s) for s in P["scoring_sources"]}
     primary = P["scoring_sources"][0]
@@ -394,12 +453,27 @@ def main(profile_path):
     S = pd.DataFrame({**cols, **errs}).reindex(names.index)
 
     # candidates: the deepest slice that still has a price and the overall inputs
-    ow = P["overall"]
-    S["overall"] = sum(S[m] * w for m, w in ow.items())
-    S["overall_zero"] = sum((S[m] * w).fillna(0) for m, w in ow.items())
-    S = S.dropna(subset=["overall"])
-    if "price" in S:
-        S = S[S.price.notna()]
+    pmetric = P.get("price_metric", "price")
+    norm = P.get("normalize")
+    ow = P.get("overall") or {}
+    if not ow:
+        sys.exit("profile has no `overall` block. It is a weights dict like the roles, "
+                 "for example {\"coding\": 0.30, \"agentic\": 0.25, \"lcr\": 0.15, "
+                 "\"nh\": 0.15, \"acc\": 0.15}. Nothing adds it for you.")
+    absent = [m for m in ow if m not in S]
+    if absent:
+        sys.exit(f"`overall` names metrics the profile does not declare: {absent}")
+    oparts = terms(S, ow, {}, norm)
+    S["overall"] = sum(oparts)
+    S["overall_zero"] = sum(p_.fillna(0) for p_ in oparts)
+    # Which models are candidates at all. Gating on `overall` lets the overall
+    # inputs decide the population of every report, so a profile scoring from a
+    # site that publishes none of them has to name its own gate.
+    gate = P.get("gate", "overall")
+    if gate:
+        S = S.dropna(subset=[gate])
+    if pmetric in S:
+        S = S[S[pmetric].notna()]
     S = S.sort_values("overall", ascending=False)
     cand = P.get("candidates", {})
     if cand.get("one_variant_per_model", True):
@@ -409,6 +483,24 @@ def main(profile_path):
     S = S.head(cand.get("top_n", 14))
     S.index = [short(m) for m in S.index]
 
+    # Coverage over the candidate set, which is the only coverage deciding
+    # whether a column prints. A benchmark can cover 450 models on its own site
+    # and two of the fourteen here.
+    print("\ncoverage over the candidates")
+    thin = []
+    for m_ in P["metrics"]:
+        if m_ not in S:
+            continue
+        n_ = int(S[m_].notna().sum())
+        flag = "  THIN" if n_ < 0.7 * len(S) else ""
+        print(f"  {m_:<12} {n_:>3}/{len(S)}{flag}")
+        if flag:
+            thin.append(m_)
+    weighted = {m_ for r_ in P["roles"] for m_ in r_["weights"]} | set(ow)
+    for m_ in sorted(set(thin) & weighted):
+        print(f"  warning: {m_} is weighted in an index and covers "
+              f"{int(S[m_].notna().sum())} of {len(S)} candidates")
+
     # The other reading of an empty cell: not "this model would have scored
     # nothing" but "this model would have been ordinary". Published scores use
     # neither.
@@ -416,18 +508,21 @@ def main(profile_path):
     med = S[metric_names].median()
     M = S.copy()
     M[metric_names] = S[metric_names].fillna(med)
-    S["overall_median"] = sum(M[m] * w for m, w in ow.items())
+    S["overall_median"] = sum(terms(M, ow, {}, norm))
 
     # role indexes
     tabs_ = ["OVERALL"] + [r["slug"].upper() for r in P["roles"]]
+    print("\nwhat each weight actually drives"
+          + ("" if norm else "   (no `normalize` set: a weight is a share of raw scale)"))
+    for slug_, w_, tr_ in [("overall", ow, {})] + \
+            [(r_["slug"], r_["weights"], r_.get("transforms", {})) for r_ in P["roles"]]:
+        sh = influence(S, w_, tr_, norm)
+        print(f"  {slug_:<12} " + "  ".join(
+            f"{m_} {w_[m_]:g}->{sh[m_]:.0f}%" for m_ in sorted(w_, key=lambda x: -sh[x])))
+
     for role in P["roles"]:
         w, tr = role["weights"], role.get("transforms", {})
-        parts = []
-        for m, wt in w.items():
-            v = S[m]
-            if tr.get(m) == "inverse_log_minmax":
-                v = minmax(v, invert=True, log=True)
-            parts.append(v * wt)
+        parts = terms(S, w, tr, norm)
         S[role["slug"]] = sum(parts)
         # The same index with a missing term contributing nothing. It is not the
         # published score: a model is excluded from a role it lacks an input for.
@@ -435,13 +530,7 @@ def main(profile_path):
         # absence were read as zero, which is the question a reader asks the
         # moment they see an empty cell.
         S[role["slug"] + "_zero"] = sum(p.fillna(0) for p in parts)
-        mparts = []
-        for m, wt in w.items():
-            v = M[m]
-            if tr.get(m) == "inverse_log_minmax":
-                v = minmax(v, invert=True, log=True)
-            mparts.append(v * wt)
-        S[role["slug"] + "_median"] = sum(mparts)
+        S[role["slug"] + "_median"] = sum(terms(M, w, tr, norm))
 
     # grouped by source site so the HTML can span a header over each run,
     # then the role columns, then overall
@@ -487,10 +576,10 @@ def main(profile_path):
             continue
         lead = d.index[0]
         cheap = None
-        if "price" in S:
-            lp = S.price.get(lead)
+        if pmetric in S:
+            lp = S[pmetric].get(lead)
             for m in d.index[1:]:
-                mp = S.price.get(m)
+                mp = S[pmetric].get(m)
                 if pd.notna(lp) and pd.notna(mp) and mp > 0 and \
                         d[lead] - d[m] <= ca["max_points_behind"] and lp / mp >= ca["min_price_ratio"]:
                     cheap = {"model": m, "score": round(float(d[m]), 2), "price": float(mp),
@@ -498,7 +587,8 @@ def main(profile_path):
                              "times_cheaper": round(float(lp / mp), 1)}
                     break
         picks[slug] = {"best": {"model": lead, "score": round(float(d[lead]), 2),
-                                "price": None if "price" not in S or pd.isna(S.price.get(lead)) else float(S.price[lead])},
+                                "price": None if pmetric not in S or pd.isna(S[pmetric].get(lead))
+                                else float(S[pmetric][lead])},
                        "cheap": cheap}
     # one machine-readable artifact: raw benchmark values, the formula behind
     # every role, the resulting scores and the picks. Whoever reads the report
@@ -601,7 +691,7 @@ def main(profile_path):
         for m, r in d.iterrows():
             ax.annotate(short(m), (r[pm], r["overall"]), textcoords="offset points",
                         xytext=(0, 9), ha="center", fontsize=8, color="#555")
-        ax.set_xlabel(f"blended price ({unit_p}), log scale")
+        ax.set_xlabel(f"{P['metrics'][pm].get('label') or pm} ({unit_p}), log scale")
         ax.set_ylabel("overall index (0-100)")
         ax.grid(True, which="both", axis="x", linestyle=(0, (1, 5)), color="#B5B5B5", linewidth=0.7)
         fig.savefig(out / "00_price_vs_overall.png", dpi=170)
@@ -613,6 +703,7 @@ def main(profile_path):
             T["log scale"],
             lambda a, b: f'{a} {T["models with a price"]}  ·  {b} {T["on the frontier"]}',
             breakdown,
+            P["metrics"][pm].get("label") or pm,
         ).write_html(
             out / "00_price_vs_overall.html", include_plotlyjs="cdn", full_html=False,
             config={"responsive": True, "displayModeBar": False})

@@ -122,6 +122,16 @@ It prints every `site | benchmark | metric` triple with the number of models
 carrying it. A metric covering three models cannot rank ten, so coverage is the
 first filter.
 
+**Those counts are over the whole site, not over your candidates, and the gap
+is enormous.** In the 20260906 scrape IFBench covers 450 models and two of the
+fourteen ERP candidates; Terminal-Bench Hard and Tau2-Bench Telecom the same.
+The candidates are the newest models, and a benchmark that has not re-run since
+July has not scored them. Since a model missing an input is excluded from that
+index, a metric like that publishes a column with two rows in it.
+
+The engine prints coverage over the candidate set after trimming and warns on
+any weighted metric under 70%. Read that block before believing a weight.
+
 Then write `reports/<today>-<slug>/profile.json`:
 
 ```json
@@ -134,8 +144,10 @@ Then write `reports/<today>-<slug>/profile.json`:
   "metrics": {
     "coding": {"site": "artificial-analysis", "benchmark": "Artificial Analysis Coding Index", "metric": "score"},
     "price": {"site": "artificial-analysis", "metric": "blended_price_per_1m_usd_3to1", "unit": "$/1M"},
-    "webdev": {"site": "lmarena", "benchmark": "webdev-overall-raw", "metric": "arena_score", "scale": 1}
+    "webdev": {"site": "lmarena", "benchmark": "webdev-overall-raw", "metric": "arena_score",
+               "unit": "Elo", "plain": "How often people prefer its web UI in a blind vote."}
   },
+  "normalize": "candidate_minmax",
   "roles": [
     {"name": "Component authoring", "weights": {"coding": 0.40, "webdev": 0.30, "nh": 0.30}}
   ],
@@ -196,6 +208,12 @@ Rules that keep a derived profile honest:
   "Role B" does not.
 - Weights inside a role sum to 1.00. Never renormalise a weight to paper over a
   missing input.
+- A metric on a different scale from the rest cannot enter a raw weighted sum.
+  An Elo runs 900 to 1900 and a 0.30 weight on it would drown four terms scored
+  0 to 100. Either set `"normalize": "candidate_minmax"` on the profile, which
+  puts every term on the same band, or give the metric a `transforms` entry.
+  The engine knows `inverse_log_minmax` for a lower-is-better metric such as
+  price or latency, and `log_minmax` for a higher-is-better one.
 - Every metric in `metrics` must appear in the catalogue output. If a role wants
   something the data does not have, drop that term, redistribute across the rest
   and record the gap in `profile.json` under `gaps`.
@@ -206,9 +224,12 @@ Rules that keep a derived profile honest:
   benchmark literally migrates code. When nothing on any of the ten sites
   matches the stack's core task, say so and build the role from coding and
   agentic alone.
-- `overall` is added automatically and stays stack independent, so reports stay
-  comparable: 0.30 coding + 0.25 agentic + 0.15 long context + 0.15
-  non-hallucination + 0.15 accuracy.
+- `overall` is a required block in the profile. Nothing adds it for you, and
+  the engine exits if it is missing or names a metric you did not declare. Its
+  weights are fixed so reports stay comparable: 0.30 coding + 0.25 agentic +
+  0.15 long context + 0.15 non-hallucination + 0.15 accuracy. If your scoring
+  sources publish none of those, you cannot use the standard `overall`; declare
+  your own and say in the report that the number is not comparable to any other.
 
 A weight caught after the report is written costs a rebuild.
 
@@ -246,6 +267,42 @@ a folder that looks fine and is quietly wrong:
 - Verify and report: record counts old versus new, and the specific rows for the
   models the user is asking about. Absent means say absent. Never fabricate.
 - Do not touch previous date folders, `reports/`, or another site's folder.
+
+### The machine writes the numbers, never you
+
+An agent that reads a table on screen and types the values into a file is not
+scraping, it is transcribing, and a transcription error looks exactly like data.
+Every value in `raw.json` and `normalized.json` has to arrive there without
+passing through the model's output.
+
+The shape that satisfies this: run JavaScript in the page, build the array or
+the object there, and hand it to `evaluate_script`'s `filePath` option so the
+tool writes the file. The model never sees the rows.
+
+```js
+// inside evaluate_script, with the href guard above it
+const rows = [...document.querySelectorAll('table tbody tr')].map(tr =>
+  [...tr.cells].map(td => td.textContent.trim()));
+return {header: [...document.querySelectorAll('table thead th')].map(th => th.textContent.trim()),
+        rows};                 // saved through filePath, not printed
+```
+
+Better still where the site has one: fetch the JSON artifact the page itself
+loads, same origin, and save the response verbatim. A leaderboard almost always
+has one; probe for it before writing a DOM walker.
+
+Three consequences worth stating plainly:
+
+- **Never print rows into the transcript and then write them.** If you can read
+  a number, you can mistype it, and nothing downstream will catch it.
+- **A screenshot is not a source.** Reading values off an image is the same
+  error with an extra step.
+- **Check the file on disk after every save.** A guard that throws leaves no
+  file; a guard that returns an object writes that object as if it were data.
+  Size on disk is the cheapest check there is.
+
+CSV is acceptable where the site offers a download and JSON does not exist, but
+it goes through the same route: the page or the tool writes it.
 
 ### Browser rules for every agent
 
@@ -359,6 +416,16 @@ next to the profile:
   role, the resulting scores and the picks. Anyone can re-derive a number from
   it without touching the scrapes.
 - `master-table.md` and `glance-table.md`, ready to paste into the report.
+
+**A weight is not an influence.** By default the engine sums raw metric
+values, so a term's real authority is its weight times its spread across the
+candidates. In the ERP profile `quality` declares 0.40 coding and 0.30
+non-hallucination, and non-hallucination drives 62% of the ordering against
+coding's 17%, because one spans 48 points and the other 10. The engine prints
+the real share per term on every run. Two ways out, and you must pick one
+knowingly: set `"normalize": "candidate_minmax"` in the profile, which stretches
+every term to the same band so a weight means what it says, or leave it off and
+choose weights against the printed spreads.
 
 **Every calculation belongs to the script.** Set the weights in
 `profile.json`, then read what comes out. Do not add, average, rank or convert
