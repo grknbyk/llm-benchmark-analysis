@@ -78,15 +78,19 @@ CSS = (
     ".card b~b{margin-top:9px}"
     "table.wide td.na{color:#A8452F;background:#FBEFEA;text-align:center;font-size:11px}"
     ".tablewrap{position:relative}"
-    ".tablewrap>.switch{position:absolute;left:0;top:108px;z-index:3;max-width:300px}"
+    ".tablewrap>.switch{position:absolute;left:0;top:52px;z-index:3;max-width:300px}"
     ".switch{display:inline-flex;align-items:center;gap:9px;font:12px monospace;color:#4a4a4a;"
     "border:1px solid #d3cfc0;background:#F5F3EB;padding:7px 11px;border-radius:3px;cursor:pointer;user-select:none;line-height:1.35}"
-    ".switch input{appearance:none;-webkit-appearance:none;flex:none;width:34px;height:18px;"
-    "border-radius:9px;background:#cfcabb;position:relative;margin:0;cursor:pointer;transition:background .15s}"
-    ".switch input::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;"
-    "border-radius:50%;background:#fff;transition:left .15s}"
-    ".switch input:checked{background:#A8452F}"
-    ".switch input:checked::after{left:18px}"
+    ".switch{flex-direction:column;align-items:flex-start;gap:3px}"
+    ".switch b{font:11px monospace;color:#6a6a6a;letter-spacing:.04em;text-transform:uppercase;margin-bottom:2px}"
+    ".switch label{display:flex;align-items:center;gap:7px;cursor:pointer}"
+    ".switch input{appearance:none;-webkit-appearance:none;flex:none;width:12px;height:12px;"
+    "border:1px solid #b0aa99;border-radius:50%;background:#fff;margin:0;cursor:pointer}"
+    ".switch input:checked{border-color:#A8452F;background:#A8452F;box-shadow:inset 0 0 0 2px #fff}"
+    "table.wide th.sortable{cursor:pointer}"
+    "table.wide th[data-dir]>span{border-color:#A8452F;color:#A8452F}"
+    ".rowcount{font:12px monospace;color:#6a6a6a;margin-top:6px}"
+    ".rowcount a{color:#A8452F}"
     "@media(max-width:900px){.tablewrap>.switch{position:static;margin:12px 0;max-width:none}}"
     "@media(max-width:900px){.cols{grid-template-columns:1fr;gap:0}}"
     "table.wide th{background:none;border:none;height:150px;vertical-align:bottom;padding:0 0 4px}"
@@ -102,6 +106,7 @@ CSS = (
     "table.wide tr.grp th{height:auto;position:static;padding:2px 6px;text-align:center;"
     "font:11px monospace;color:#4a4a4a;letter-spacing:.04em;border:1px solid #c9c5b4;background:#EFEDE3}"
     "table.wide tr.grp th:first-child{border:none;background:none}"
+    "table.wide tr.grp a{color:#4a4a4a;text-decoration:underline dotted #9a9484}"
     "table.grouped th.gs,table.grouped tr:not(.grp) td.gs{border-left:2px solid #b8b3a1}"
     "table.grouped th:last-child,table.grouped tr:not(.grp) td:last-child{border-right:2px solid #b8b3a1}"
 )
@@ -175,30 +180,85 @@ TH = re.compile(r"<th(?:\s[^>]*)?>(.*?)</th>", re.S)  # (?:\s...) so <thead> is 
 
 JS = """<script>
 (() => {
-  const box = document.getElementById('zerofill');
   const table = document.querySelector('table.grouped');
-  if (!box || !table) return;
+  if (!table) return;
+  const wrap = table.closest('.tablewrap');
   const body = table.tBodies[0];
   const rows = [...body.rows];
   rows.forEach((r, i) => r.dataset.rank = i);
-  const last = rows[0].cells.length - 1;
-  box.addEventListener('change', () => {
-    const on = box.checked;
+  const heads = [...table.tHead.rows].pop().cells;
+  const LIMIT = 10;
+
+  // published order until the reader asks for something else
+  let fill = null, col = null, dir = -1, all = false;
+
+  const note = document.createElement('div');
+  note.className = 'rowcount';
+  wrap.appendChild(note);
+
+  const num = (r, i) => {
+    const t = r.cells[i].textContent.trim();
+    const v = parseFloat(t);
+    return isNaN(v) ? null : v;
+  };
+
+  function paint() {
     table.querySelectorAll('td[data-zero]').forEach(td => {
       if (td.dataset.orig === undefined) td.dataset.orig = td.textContent;
-      td.textContent = on ? td.dataset.zero : td.dataset.orig;
+      const v = fill === null ? td.dataset.orig : td.dataset[fill];
+      td.textContent = v === undefined ? td.dataset.orig : v;
     });
-    const order = on
-      ? [...rows].sort((a, b) =>
-          parseFloat(b.cells[last].textContent) - parseFloat(a.cells[last].textContent))
-      : [...rows].sort((a, b) => a.dataset.rank - b.dataset.rank);
-    order.forEach(r => body.appendChild(r));
+  }
+
+  function order() {
+    if (col === null) return [...rows].sort((a, b) => a.dataset.rank - b.dataset.rank);
+    if (col === 0) return [...rows].sort((a, b) =>
+      dir * a.cells[0].textContent.localeCompare(b.cells[0].textContent));
+    return [...rows].sort((a, b) => {
+      const x = num(a, col), y = num(b, col);
+      if (x === null && y === null) return 0;
+      if (x === null) return 1;          // absent sinks, whichever way we sort
+      if (y === null) return -1;
+      return dir * (y - x);
+    });
+  }
+
+  function render() {
+    paint();
+    const o = order();
+    o.forEach(r => body.appendChild(r));
+    o.forEach((r, i) => r.hidden = !all && i >= LIMIT);
+    const hidden = Math.max(0, rows.length - LIMIT);
+    note.innerHTML = (all || !hidden)
+      ? `${rows.length} models` + (hidden ? ' &middot; <a href="#">show top 10</a>' : '')
+      : `top ${LIMIT} of ${rows.length} &middot; <a href="#">show all</a>`;
+    const a = note.querySelector('a');
+    if (a) a.onclick = e => { e.preventDefault(); all = !all; render(); };
+  }
+
+  document.querySelectorAll('input[name=fill]').forEach(r =>
+    r.addEventListener('change', () => { fill = r.value === 'exclude' ? null : r.value; render(); }));
+
+  [...heads].forEach((th, i) => {
+    th.classList.add('sortable');
+    th.addEventListener('click', () => {
+      // dir 1 sorts high to low. First click shows the best models, so a
+      // column where lower wins starts the other way round.
+      const asc = th.dataset.better === 'low';
+      dir = (col === i) ? -dir : (i === 0 ? 1 : (asc ? -1 : 1));
+      col = i;
+      [...heads].forEach(h => h.removeAttribute('data-dir'));
+      th.dataset.dir = dir > 0 ? 'desc' : 'asc';
+      render();
+    });
   });
+
+  render();
 })();
 </script>"""
 
 
-def group_row(columns):
+def group_row(columns, sites=None):
     """One header cell per run of columns from the same source, so a reader can
     see at a glance which site a number came from. Columns arrive already sorted
     by site, so consecutive runs are the whole story."""
@@ -208,12 +268,14 @@ def group_row(columns):
         if c["site"] == site:
             span += 1
             continue
-        cells.append(f'<th class="grp" colspan="{span}">{site}</th>')
+        url = (sites or {}).get(site)
+        text = f'<a href="{url}" target="_blank" rel="noopener">{site}</a>' if url else site
+        cells.append(f'<th class="grp" colspan="{span}">{text}</th>')
         site, span = c["site"], 1
     return '<tr class="grp">' + "".join(cells) + "</tr>"
 
 
-def mark_cells(block, columns, roles=None):
+def mark_cells(block, columns, roles=None, medians=None):
     """Tag the first cell of each site run so the CSS can draw one rule down the
     whole table, and give every empty cell a reason. A colspan label alone
     leaves a reader counting columns, and a blank cell alone reads as an
@@ -229,6 +291,7 @@ def mark_cells(block, columns, roles=None):
             site = c["site"]
 
     by_slug = {r["slug"]: r for r in (roles or [])}
+    med = medians or {}
     gaps = {sl: {g["model"]: g["missing"] for g in r.get("not_scored", [])}
             for sl, r in by_slug.items()}
 
@@ -238,8 +301,11 @@ def mark_cells(block, columns, roles=None):
         empty = re.fullmatch(r"<td[^>]*>\s*</td>\s*", c) is not None
         attrs = ' class="gs"' if i + 1 in starts else ""
         if col["site"] == "index":
-            zero = (by_slug.get(col["name"], {}).get("scores_zero") or {}).get(model)
-            zattr = f' data-zero="{zero:.2f}"' if isinstance(zero, (int, float)) else ""
+            role = by_slug.get(col["name"], {})
+            zero = (role.get("scores_zero") or {}).get(model)
+            mid = (role.get("scores_median") or {}).get(model)
+            zattr = (f' data-zero="{zero:.2f}"' if isinstance(zero, (int, float)) else "") + \
+                    (f' data-median="{mid:.2f}"' if isinstance(mid, (int, float)) else "")
             if empty:
                 miss = " or ".join(gaps.get(col["name"], {}).get(model, [])) or "an input"
                 title = (f"{model} is not scored on {col['label']}: no {miss}. "
@@ -249,7 +315,10 @@ def mark_cells(block, columns, roles=None):
         if empty:
             title = (f"{col['label']}: {col['site']} publishes no row for {model}. "
                      f"Nothing is assumed in its place.")
-            return f'<td class="na{" gs" if i + 1 in starts else ""}" data-zero="0" title="{title}">n/a</td>'
+            mid = med.get(col["name"])
+            mattr = f' data-median="{mid:g}"' if isinstance(mid, (int, float)) else ""
+            return (f'<td class="na{" gs" if i + 1 in starts else ""}" data-zero="0"{mattr}'
+                    f' title="{title}">n/a</td>')
         return re.sub(r"^<td", f"<td{attrs}", c, count=1) if attrs else c
 
     def row(m):
@@ -266,14 +335,18 @@ def mark_cells(block, columns, roles=None):
     return re.sub(r"<tr>.*?</tr>", row, block, flags=re.S)
 
 
-def switch():
+def modes():
     """The question an empty cell provokes, offered as a control rather than a
-    paragraph. Off is the published ranking."""
-    return ('<label class="switch"><input type="checkbox" id="zerofill">'
-            "<span>missing input = 0, re-rank</span></label>")
+    paragraph. Nothing is preselected, so the table opens on the published
+    scores and a fill is always something the reader chose."""
+    opts = [("exclude", "exclude"), ("zero", "fill 0"), ("median", "fill median")]
+    radios = "".join(
+        f'<label><input type="radio" name="fill" value="{v}"><span>{t}</span></label>'
+        for v, t in opts)
+    return f'<div class="switch"><b>missing input</b>{radios}</div>'
 
 
-def rotate_wide(html, columns=None, roles=None):
+def rotate_wide(html, columns=None, roles=None, medians=None, sites=None):
     """A table past WIDE_AT columns is unreadable with flat headers, so rotate
     them. The header text moves into a span because a rotated th collapses the
     row height otherwise."""
@@ -300,45 +373,34 @@ def rotate_wide(html, columns=None, roles=None):
             label = columns[i - 1].get("label") if aligned and i else None
             full = f"{plain}\n{label}" if label and label != plain else plain
             title = "" if i == 0 else f' title="{full.replace(chr(34), chr(39))}"'
-            return f"<th{title}><span>{inner}</span></th>"
+            better = ""
+            if aligned and i:
+                better = f' data-better="{columns[i - 1].get("better", "high")}"'
+            return f"<th{title}{better}><span>{inner}</span></th>"
 
         head_new = TH.sub(head_cell, new.split("</thead>")[0])
         # only when the column count lines up, so a second wide table in the
         # report cannot pick up the master table's grouping by accident
         if aligned:
-            head_new = head_new.replace("<thead>", "<thead>\n" + group_row(columns), 1)
+            head_new = head_new.replace("<thead>", "<thead>\n" + group_row(columns, sites), 1)
         new = head_new + "</thead>" + new.split("</thead>", 1)[1]
         if aligned:
-            new = mark_cells(new, columns, roles)
-            return f'<div class="tablewrap">{switch()}<div class="scroll">{new}</div></div>'
+            new = mark_cells(new, columns, roles, medians)
+            return f'<div class="tablewrap">{modes()}<div class="scroll">{new}</div></div>'
         return f'<div class="scroll">{new}</div>'
     return TABLE.sub(fix, html)
 
 
-def role_card(role):
-    """Formula first, because it explains the column the reader just looked at.
-    Then the candidates the role could not score, named with the input each one
-    lacked. An empty cell is a fact, and this is where it gets said."""
-    out = [f'<b>How this index is built</b>{role["formula"]}']
-    gaps = role.get("not_scored") or []
-    if gaps:
-        out.append("<b>Not scored</b>" + "<br>".join(
-            f'{g["model"]}, no {" or ".join(g["missing"])}' for g in gaps))
-    return '<div class="card">' + "".join(out) + "</div>"
-
-
 def pair_sections(html, pairs):
-    """Put the second named section beside the first, in that order, and take it
-    out of its old place. Both keep their own heading, so a reader still has two
-    labelled tables rather than one merged mystery.
-
-    Only the tables sit in the columns. Whatever follows a table drops below the
-    pair at full width, because prose in one column stretches the row and leaves
-    a hole under the other table."""
+    """Put the second named section beside the first and take it out of its old
+    place. Only the tables sit in the columns; anything after a table drops
+    below the pair at full width."""
     chunks = re.findall(r"<h2>.*?(?=<h2>|$)", html, flags=re.S)
-    head = html[:html.index(chunks[0])] if chunks else html
+    if not chunks:
+        return html
+    head = html[:html.index(chunks[0])]
     named = {re.search(r"<h2>(.*?)</h2>", c).group(1): c for c in chunks}
-    order = [c for c in chunks]
+    order = list(chunks)
     for a_, b_ in pairs or []:
         if a_ not in named or b_ not in named:
             continue
@@ -356,27 +418,33 @@ def pair_sections(html, pairs):
 
 
 def side_by_side(html, roles=None, skip=()):
-    """A role section is a small table and three short paragraphs about it. Read
-    down the page they are two thirds white space, so pair them: the table on
-    the left at its natural width, the reasoning filling the rest.
+    """Two columns wherever a section has two things that read side by side.
 
-    Only plain tables qualify. The master table is `<table class="wide">` inside
-    a scroll container and has to keep the full width it already needs."""
+    A role section is a chart and a four row table: chart left, table right,
+    the reasoning below both at full width. A section with a table and prose
+    puts the table left and the prose right.
+
+    The master table is excluded: it is `<table class="wide">` in a scroll
+    container and needs every pixel it has.
+    """
     def fix(m):
         chunk = m.group(0)
+        name = re.search(r"<h2>(.*?)</h2>", chunk)
+        if (name.group(1) if name else None) in skip:
+            return chunk
         t = re.search(r"<table>.*?</table>", chunk, re.S)
         if not t:
             return chunk
+        c = re.search(r'<div class="charts[^"]*">.*?</figure>\s*</div>', chunk, re.S)
+        if c and c.end() <= t.start():
+            head = chunk[:c.start()]
+            tail = chunk[t.end():]
+            return (head + '<div class="cols even"><div>' + c.group(0) + "</div><div>"
+                    + t.group(0) + "</div></div>" + tail)
         rest = chunk[t.end():]
-        if "<p>" not in rest:            # nothing to put beside it
+        if "<p>" not in rest:
             return chunk
-        name = re.search(r"<h2>(.*?)</h2>", chunk)
-        title = name.group(1) if name else None
-        if title in skip:            # it is going into a half width column
-            return chunk
-        role = next((r for r in (roles or []) if r["name"] == title), None)
-        left = t.group(0) + (role_card(role) if role else "")
-        return (chunk[:t.start()] + '<div class="cols"><div>' + left
+        return (chunk[:t.start()] + '<div class="cols"><div>' + t.group(0)
                 + "</div><div>" + rest + "</div></div>")
 
     return re.sub(r"<h2>.*?(?=<h2>|$)", fix, html, flags=re.S)
@@ -396,10 +464,10 @@ def main(profile_path):
     md_text = swap_charts(add_tooltips(src.read_text(encoding="utf-8")), here)
     body = markdown.markdown(md_text, extensions=["tables", "fenced_code", "md_in_html"])
     pairs = P.get("pair_sections") or []
-    body = side_by_side(rotate_wide(body, columns, roles), roles,
+    body = side_by_side(rotate_wide(body, columns, roles, data.get("medians"), data.get("sites")), roles,
                         skip={n for pair in pairs for n in pair})
     body = pair_sections(body, pairs)
-    script = JS if 'id="zerofill"' in body else ""
+    script = JS if 'name="fill"' in body else ""
     dst.write_text(f'<!doctype html><meta charset=utf-8><title>{P["title"]}</title>'
                    f"<style>{CSS}</style>{body}{script}", encoding="utf-8")
     print("wrote", dst.name, "tooltips:", body.count("<abbr"), "wide tables:", body.count('class="wide'))

@@ -250,6 +250,15 @@ def main(profile_path):
     S = S.head(cand.get("top_n", 14))
     S.index = [short(m) for m in S.index]
 
+    # The other reading of an empty cell: not "this model would have scored
+    # nothing" but "this model would have been ordinary". Published scores use
+    # neither.
+    metric_names = [m for m in P["metrics"] if m in S]
+    med = S[metric_names].median()
+    M = S.copy()
+    M[metric_names] = S[metric_names].fillna(med)
+    S["overall_median"] = sum(M[m] * w for m, w in ow.items())
+
     # role indexes
     tabs_ = ["OVERALL"] + [r["slug"].upper() for r in P["roles"]]
     for role in P["roles"]:
@@ -267,6 +276,13 @@ def main(profile_path):
         # absence were read as zero, which is the question a reader asks the
         # moment they see an empty cell.
         S[role["slug"] + "_zero"] = sum(p.fillna(0) for p in parts)
+        mparts = []
+        for m, wt in w.items():
+            v = M[m]
+            if tr.get(m) == "inverse_log_minmax":
+                v = minmax(v, invert=True, log=True)
+            mparts.append(v * wt)
+        S[role["slug"] + "_median"] = sum(mparts)
 
     # grouped by source site so the HTML can span a header over each run,
     # then the role columns, then overall
@@ -275,11 +291,15 @@ def main(profile_path):
     role_cols = [r["slug"] for r in P["roles"]] + ["overall"]
     order = metric_cols + role_cols
     role_label = {r["slug"]: r["name"] for r in P["roles"]} | {"overall": "Overall weighted index"}
+    low = {m for m in metric_cols if P["metrics"][m].get("better") == "low"
+           or any(r.get("transforms", {}).get(m) == "inverse_log_minmax" for r in P["roles"])}
     columns = [{"name": m, "site": P["metrics"][m]["site"], "unit": P["metrics"][m].get("unit", ""),
+                "better": "low" if m in low else "high",
                 "label": P["metrics"][m].get("benchmark") or P["metrics"][m].get("metric")
                          or P["metrics"][m].get("field", m)}
                for m in metric_cols] + \
-              [{"name": c, "site": "index", "unit": "0-100", "label": role_label[c]} for c in role_cols]
+              [{"name": c, "site": "index", "unit": "0-100", "better": "high",
+                "label": role_label[c]} for c in role_cols]
     master = S[order].sort_values("overall", ascending=False).round(2)
     print("\n" + master.to_string())
     head = ["model"] + [c["name"] + (f' ({c["unit"]})' if c["unit"] else "") for c in columns]
@@ -317,6 +337,12 @@ def main(profile_path):
     def fmt(w, tr):
         return " + ".join(f"{wt:g}*{m}" + (f" [{tr[m]}]" if m in tr else "") for m, wt in w.items())
 
+    def origin(site):
+        d = frames.get(site)
+        u = d.source_url.dropna() if d is not None and "source_url" in d else pd.Series(dtype=str)
+        m = re.match(r"(https?://[^/]+)", str(u.iloc[0])) if not u.empty else None
+        return m.group(1) if m else None
+
     def vals(col):
         return {m: None if pd.isna(v) else round(float(v), 4) for m, v in S[col].items()}
 
@@ -342,13 +368,16 @@ def main(profile_path):
                        for name, sp in P["metrics"].items() if name in S},
         "roles": [{"name": "Overall", "slug": "overall", "formula": fmt(ow, {}),
                    "weights": ow, "scores": vals("overall"), "not_scored": missing("overall", ow),
-                   "scores_zero": vals("overall_zero")}]
+                   "scores_zero": vals("overall_zero"), "scores_median": vals("overall_median")}]
                  + [{"name": r["name"], "slug": r["slug"], "formula": fmt(r["weights"], r.get("transforms", {})),
                      "weights": r["weights"], "transforms": r.get("transforms", {}),
                      "scores": vals(r["slug"]), "not_scored": missing(r["slug"], r["weights"]),
-                     "scores_zero": vals(r["slug"] + "_zero")}
+                     "scores_zero": vals(r["slug"] + "_zero"),
+                     "scores_median": vals(r["slug"] + "_median")}
                     for r in P["roles"]],
         "picks": picks,
+        "sites": {s_: u for s_ in P["scoring_sources"] for u in [origin(s_)] if u},
+        "medians": {m: round(float(v), 4) for m, v in med.items() if pd.notna(v)},
         "frontier": [{"model": m, "price": round(float(pareto.loc[m, pm]), 4),
                       "overall": round(float(pareto.loc[m, "overall"]), 2)} for m in on],
     }
@@ -358,14 +387,16 @@ def main(profile_path):
     # than recomputing them, because a number typed twice is a number that
     # eventually disagrees with itself.
     label = {"overall": "Overall", **{r["slug"]: r["name"] for r in P["roles"]}}
-    g = ["| role | best model | cheap alternative |", "|---|---|---|"]
+    formula = {"overall": fmt(ow, {}),
+               **{r["slug"]: fmt(r["weights"], r.get("transforms", {})) for r in P["roles"]}}
+    g = ["| index | weights | best model | cheap alternative |", "|---|---|---|---|"]
     for slug, p in picks.items():
         best = "no model has every input" if not p["best"] else \
             f'{p["best"]["model"]} ({p["best"]["score"]:g})'
         cheap = "none qualifies" if not p["cheap"] else \
             f'{p["cheap"]["model"]} ({p["cheap"]["score"]:g}, {p["cheap"]["points_behind"]:g} behind, ' \
             f'{p["cheap"]["times_cheaper"]:g}x cheaper)'
-        g.append(f"| {label[slug]} | {best} | {cheap} |")
+        g.append(f"| {label[slug]} | {formula[slug]} | {best} | {cheap} |")
     (out / "glance-table.md").write_text("\n".join(g) + "\n", encoding="utf-8")
 
     # price against score. The master table carries both columns already; only
