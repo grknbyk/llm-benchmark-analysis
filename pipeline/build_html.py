@@ -112,8 +112,11 @@ CSS = (
     ".tool{display:block;width:100%;text-align:left;font:inherit;color:inherit;border:1px solid #d3cfc0;background:#F5F3EB;border-radius:3px;padding:10px 12px;margin:8px 0;cursor:pointer;text-decoration:none}"
     ".tool:hover{background:#EFECE1;border-color:#b8b3a1}"
     ".tool .go{float:right;font:11px monospace;color:#8a8478}"
-    "details.tool .go::after{content:\" \25be\"}"
-    "details.tool[open] .go::after{content:\" \25b4\"}"
+    # \\25b8 and \\25be are the CSS escapes for the right and the down triangle.
+    # The backslash has to survive Python first: "\25be" is an octal escape, so
+    # the page received a control character followed by the literal text "be".
+    "details.tool .go::after{content:\" \\25b8\";font-size:14px;vertical-align:-1px}"
+    "details.tool[open] .go::after{content:\" \\25be\"}"
     "details.tool{padding:0}"
     "details.tool>summary{list-style:none;padding:10px 12px;cursor:pointer}"
     "details.tool>summary::-webkit-details-marker{display:none}"
