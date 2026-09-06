@@ -322,7 +322,11 @@ def role_card(role):
 def pair_sections(html, pairs):
     """Put the second named section beside the first, in that order, and take it
     out of its old place. Both keep their own heading, so a reader still has two
-    labelled tables rather than one merged mystery."""
+    labelled tables rather than one merged mystery.
+
+    Only the tables sit in the columns. Whatever follows a table drops below the
+    pair at full width, because prose in one column stretches the row and leaves
+    a hole under the other table."""
     chunks = re.findall(r"<h2>.*?(?=<h2>|$)", html, flags=re.S)
     head = html[:html.index(chunks[0])] if chunks else html
     named = {re.search(r"<h2>(.*?)</h2>", c).group(1): c for c in chunks}
@@ -330,7 +334,14 @@ def pair_sections(html, pairs):
     for a_, b_ in pairs or []:
         if a_ not in named or b_ not in named:
             continue
-        merged = f'<div class="cols even"><div>{named[a_]}</div><div>{named[b_]}</div></div>'
+        heads, tails = [], []
+        for chunk in (named[a_], named[b_]):
+            end = chunk.find("</table>")
+            cut = end + len("</table>") if end >= 0 else len(chunk)
+            heads.append(chunk[:cut])
+            tails.append(chunk[cut:])
+        merged = (f'<div class="cols even"><div>{heads[0]}</div><div>{heads[1]}</div></div>'
+                  + "".join(tails))
         order[order.index(named[a_])] = merged
         order.remove(named[b_])
     return head + "".join(order)

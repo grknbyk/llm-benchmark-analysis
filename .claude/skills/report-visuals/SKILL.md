@@ -72,6 +72,10 @@ are short enough is a property of the report and not of the builder. Both keep
 their own heading. A merged section with one heading hides what the second
 table is.
 
+Only the tables go in the columns. Anything after a table drops below the pair
+at full width, because prose in one column stretches the row to its own height
+and leaves a hole under the shorter table.
+
 ## The interactive charts
 
 No toolbar. Hovering a bar shows that model's metric breakdown with units, which
