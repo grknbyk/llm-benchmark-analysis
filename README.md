@@ -128,8 +128,7 @@ holds the extraction method and the specific trap each site sets.
 
 `main` holds the toolkit and ignores `benchmark-data/` and `reports/`, so a
 clone is small and a pipeline run never pushes scrapes here. Each set of
-reports lives on its own data branch, which tracks those folders and is served
-by GitHub Pages.
+reports lives on its own data branch, which tracks those folders.
 
 That means a fresh clone has nowhere to keep its output yet. Make the data
 branch before the first run:
@@ -143,8 +142,12 @@ git add .gitignore && git commit -m "track scrapes and reports on this branch"
 The data branch keeps one squashed commit, so a run ends with
 `git commit --amend` and a force push rather than a growing history. Scrapes
 are large and there is no reason to keep every day of them in the object store.
-To publish, point GitHub Pages at that branch and `/ (root)`; `index.html` at
-the root lists every report.
+
+Reports are read from disk. Open
+`reports/<date>-<slug>/<slug>-model-shortlist.html` in a browser, or open
+`index.html` at the root, which lists every report that exists. Nothing in this
+pipeline publishes to the web, and there is no GitHub Pages step; if you want
+one, that is your decision to make in the repository settings.
 
 Fix the pipeline on `main`, then cherry-pick onto the data branch. Never force
 push a data branch over `main`.

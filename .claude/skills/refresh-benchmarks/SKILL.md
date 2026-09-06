@@ -393,9 +393,11 @@ python pipeline/build_index.py
 ```
 
 It reads every `reports/*/profile.json` and the `results.json` beside it, so a
-new report appears with its picks the moment it exists. GitHub Pages serves the
-repo root from the data branch; there is no Actions workflow, do not add one
-back without asking.
+new report appears with its picks the moment it exists. It is a local file. This
+pipeline does not publish anywhere: no GitHub Pages step, no Actions workflow,
+and neither gets added back without the user asking for it.
+
+Hand back the file path when the run finishes, not a URL.
 
 A change to `pipeline/` or to this skill belongs on `main` as its own commit.
 Cherry-pick it onto the data branch rather than force-pushing the data branch
