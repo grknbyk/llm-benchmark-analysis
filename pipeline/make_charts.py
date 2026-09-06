@@ -267,8 +267,12 @@ def main(profile_path):
                          key=lambda m: P["scoring_sources"].index(P["metrics"][m]["site"]))
     role_cols = [r["slug"] for r in P["roles"]] + ["overall"]
     order = metric_cols + role_cols
-    columns = [{"name": m, "site": P["metrics"][m]["site"], "unit": P["metrics"][m].get("unit", "")}
-               for m in metric_cols] + [{"name": c, "site": "index", "unit": "0-100"} for c in role_cols]
+    role_label = {r["slug"]: r["name"] for r in P["roles"]} | {"overall": "Overall weighted index"}
+    columns = [{"name": m, "site": P["metrics"][m]["site"], "unit": P["metrics"][m].get("unit", ""),
+                "label": P["metrics"][m].get("benchmark") or P["metrics"][m].get("metric")
+                         or P["metrics"][m].get("field", m)}
+               for m in metric_cols] + \
+              [{"name": c, "site": "index", "unit": "0-100", "label": role_label[c]} for c in role_cols]
     master = S[order].sort_values("overall", ascending=False).round(2)
     print("\n" + master.to_string())
     head = ["model"] + [c["name"] + (f' ({c["unit"]})' if c["unit"] else "") for c in columns]

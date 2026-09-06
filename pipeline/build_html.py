@@ -71,14 +71,18 @@ CSS = (
     "table.wide th{background:none;border:none;height:96px;vertical-align:bottom;padding:0;"
     "position:relative}"
     "table.wide th>span{position:absolute;bottom:6px;left:50%;transform-origin:left bottom;"
-    "transform:rotate(-45deg);white-space:nowrap;font:12px monospace}"
-    "table.wide th:first-child>span{position:static;transform:none}"  # the row label reads flat
+    "transform:rotate(-45deg);white-space:nowrap;font:12px monospace;"
+    "border:1px solid #d3cfc0;background:#F2F0E7;padding:2px 7px;border-radius:2px}"
+    "table.wide th[title]{cursor:help}"
+    "table.wide th:first-child>span{position:static;transform:none;border:none;background:none;padding:0}"  # the row label reads flat
 
     "table.wide td{white-space:nowrap;text-align:right}table.wide td:first-child{text-align:left}"
     "table.wide th:first-child,table.wide td:first-child{position:sticky;left:0;background:#fbfaf6}"
-    "table.wide tr.grp th{height:auto;position:static;padding:0 6px 3px;text-align:center;"
-    "font:11px monospace;color:#6a6a6a;border-bottom:1px solid #c9c5b4;letter-spacing:.04em}"
-    "table.wide tr.grp th:first-child{border-bottom:none}"
+    "table.wide tr.grp th{height:auto;position:static;padding:2px 6px;text-align:center;"
+    "font:11px monospace;color:#4a4a4a;letter-spacing:.04em;border:1px solid #c9c5b4;background:#EFEDE3}"
+    "table.wide tr.grp th:first-child{border:none;background:none}"
+    "table.grouped th.gs,table.grouped tr:not(.grp) td.gs{border-left:2px solid #b8b3a1}"
+    "table.grouped th:last-child,table.grouped tr:not(.grp) td:last-child{border-right:2px solid #b8b3a1}"
 )
 
 
@@ -163,6 +167,25 @@ def group_row(columns):
     return '<tr class="grp">' + "".join(cells) + "</tr>"
 
 
+def mark_groups(block, columns):
+    """Tag the first cell of each site run so the CSS can draw one rule down the
+    whole table. A colspan label alone leaves a reader counting columns to work
+    out where artificial-analysis stops and vals-ai starts."""
+    starts, site = set(), None
+    for i, c in enumerate(columns, start=1):   # 0 is the model column
+        if c["site"] != site:
+            starts.add(i)
+            site = c["site"]
+
+    def row(m):
+        cells = re.split(r"(?=<t[dh])", m.group(0))
+        out = [c if i - 1 not in starts else re.sub(r"^<(t[dh])", r'<\1 class="gs"', c, count=1)
+               for i, c in enumerate(cells)]
+        return "".join(out)
+
+    return re.sub(r"<tr>.*?</tr>", row, block, flags=re.S)
+
+
 def rotate_wide(html, columns=None):
     """A table past WIDE_AT columns is unreadable with flat headers, so rotate
     them. The header text moves into a span because a rotated th collapses the
@@ -173,14 +196,28 @@ def rotate_wide(html, columns=None):
         ths = TH.findall(head)
         if len(ths) <= WIDE_AT:
             return block
-        new = block.replace("<table>", '<table class="wide">', 1)
-        head_new = TH.sub(lambda t: f"<th><span>{t.group(1).strip()}</span></th>",
-                          new.split("</thead>")[0])
+        aligned = bool(columns) and len(columns) == len(ths) - 1
+        new = block.replace("<table>", '<table class="wide grouped">' if aligned
+                            else '<table class="wide">', 1)
+
+        # the header keeps the short code; the full benchmark name goes on hover,
+        # because sixteen full names do not fit across one screen
+        seq = iter(range(len(ths)))
+
+        def head_cell(t):
+            i = next(seq)
+            label = columns[i - 1].get("label") if aligned and i else None
+            title = f' title="{label}"' if label and label != t.group(1).strip() else ""
+            return f"<th{title}><span>{t.group(1).strip()}</span></th>"
+
+        head_new = TH.sub(head_cell, new.split("</thead>")[0])
         # only when the column count lines up, so a second wide table in the
         # report cannot pick up the master table's grouping by accident
-        if columns and len(columns) == len(ths) - 1:
+        if aligned:
             head_new = head_new.replace("<thead>", "<thead>\n" + group_row(columns), 1)
         new = head_new + "</thead>" + new.split("</thead>", 1)[1]
+        if aligned:
+            new = mark_groups(new, columns)
         return f'<div class="scroll">{new}</div>'
     return TABLE.sub(fix, html)
 
@@ -200,7 +237,7 @@ def main(profile_path):
     body = rotate_wide(body, columns)
     dst.write_text(f'<!doctype html><meta charset=utf-8><title>{P["title"]}</title>'
                    f"<style>{CSS}</style>{body}", encoding="utf-8")
-    print("wrote", dst.name, "tooltips:", body.count("<abbr"), "wide tables:", body.count('class="wide"'))
+    print("wrote", dst.name, "tooltips:", body.count("<abbr"), "wide tables:", body.count('class="wide'))
 
 
 if __name__ == "__main__":

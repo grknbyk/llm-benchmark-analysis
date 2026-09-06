@@ -60,7 +60,16 @@ Sixteen columns of numbers is only readable with help:
 - **Keep the model column flat and sticky.** It is the row label; a reader
   scrolling right must keep it.
 - **Group the columns by source site** with a spanning row above the headers, so
-  a reader can see which leaderboard a number came from.
+  a reader can see which leaderboard a number came from. A label alone is not
+  enough: box the group cell and run a rule down the first column of every
+  group, all the way through the body. Without the rule a reader counts columns
+  to find where one site stops and the next starts, and gives up.
+- **Box the rotated labels too.** A tilted line of text with nothing around it
+  reads as floating; a bordered chip belongs to the column under it.
+- **Short codes in the header, the full name on hover.** Sixteen full benchmark
+  names do not fit across a screen, so the header carries `code_mig` and the
+  `title` attribute carries `Code Migration`. The engine writes that long form
+  into `results.json` as `columns[].label`, so the HTML never invents it.
 - **Units in the header**, `$/1M`, `s`, `%`, `$/task`. A column of bare numbers
   that turn out to be seconds costs more than it gives.
 - **Leave missing cells empty.** Not a dash, not a zero. Empty reads as absent,
