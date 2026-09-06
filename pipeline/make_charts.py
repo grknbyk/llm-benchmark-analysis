@@ -152,10 +152,13 @@ def plotly_bars(labels, values, hover, ytitle):
         textfont=dict(family=MONO, size=11), customdata=hover,
         hovertemplate="%{x}<br>%{customdata}<extra></extra>"))
     fig.update_layout(
-        paper_bgcolor=BG, plot_bgcolor=BG, height=460, margin=dict(l=50, r=20, t=20, b=40),
+        paper_bgcolor=BG, plot_bgcolor=BG, height=460, margin=dict(l=50, r=20, t=20, b=10),
         font=dict(family=MONO, size=11, color=INK),
         hoverlabel=dict(font=dict(family=MONO, size=12), bgcolor="white"))
-    fig.update_xaxes(tickangle=-35, tickfont=dict(size=10), showgrid=True, gridcolor="#c8c8c8", griddash="dot")
+    # rotated model names need room, and plotly measures them better than a
+    # guessed bottom margin does
+    fig.update_xaxes(tickangle=-35, tickfont=dict(size=10), automargin=True,
+                     showgrid=True, gridcolor="#c8c8c8", griddash="dot")
     fig.update_yaxes(title=ytitle, showgrid=True, gridcolor="#c8c8c8", griddash="dot")
     return fig
 

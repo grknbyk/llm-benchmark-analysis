@@ -84,6 +84,9 @@ CSS = (
     ".cols>div:first-child{max-width:540px}.card{overflow-wrap:anywhere}"
     ".cols.even{grid-template-columns:1fr 1fr}.cols.even>div:first-child{max-width:none}"
     ".cols.even h2{margin-top:0}.cols.even table{width:100%}"
+    ".cols.even .charts{margin:0}"
+    "h2 .wt{font:400 15px/1.4 monospace;color:#8a8478;white-space:nowrap}"
+    ".cols table td:first-child{max-width:210px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:help}"
     ".cols>div>table{margin-top:0}.cols>div>p:first-child{margin-top:0}"
     ".card{border:1px solid #d3cfc0;background:#F5F3EB;padding:10px 12px;margin-top:14px;font:12px monospace;color:#3a3a3a;line-height:1.55}"
     ".card b{display:block;font:11px monospace;color:#6a6a6a;letter-spacing:.04em;text-transform:uppercase;margin-bottom:3px}"
@@ -135,11 +138,15 @@ CSS = (
     ".tool{display:block;width:100%;text-align:left;font:inherit;color:inherit;border:1px solid #d3cfc0;background:#F5F3EB;border-radius:3px;padding:10px 12px;margin:8px 0;cursor:pointer;text-decoration:none}"
     ".tool:hover{background:#EFECE1;border-color:#b8b3a1}"
     ".tool .go{float:right;font:11px monospace;color:#8a8478}"
-    "dialog.tool-d{max-width:640px;border:1px solid #b8b3a1;border-radius:3px;background:#fbfaf6;color:#1a1a1a;padding:20px 22px;font:15px/1.6 Georgia,serif}"
-    "dialog.tool-d::backdrop{background:rgba(26,26,26,.35)}"
-    "dialog.tool-d a{color:#A8452F}"
-    "dialog.tool-d .row{margin-top:16px;display:flex;gap:10px;align-items:center}"
-    "dialog.tool-d button{font:12px monospace;cursor:pointer;border:1px solid #b0aa99;background:#fff;border-radius:2px;padding:5px 10px}"
+    "details.tool .go::after{content:\" \25be\"}"
+    "details.tool[open] .go::after{content:\" \25b4\"}"
+    "details.tool{padding:0}"
+    "details.tool>summary{list-style:none;padding:10px 12px;cursor:pointer}"
+    "details.tool>summary::-webkit-details-marker{display:none}"
+    "details.tool[open]>summary{border-bottom:1px solid #ded9c9}"
+    ".tool-body{padding:10px 12px 12px;background:#fdfcf8}"
+    ".tool-body p{margin:0}.go-link{margin-top:10px !important;font:12px monospace}"
+    ".go-link a{color:#A8452F}"
 )
 
 
@@ -467,8 +474,6 @@ URL = re.compile(r"<code>((?:https?://)?[a-z0-9][a-z0-9.-]*\.[a-z]{2,}[^<\s]*)</
 def tool_cards(body):
     """Any paragraph opening with a [TAG] is a tooling entry, whatever the
     report's language calls that section."""
-    dialogs = []
-
     def card(m):
         chunk = m.group(1)
         u = URL.search(chunk)
@@ -477,39 +482,34 @@ def tool_cards(body):
             href = u.group(1)
             if not href.startswith("http"):
                 href = "https://" + href
-        # the visible line is the name, the provenance and the date. Everything
-        # past them is detail worth a click, not worth a paragraph.
-        segs = re.split(r"\s*(?:&middot;|\u00b7)\s*", chunk)
+
         def short_seg(x):
             # a provenance or a date is short; a sentence is detail
             return "<code>" not in x and len(re.sub(r"<[^>]+>", "", x)) <= 46
 
+        # the visible line is the name, the provenance and the date. Everything
+        # past them is detail worth a click, not worth a paragraph.
+        segs = re.split(r"\s*(?:&middot;|\u00b7)\s*", chunk)
         head = " &middot; ".join([segs[0]] + [x for x in segs[1:3] if short_seg(x)]).strip()
         rest = [x for x in segs[1:] if "&middot; " + x not in head and x != segs[0]]
         tail = re.sub(r"<[^>]+>", "", " ".join(rest)).strip()
         if href and not tail:
             return (f'<a class="tool" href="{href}" target="_blank" rel="noopener">'
                     f'<span class="go">open &rarr;</span>{head}</a>')
-        k = f"tool{len(dialogs) + 1}"
-        link = (f'<a href="{href}" target="_blank" rel="noopener">{u.group(1)}</a>'
-                if href else "")
-        dialogs.append(
-            f'<dialog class="tool-d" id="{k}"><div>{chunk}</div><div class="row">'
-            f'{link}<form method="dialog"><button>close</button></form></div></dialog>')
-        return (f'<button class="tool" data-tool="{k}">'
-                f'<span class="go">details &rarr;</span>{head}</button>')
+        link = (f'<p class="go-link"><a href="{href}" target="_blank" rel="noopener">'
+                f'{u.group(1)}</a></p>' if href else "")
+        # the open panel carries what the summary left out, not the whole entry
+        body_ = " &middot; ".join(rest) or chunk
+        return (f'<details class="tool"><summary><span class="go">details</span>{head}'
+                f'</summary><div class="tool-body"><p>{body_}</p>{link}</div></details>')
 
-    body = TOOL_P.sub(card, body)
-    return body + "".join(dialogs)
+    return TOOL_P.sub(card, body)
 
 
-TOOL_JS = """<script>
-document.querySelectorAll('[data-tool]').forEach(b =>
-  b.onclick = () => document.getElementById(b.dataset.tool).showModal());
-document.querySelectorAll('dialog.tool-d').forEach(d =>
-  d.addEventListener('click', e => { if (e.target === d) d.close(); }));
+NAME_JS = """<script>
+document.querySelectorAll('.cols table td:first-child').forEach(td =>
+  td.title = td.textContent.trim());
 </script>"""
-
 
 def contents(body):
     """Anchor every section and list them down the left margin.
@@ -607,10 +607,12 @@ def main(profile_path):
     body = side_by_side(rotate_wide(body, columns, roles, data.get("medians"), data.get("sites"), T), roles,
                         skip={n for pair in pairs for n in pair} | set(P.get("full_width", [])))
     body = pair_sections(body, pairs)
+    body = re.sub(r"<h2>([^<(]+?) (\([^<]*\))</h2>",
+                  r'<h2>\1 <span class="wt">\2</span></h2>', body)
     body = tool_cards(body)
     body, nav = contents(body)
     script = ((JS if 'name="fill"' in body else "") + (TOC_JS if nav else "")
-              + (TOOL_JS if "data-tool=" in body else ""))
+              + (NAME_JS if '<div class="cols' in body else ""))
     dst.write_text(f'<!doctype html><html lang="{P.get("language", "en")}">'
                    f'<meta charset=utf-8><title>{P["title"]}</title>'
                    f"<style>{CSS}</style>{nav}{body}{script}", encoding="utf-8")
