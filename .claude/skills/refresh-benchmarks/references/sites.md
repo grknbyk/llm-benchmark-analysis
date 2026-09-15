@@ -129,6 +129,15 @@ on 2026-09-06; keep the extras in `raw.json` only and say so.
 The 23-column per-subtask CSV stays verbatim in `raw.json` and is not expanded
 into `normalized.json`.
 
+Model names here reorder the vendor's own words. Artificial Analysis writes
+`Claude Opus 5 (Max)`; LiveBench writes `Claude 5 Opus Thinking Max Effort`.
+Stripping effort words leaves `claudeopus5` against `claude5opusthinking`, which
+are different join keys, so the two never match and the model silently vanishes
+from any index fed from here. Several models exist only in an effort-suffixed
+form with no bare row at all. That is survivable while this site is provenance;
+promote it to a scoring source and the join table has to be read line by line
+first.
+
 ## lmarena
 
 `https://arena.ai/leaderboard/...`, 124 leaderboards across 12 arenas.
@@ -203,8 +212,16 @@ old ones, not real movement. Check score deltas before reporting a change.
 The site has had display bugs of its own, such as a model name serialized as
 the boolean `true`. Report the fix rather than silently absorbing it.
 
-No model in this report's shortlist has ever appeared here. It is provenance,
-not a source of numbers.
+This file used to claim no shortlist model had ever appeared here. That was
+wrong, and it was wrong for long enough to reach an agent prompt. On 2026-09-15
+the verified leaderboard carried Claude Fable 5.1 (Max) at 99.0 on ARC-AGI-1
+rank 1, Claude Opus 5 (High) at 99.0 rank 1, GPT-6 Astra (Max) at 97.75, and
+Grok 4.6 (XHigh) at 96.25.
+
+It stays provenance for a reason of fit, not absence: ARC-AGI scores abstract
+visual pattern induction, and no ERP or APEX role is that work. Check what a
+site measures before deciding it is irrelevant, and never write "never appeared"
+when the honest sentence is "appears, and does not fit".
 
 ## epoch-ai
 

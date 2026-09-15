@@ -322,7 +322,12 @@ has one; probe for it before writing a DOM walker.
 Three consequences worth stating plainly:
 
 - **Never print rows into the transcript and then write them.** If you can read
-  a number, you can mistype it, and nothing downstream will catch it.
+  a number, you can mistype it, and nothing downstream will catch it. On a large
+  result the cost is not only accuracy: on 2026-09-15 an agent returned about
+  26,000 rows inline instead of through `filePath`, which killed the
+  chrome-devtools connection and destroyed every open tab in the shared browser,
+  for all ten agents at once. `filePath` is the only safe path for a bulk
+  result, and the bigger the payload the less optional it is.
 - **A screenshot is not a source.** Reading values off an image is the same
   error with an extra step.
 - **Check the file on disk after every save.** A guard that throws leaves no
@@ -346,6 +351,13 @@ one global "selected page" pointer.
   `location.href` inside the script. Issue `select_page` and `evaluate_script` as
   two tool calls in the same turn; split across turns, another agent wins the
   pointer in between.
+- `navigate_page` takes no page id either, so it drives whatever page is
+  selected globally. Pair it with `select_page` in the same turn exactly as you
+  pair `evaluate_script`. On 2026-09-15 a bare `navigate_page` sent another
+  agent's tab to this agent's data route mid-scrape. It was caught with
+  `list_pages` and reversed, but nothing in the tool result announces it: the
+  navigation succeeds, and the other agent's next script runs on the wrong page
+  and passes its own href guard only if that guard was written loosely.
 - Compare the hostname exactly, never with `includes`. A guard written as
   `hostname.includes('arena.ai')` also passes on `www.designarena.ai`, which is
   how one site's data ends up in another site's folder.
